@@ -1,0 +1,90 @@
+
+<html> 
+<head> 
+  <title>JavaScript串口测试</title> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+	<p>MSCOMM32 test</p>
+
+	<P>
+		<input type="button" onclick="OpenPort()" value="发送" />
+	</P>
+	<OBJECT id="MSComm1" CLASSID="clsid:648A5600-2C6E-101B-82B6-000000000014" 
+	codebase="mscomm32.ocx" type="application/x-oleobject"  style="LEFT:54px;TOP:14px" > 
+      <PARAM   NAME="CommPort"   VALUE="1"/> 
+     <PARAM   NAME="DataBits"   VALUE="8"/> 
+     <PARAM   NAME="StopBits"   VALUE="1"/> 
+     <PARAM   NAME="BaudRate"   VALUE="9600"/> 
+     <PARAM   NAME="Settings"   VALUE="9600,N,8,1"/>     
+
+     <PARAM   NAME="RTSEnable"   VALUE="1"/> 
+     <PARAM   NAME="DTREnable"   VALUE="1"/> 
+     <PARAM   NAME="Handshaking"   VALUE="0"/> 
+     <PARAM   NAME="NullDiscard"   VALUE="0"/> 
+     <PARAM   NAME="ParityReplace"   VALUE="?"/> 
+
+     <PARAM   NAME="EOFEnable"   VALUE="0"/>       
+     <PARAM   NAME="InputMode"   VALUE="0"/>    
+     <PARAM   NAME="InBufferSize"   VALUE="1024"/>       
+     <PARAM   NAME="InputLen"   VALUE="0"/>     
+     <PARAM   NAME="OutBufferSize"   VALUE="512"/> 
+    
+     <PARAM   NAME="SThreshold"   VALUE="0"/> 
+     <PARAM   NAME="RThreshold"   VALUE="1"/> 
+
+</OBJECT> 
+
+
+<SCRIPT   ID=clientEventHandlersJS   LANGUAGE=javascript>   
+  <!--   
+  //重写mscomm控件的唯一事件处理代码   
+  function   MSComm1_OnComm()     
+  {   
+    var   len=0; 
+     //window.alert("happy");  
+    if(MSComm1.CommEvent==1)//如果是发送事件   
+  {   
+        window.alert("ok");//这句正常，说明发送成功了   
+  }   
+    else   if(MSComm1.CommEvent==2)//如果是接收事件   
+    {   
+   		console.log(MSComm1.CommEvent);//！   ‘
+   		console.log(MSComm1.Input);//
+    }   
+  
+  return   false;   
+ }   
+ //-->   
+  </SCRIPT>  
+   
+  <SCRIPT   LANGUAGE=javascript   FOR=MSComm1   EVENT=OnComm>   
+  <!--  
+  // MSComm1控件每遇到OnComm事件就调用MSComm1_OnComm()函数
+          MSComm1_OnComm()
+   //-->   
+  </SCRIPT>   
+  
+  
+  <script   language="JavaScript"   type="text/JavaScript">   
+	  <!-- 
+	  //打开端口并发送命令程序    
+	  function OpenPort(){
+	  	console.log(MSComm1 +"\n"+MSComm1.PortOpen);
+	  	if(MSComm1.PortOpen == null || MSComm1.PortOpen == undefined){
+	  		
+	  		return 0;
+	  	}
+	    if(MSComm1.PortOpen==false){   
+	   		MSComm1.PortOpen=true;   
+	   		console.log("打开端口");
+	      MSComm1.Output="R";//发送命令
+	  	}else{   
+	   		console.log("已经开始接收数据!");
+	    }
+	  }   
+	  -->   
+  </script>   
+
+</body>
+</html> 
