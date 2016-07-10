@@ -15,6 +15,7 @@ MySQL 被设计为一个单进程多线程架构的数据库。
 ******************************
 ##1.2 MySQL 体系结构
 ![mysql achitecteur](/img/mysql-achitecture.jpg "Title")
+
 MySQL由以下几部分组成：
 
 * 连接池组件
