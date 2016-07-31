@@ -24,17 +24,25 @@ sharp checkpoint 发生在数据库关闭时将所有的脏页刷新到磁盘；
 * Asy/Sync Flush Checkpoint
  当重做日志不可用时，需强制将一些页刷新回磁盘，而此时脏页是从脏页列表中选取的。
 	redo_lsn = 已经写入到LSN
+
 	checkpoint_lsn = 已经刷新回磁盘最新页
+	
  so checkpoint_age = redo_lsn - checkpoint_lsn	
+ 
 	async_water_mark = 75% * total_redo_log_file_size
+	
 	sync_water_mark = 90% * total_redo_log_file_size
+	
  total_redo_log_file_size是所有重做日志大小的总和
 
  当checkpoint_age < async_water_mark 时，不需要刷新任何脏页到磁盘
+ 
  当async_water_mark < checkpoint_age < sync_water_mark时触发Async Flush,从Flush列表中刷新出足够的页回磁盘，使得checkpoint_age < async_water_mark
+ 
  当checkpoint_age >  sync_water_mark时触发Sync Flush,从Flush列表刷新出足够的页回磁盘，使得checkpoint_age < async_water_mark,这种情况很少发生。
 
  可以通过命令show engine innodb status来观察刷新情况
+ 
 		Async_Flush:0 Sync Flush:0 LRU List Flush:0,Flush List Flush:111736
 * Dirty Page too much
  脏页数量太多，存储引擎强制执行checkpoint,保证缓冲池中有足够可用的页；可由变量innodb_max_dirty_page_pct控制
