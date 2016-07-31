@@ -7,7 +7,7 @@ Master Thread有最高的线程优先级别，其内部由多个循环组成：
 * 刷新循环（flush loop）
 * 暂停循环（suspend loop）
 Master Thread会根据数据库的运行状态在这个循环进行切换。
-####主循环
+**主循环**
 其中有两大部分操作-每秒钟和每10秒钟的操作。
 
 loop循环通过thread sleep来实现，这意味着每秒钟和每10秒钟的操作是不精确的，在负载很大的情况下会有延迟。
@@ -32,14 +32,15 @@ loop循环通过thread sleep来实现，这意味着每秒钟和每10秒钟的�
 	对表进行update delete操作时，原先的行标记被删除，但是因为一致性读的关系，需要保留这些行版本信息。但是在full purge过程中， InnodB存储引擎会判断当前事务系统中已被删除的行是否可以删除，比如有时候有可能有查询操作需要读取之前版本的undo信息，如果可以删除，InnoDB会立即将其删除。从源码可以看出，每次最多尝试回收20个undo页
 + 刷新100个或者10个脏页到磁盘（总是）
 	 InnodB存储引擎判断缓冲池中的脏页比例，如果超过70%，刷新100个脏页到磁盘，如果小于70%，刷新10个到磁盘
-####background loop
+**background loop**
 若当前没有用户活动时（数据库空闲）或数据库关闭，就会切换到这个循环，会执行一下操作：
 * 删除无用undo页（总是）
 * 合并20个插入缓冲（总是）
 * 跳回到主循环（总是）
 * 不断刷新100个页直到符合条件（可能，跳转到flush loop中完成）
 若flush loop中也没什么事情可做，回切换到suspend loop，将master thread挂起，等待事情发生。若用户启用了innodb存储引擎，却没有使用任何InnoDB存储引擎的表，那么master thread 总是处于挂起状态
-###2.5.1 1.2.x版本之前的Master Thread
+
+###2.5.2 1.2.x版本之前的Master Thread
 在了解了之前的masterthread实现过程后，我们会发现InnoDB存储引擎对IO其实是有限制的，InnoDB存储引擎最大只会刷新100个脏页到磁盘，合并20个插入缓冲.
 为此，InnodB Plugin提供了innodb_io_capacity参数，用来表示磁盘吞吐量，默认200。对于刷新到磁盘页的数量，会按照innodb_io_capacity的值的百分比来控制：
 + 在合并插入缓冲时，合并插入缓冲的数量是innodb_io_capacity值的5%
@@ -51,7 +52,7 @@ loop循环通过thread sleep来实现，这意味着每秒钟和每10秒钟的�
 
 另个改变是：之前每次进行full purge操作时，最多回收20个undo页，1.0.x开始引入了参数innodb_purge_batch_size,该参数可以控制每次purge回收的undo页数量。默认20。
 
-###2.5.1 1.2.x版本的Master Thread
+###2.5.3 1.2.x版本的Master Thread
 1.2.x版本再次对master thread进行了优化，<一段伪代码，两个函数:svr_master_do_idle_tasks() 十秒操作 svr_master_do_active() 每秒操作>,[吐槽：跟没说一样]
 
 对于刷新脏页操作，从Master thread线程分离到一个单独的Page Cleaner Thread,减轻了Master Thread的工作，提高了系统的并发性。
