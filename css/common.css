@@ -1,0 +1,7 @@
+.bg-gray{
+	background-color: #DDDDDD;
+	border: solid 1px #DDDDDD;
+	border-radius: 3px;
+	display: inline-block;
+	padding: 10px;
+}
