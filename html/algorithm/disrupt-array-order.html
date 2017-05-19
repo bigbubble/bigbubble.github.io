@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="../../js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="../../js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="../../js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="../../css/common.css">
+	<title>打乱数组排列顺序</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="../../mainpage.html">Home</a></li>
+					<li><a href="#">Algorithm</a></li>
+					<li class="active">Article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>打乱数组排列顺序</h3>
+					<small>2017-05-19</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>随机显示首页内的链接</em></p>
+				</div>
+				<div class="centent">
+					<p>已存在一个数组 allLinks,随机显示其内容，可限定数量</p>
+					<p>先计算出随机下标数组</p>
+					<section class="code-section">
+						<pre class="brush: js">
+							var indxArr = notRepeatedRandomInt(0,allLinks.length-1,100);
+						</pre>
+					</section>
+					<p>按下标数组取出值</p>
+					<section class="code-section">
+						<pre class="brush: js">
+							for(var i = 0; i < indxArr.length; i ++){
+								var link = allLinks[indxArr[i]];
+								//render html
+							}
+						</pre>
+					</section>
+					<p>JAVASCRIPT 产生从[start,end]内不重复的随机整数</p>
+					<section class="code-section">
+						<pre class="brush: js">
+							/**
+							 * 产生从[start,end]内不重复的随机整数
+							 */
+							function notRepeatedRandomInt(start, end, count){
+								var randomArr = [];
+
+								start = parseInt(start);
+								end = parseInt(end);
+
+								if(isNaN(start) || isNaN(end) || start &gt; end || isNaN(count) || count &lt;= 0){
+									return randomArr
+								}
+
+								for(var i = start; i &lt;= end; i ++){
+									randomArr.push(i);
+								}
+								var length = end - start + 1;
+								for(var i = 0; i &lt; length; i ++){
+									var randomInt = Math.floor(Math.random() * length);
+									if(randomInt != i){
+										var temp = randomArr[i];
+										randomArr[i] = randomArr[randomInt];
+										randomArr[randomInt] = temp;
+									}
+								}
+								if(length &lt;= count || count &lt;= 0){
+									return randomArr;
+								}else{
+									return randomArr.slice(0, count);
+								}
+							}
+						</pre>
+					</section>
+					<p>JAVA 打乱数组顺序</p>
+					<section class="code-section">
+						<pre class="brush: java">
+						/**
+						 * 打乱数组顺序,交换法
+						 * @param a
+						 * @return
+						 */
+						public static int[] randomIntArray(int[] a){
+						    int length = a.length;
+						    int b[] = new int[length];
+						    System.arraycopy(a,0,b,0,10);
+
+						    Random random = new Random();
+						    for(int i=0; i&lt;length; i++){
+						        int randomInt = random.nextInt(length);
+						        if(randomInt != i){
+						            int temp = b[i];
+						            b[i] = b[randomInt];
+						            b[randomInt] = temp;
+						        }
+						    }
+						    return b;
+						}							
+						</pre>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center"><em>The world is so interesting</em></div>
+	</div>
+	<script type="text/javascript" src="../../js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="../../js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../../js/syntaxhighlighter/syntaxhighlighter.js"></script>
+</body>
+</html>

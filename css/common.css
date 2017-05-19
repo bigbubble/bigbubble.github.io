@@ -1,7 +1,36 @@
+::selection{color:#fff;background:#48abb5;}
+::-moz-selection{color:#fff;background:#48abb5;}
+::-webkit-selection{color:#fff;background:#48abb5;}
+body{
+	font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "WenQuanYi Micro Hei", "Microsoft Yahei", sans-serif
+}
 .bg-gray{
 	background-color: #DDDDDD;
 	border: solid 1px #DDDDDD;
 	border-radius: 3px;
 	display: inline-block;
 	padding: 10px;
+}
+.centent{
+	margin-top: 10px;
+	margin-bottom:10px;
+}
+.code-section{
+	padding: 5px
+}
+
+.link{
+	display: inline-block;
+	margin: 5px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 3px;#4f9fcf
+	font-size: 14px;
+	color: #4f9fcf;
+}
+.link:hover{
+	text-decoration: none;
+}
+#aLinks{
+	margin: 20px;
 }
