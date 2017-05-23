@@ -1,8 +1,8 @@
 //目录
 var catalog={
-	"funny things":[
-		{"title":"aaa","href":"#"},
-		{"title":"bbb","href":"#"}
+	"read":[
+		{"title":"历代经济变革得失","href":"html/read/"},
+		{"title":"计算机是如何启动的？","href":"html/read/how-computer-bootup.html"}
 		],
 	"algorithm":[
 		{"title":"存储大量文件，让每个文件夹下的文件或文件夹数量不大于1024","href":"html/algorithm/store-files-in-file-sytem-less-than-1024-each.html"},
