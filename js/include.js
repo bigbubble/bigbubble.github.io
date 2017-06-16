@@ -1,7 +1,6 @@
 //目录
 var catalog={
 	"read":[
-		{"title":"历代经济变革得失","href":"html/read/"},
 		{"title":"计算机是如何启动的？","href":"html/read/how-computer-bootup.html"}
 		],
 	"algorithm":[
