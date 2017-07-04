@@ -5,7 +5,8 @@ var catalog={
 		],
 	"algorithm":[
 		{"title":"存储大量文件，让每个文件夹下的文件或文件夹数量不大于1024","href":"html/algorithm/store-files-in-file-sytem-less-than-1024-each.html"},
-		{"title":"打乱数组排列顺序","href":"html/algorithm/disrupt-array-order.html"}
+		{"title":"打乱数组排列顺序","href":"html/algorithm/disrupt-array-order.html"},
+		{"title":"两个大数组A，B,分别分成小数组，使A中小数组数量与B中小数组数量的乘积小于一个值","href":"html/algorithm/divide-two-arrays-by-condition.html"}
 	]
 }
 var colors = ["btn-primary","btn-success","btn-info","btn-warning","btn-danger"];
