@@ -37,7 +37,7 @@
 				</div>
 				<div class="bg-gray">
 					<p><em>
-					List A ,B A.size * b.size is very large number, the Mysql is very slow,we need to divide A and B into many smaller arrays (A1,A2...Am,B1,B2,...Bn) to query result;
+					List A ,B A.size * b.size is very large number, the Mysql query operation is very slow,we need to divide A and B into many smaller arrays (A1,A2...Am,B1,B2,...Bn) for query;
 					now we define a number Treshold = 5000, make sure that Am.size * Bn.size <= Treshold;
 					sql:select * from table t where t.a in(Am) and t.b in (Bn)
 					how can we set the value each small array's volumn?
@@ -47,11 +47,86 @@
 					<p></p>
 					<p></p>
 					<section class="code-section">
-						<pre class="brush: java">
-							
+						<pre class="brush:java">
+							/**
+						     * 获取分组
+						     * @param a
+						     * @param b
+						     * @param threshold
+						     * @return
+						     */
+						    public static long[] getBestGroupAndMatch(long a, long b, int threshold) {
+						        //循环总次数
+						        long c = a * b;
+						        //按threshold条件需要最少分多少组
+						        long d = c % threshold == 0 ? c / threshold : c / threshold + 1;
+
+						        long[] r = new long[]{0,0,-1,-1,Integer.MAX_VALUE,d};
+						        //如果最少组个数无法找到合适的分组策略，将分组数增加直到找到为止
+						        while(r[4] > threshold){
+						            r = groupAndMatch(a,b,d, threshold);
+						            d ++;
+						        }
+						        System.out.println("Am长度："+r[0] +"\nBn长度："+r[1] +"\nA分组数：" +r[2]+"\nB分组数："+r[3]+"\nAm*Bn长度:"+r[4]+"\nSQL需要执行多少次:"+r[5]);
+						        return r;
+						    }
 						</pre>
 					</section>
-					
+					<section class="code-section">
+						<pre class="brush:java">
+							/**
+						     * @param a 数组a
+						     * @param b 数组b
+						     * @param d 总循环次数
+						     * @return 0 a组内个数， 1 b组内个数， 2 a 分组数， 3 b 分组数， 4 当前分组最大是否小于threshold，5 a分组数*b分组数，
+						     */
+						    public static long[] groupAndMatch(long a, long b, long d, int threshold){
+						        //返回值
+						        long min = Long.MAX_VALUE;  //乘积值
+						        long m= 0; // a组内个数
+						        long n=0;  // b组内个数
+						        long x = -1,y=-1; //x - a分组数 y - b分组数
+
+						        double e =Math.sqrt(d);
+						        List<long[]> keyVal = new ArrayList<>();
+						        for(int i = 1; i <= e; i ++){
+						            if(d % i == 0){
+						                long f = d / i;
+						                if( (a >= i && b >= f) || (b >= i && a >= f)){
+						                    keyVal.add(new long[]{i, d / i});
+						                }
+						            }
+						        }
+						        //是否调换了分组位置
+						        boolean flag = false;
+						        for(long[] arr : keyVal){
+						            long m1 = 0;long n1=0;
+						            if(a >= arr[0]  && b >= arr[1]){
+						                m1 = a % arr[0] == 0 ? a / arr[0] : a /arr[0] + 1;
+						                n1 = b % arr[1] == 0 ? b /arr[1] : b / arr[1] + 1;
+						            }else{
+						                m1 = a % arr[1] == 0 ? a / arr[1] : a /arr[1] + 1;
+						                n1 = b % arr[0] == 0 ? b /arr[0] : b / arr[0] + 1;
+						                flag = true;
+						            }
+
+						            long p = m1*n1;
+						            if(p < min && p <= threshold){
+						                min = p;
+						                m = m1;n = n1;
+						                if(flag){
+						                    x=arr[1];y=arr[0];
+						                }else{
+						                    x=arr[0];y=arr[1];
+						                }
+						            }
+						        }
+
+						        return new long[]{m,n,x,y,min,d};
+
+						    }
+						</pre>
+					</section>
 				</div>
 			</div>
 		</div>
