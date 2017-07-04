@@ -37,10 +37,9 @@
 				</div>
 				<div class="bg-gray">
 					<p><em>
-					List A ,B A.size * b.size is very large number, the Mysql query operation is very slow,we need to divide A and B into many smaller arrays (A1,A2...Am,B1,B2,...Bn) for query;
-					now we define a number Treshold = 5000, make sure that Am.size * Bn.size <= Treshold;
-					sql:select * from table t where t.a in(Am) and t.b in (Bn)
-					how can we set the value each small array's volumn?
+					Array A ,B A.length * b.length is very large number, the Mysql query operation is slow,we need to divide A and B into many smaller arrays (A1,A2...Am...;B1,B2,...Bn...), to run sql <strong>select * from table t where t.a in(Am) and t.b in (Bn)</strong>
+					now we define a number Treshold = 5000, make sure that Am.length * Bn.length <= Treshold;
+					calculate the volumns of Am and Bn. 
 					</em></p>
 				</div>
 				<div class="centent">
