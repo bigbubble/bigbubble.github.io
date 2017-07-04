@@ -61,7 +61,7 @@
 						        //按threshold条件需要最少分多少组
 						        long d = c % threshold == 0 ? c / threshold : c / threshold + 1;
 
-						        long[] r = new long[]{0,0,-1,-1,Integer.MAX_VALUE,d};
+						        long[] r = new long[]{0,0,-1,-1,Long.MAX_VALUE,d};
 						        //如果最少组个数无法找到合适的分组策略，将分组数增加直到找到为止
 						        while(r[4] > threshold){
 						            r = groupAndMatch(a,b,d, threshold);
