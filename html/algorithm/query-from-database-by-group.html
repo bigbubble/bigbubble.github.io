@@ -142,7 +142,8 @@
 					<p>3.分页结果集获取</p>
 					<p>3.1 根据原始分页查询条件计算出数据所处的位置</p>
 					<p>start = (page-1)*pageSize<br/>end = page*pageSize</p>
-					<p>找到start,end 带入计算第一次小于totalArr中值的下标i，并计算start-totalArr[i]和totalArr[i]-start</p>
+					<p>找到start,带入计算第一次小于totalArr中值的下标i，并计算start-totalArr[i]和totalArr[i]-start</p>
+					<p>找到end,带入计算第一次小于totalArr中值的下标i，并计算end-totalArr[i]和totalArr[i]-end</p>
 					<section class="code-section">
 						<pre class="brush: java">
 							/**
