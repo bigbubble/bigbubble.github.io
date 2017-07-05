@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title></title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Algorithm</a></li>
+					<li class="active">Article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>SQL:查询条件有两个in,分组拼接查询,分页</h3>
+					<small>2017-07-05</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>
+						<strong>SQL:select * from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and ... limit startLocate,pageSize;</strong>
+						 A(a1,a2,...am,...),B(b1,b2,..bn...) 是查询条件集合;paramMap是查询参数
+						</em>
+					</p>
+				</div>
+				<div class="centent">
+					<p>1. 判断是否需要分割,如果A.size > Threshold or B.size > Threshold or A.size * B.size > Threshold,则需要分割，否则按正常的查询进行计算总数和分页</p>
+					<section class="code-section">
+						<pre class="brush: sql">
+							select count(1) from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and other condition limit startLocate,pageSize;
+						</pre>
+					</section>
+					<p>2.需要分割 </p>
+					<p>分割算法:</p>
+					<section>
+						<pre>
+							private String[] divideIds(List A, int size){
+								int farrSize = A.size() % size == 0 ? A.size() / size : A.size() / size + 1;
+								String[] arr = new String[farrSize];
+								int i = 0;
+								while(i < farrSize){
+									arr[i] = "";
+									//每个数组中最后一个值的下标
+									int endIndex = 0;
+									//如果是最后一组数据
+									if(i == farrSize - 1){
+										endIndex = A.size();
+									}else{
+										endIndex = (i + 1) * size;
+									}
+									StringBuilder sb = new StringBuilder();
+									for(int j = i * size; j < endIndex; j ++){
+										sb.append(A.get(j).getId()).append(",");
+									}
+									sb.deleteCharAt(sb.lastIndexOf(","));
+									arr[i] = sb.toString();
+									i ++;
+								}
+								return arr;
+							}
+						</pre>
+					</section>
+					<p>2.1 如果A，B有一个为空,另一个集合数量>Threshold,假如是A,对A按每组有Threshold值分组,A(A0,A1,...,Ai,...Ax),当作一个1行x列的二维数据,分别查询数量:</p>
+					<p>A0,A1,...Ai,...Ax</p>
+					<p>设置数组 totalArr[x],存储<strong>当前查询加上以前查询到结果的总数</strong></p>
+					<p>paramMap将原始参数和a,b和分页删掉重新设置,循环查询设置totalArr[]这个值</p>
+					<section class="code-section">
+						<pre class="brush: js">
+							select count(1) from table t where t.a in (A1) and other condition 
+							...
+							select count(1) from table t where t.a in (Ax) and other condition
+
+							int[] totalCycle = int[x]
+							int oneCycleCount = 0; //单次查询结果数
+							int allResult = 0; //查询总数
+							for (int i = 0; i < x; i++) {
+								paramMap.put("a", Ai);
+								oneCycleCount = //select count(1) from table t where t.a in (Ai) and ...
+								if(i == 0){
+									totalCycle[0] = oneCycleCount;
+								}else{
+									totalCycle[i] = oneCycleCount + totalCycle[i - 1];
+								}
+								allResult += oneCycleCount;
+							}
+						</pre>
+					</section>
+					<p>2.2 如果A，B都不为空,则需要分别对A，B分组->A(A0,A1,..Ai...Ax),B(B0,B1,...Bj...By),并使Ai.size*Bj.size&lt;Threshold,使用算法<a href="html/algorithm/divide-two-arrays-by-condition.html">两个大数组A，B,分别分成小数组，使A中小数组数量与B中小数组数量的乘积小于一个值</a>计算出A，B需要分割的个数</p>
+					<p>A,B分组项进行笛卡尔乘积进行查询,组成一个二维数组,总共需要查询到x*y个结果集</p>
+					<section class="code-section">
+						<pre class="brush: sql">
+							A0B0,A0B1,...A0Bj...A0by
+							...
+							...           AiBj
+							...
+							AxB0,AxB1....AxBj...AxBy
+						</pre>
+					</section>
+					<p>设置数组 totalArr[x*y],存储<strong>当前查询加上以前查询到结果的总数</strong></p>
+					<p>paramMap将原始参数和a,b和分页删掉重新设置,循环查询设置totalArr[]这个值</p>
+					<section class="code-section">
+						<pre class="brush: java">
+							int increaseIndex = 0; // < x*y
+							int oneCycleCount = 0; //单次查询结果数
+							int allResult = 0; //查询总数
+							int[] totalCycle = int[x*y]
+							for (int i = 0; i < x; i++) {
+								for (int j = 0; j < y; j++) {
+									paramMap.put("a", Ai);
+									paramMap.put("b", bj);
+									oneCycleCount = //select count(1) from table t t.a in(Ai) and t.b in (bj) and ...
+									if (i == 0 && j == 0) {
+										totalCycle[increaseIndex] = oneCycleCount;
+									} else {
+										totalCycle[increaseIndex] = oneCycleCount + totalCycle[increaseIndex - 1];
+									}
+									increaseIndex ++;
+									allResult += oneCycleCount;
+								}
+							}
+						</pre>
+					</section>
+					<p>3.分页结果集获取</p>
+					<p>3.1 根据原始分页查询条件计算出数据所处的位置</p>
+					<p>start = (page-1)*pageSize<br/>end = page*pageSize</p>
+					<p>找到start,end 带入计算第一次小于totalArr中值的下标i，并计算start-totalArr[i]和totalArr[i]-start</p>
+					<section class="code-section">
+						<pre class="brush: java">
+							/**
+							 * 定位
+							 * @param val 分页查询（limit m,n) 中的开始(m)和结束(m+n)的位置
+							 * @param totalArr  如：[10,20,30,40] 每个数表示当前查询结束后取到的结果总数
+							 * @return result[0] 表示落在哪个下标；result[1]表示距离开始的距离，result[2]表示距离结束的距离
+							 */
+							private int[] locate(int val, int[] totalArr){
+								int[] result = new int[]{-1,-1,-1};
+								for(int i = 0; i < totalArr.length; i ++){
+									if(val <= totalArr[i]) {
+										result[0] = i;
+										//计算距离前后的位置
+										if(i == 0){
+											result[1] = val;
+										}else{
+											result[1] = val - totalArr[i -1];
+										}
+										result[2] = totalArr[i] - val;
+										return result;
+									}
+								}
+								return result;
+							}
+						</pre>
+					</section>
+					<p>4.A，B都不空的情况</p>
+					<p>4.1 需要查询的范围有三种情况</p>
+					<p>4.1.1 start end 落在totalArr同一个下标内</p>
+					<p>
+						totalArr:[5,10,15,25,56]<br/>
+						start = 6,end = 8;locate.start=[1,1,4];locate.end=[1,3,2];<br/>
+						说明要查的结果集都在totalArr的第二个查询结果集中totalArr[1];<br/>
+						根据下标1查询结果集在二维数组中是由哪两个参数查到的,因为二维数组的行列值已经知道(x,y),可通过如下方法查到具体行列的值
+					</p>
+					<section class="code-section">
+						<pre class="brush: java">
+							/**
+							 * 已知一个二维数组 m x n；val的值在范围[0,m*n]内，计算val在二维数组中的位置
+							 *
+							 * @return 0-rowIndex 1-columnIndex
+							 */
+							private int[] getIndexIn2DArray(int x ,int m, int n){
+								int i = x / n;
+								int j = x % n;
+								return new int[]{i,j};
+							}
+						</pre>
+					</section>
+					<p>假如计算结果是i,j,取出下标对应的查询参数Ai,Bj,替换paramMap中的a,b,和分页开始位置</p>
+					<p>
+						paramMap.put("a", Ai);
+						paramMap.put("b", bj);
+						paramMap.put("startLocate",locate.start[2]);//locate.start=[1,1,4]
+						//分页大小不变
+						resultList = //select count(1) from table t t.a in(Ai) and t.b in (bj) and ... limit locate.start[2],pageSize
+					</p>
+					<p>4.1.1 start end 落在totalArr不同下标内</p>
+					<p>
+						totalArr:[5,10,15,25,56]<br/>
+						start = 6,end = 50;locate.start=[1,1,4];locate.end=[4,31,6];<br/>
+						说明要查的结果集都在totalArr的第二个查询结果集中totalArr[1] ~ totalArr[4];<br/>
+						取totalArr[1]的后部分(6-10)和totalArr[4]的前部分(26-50),及totalArr[2],totalArr[3]的全部<br/>
+						其中有种特殊情况，如果totalArr中的某个值和前一个值相同说明当前下标对应的查询没有结果集,可以略过 eg:totalArr[5,15,15,20,20,26],totalArr[2] totalArr[4]对应的查询没有结果集
+					</p>
+					<p>起始结果集 </p>
+					<p>
+						应该取起始下标的后半部分:根据totalArr下标查询结果集在二维数组中i,j值,startLocation = locate.start[1],pageSize = locate.start[2]
+					</p>
+					<section class="code-section">
+						<pre class="brush:java">
+							//获得第一区间参数
+							int[] index = getIndexIn2DArray(startLocation[0], firstListArr.length, seconListArr.length);
+							String startFirstIds = A[index[0]]; //A(A0,A1,..Ai...Ax)
+							String startSecondIds = B[index[1]]; //B(B0,B1,...Bj...By)
+							//复制一个新查询参数对象，除了subjectIds，secSubjectIds ，locateStart，pageSize外都保留
+							Map&lt;String, Object> tempQueryMap = cloneQueryMap(paramMap, excludeKeySet);
+							tempQueryMap.put("a", startFirstIds);
+							tempQueryMap.put("b", startSecondIds);
+							//开始值
+							tempQueryMap.put("limitStart", locate.start[1]);
+							//limit值
+							tempQueryMap.put("limitSize",  location.start[2]);
+							//查询
+							startList = //select count(1) from table t t.a in(Ai) and t.b in (bj) and ... limit locate.start[1], locate.start[2]
+							allList.addALl(startList);
+						</pre>
+					</section>						
+					</p>
+					<p>中间部分结果集</p>
+					<section class="code-section">
+						<pre class="brush: java">
+							int currentLocationVal = startLocation[0] + 1; //起始查询的下一个查询
+							//中间部分
+							while(currentLocationVal != lastLocation[0] && lastLocation[0] != -1){
+								//如果和前一个值不相等，查询,相等是由于那组查询条件没有查到结果集
+								if (totalCycle[currentLocationVal] != totalCycle[currentLocationVal - 1]) {
+									int[] middleIndex = getIndexIn2DArray(currentLocationVal, 1, seconListArr.length);
+									String middleFirstIds = A[middleIndex[0]]; //A(A0,A1,..Ai...Ax)
+									String middleSecondIds = B[middleIndex[1]]; //B(B0,B1,...Bj...By)
+									//复制一个新查询参数对象，除了subjectIds，secSubjectIds ，locateStart，pageSize外都保留
+									Map&tl;String, Object> tempMiddleQueryMap = cloneQueryMap(paramMap, excludeKeySet);
+									tempMiddleQueryMap.put("a", middleFirstIds); //Ai
+									tempMiddleQueryMap.put("b", middleSecondIds);//Bj
+									//查询
+									List middleList = // select * from table t t.a in(Ai) and t.b in (bj) and ...
+									allList.addAll(middleList);
+								}
+								currentLocationVal = currentLocationVal + 1;
+							}
+						</pre>
+					</section>
+					<p>末尾结果集 </p>
+					<p>
+						应该取末尾下标的后前部分:根据totalArr下标查询结果集在二维数组中i,j值,startLocation = 0,pageSize = locate.end[1]
+					</p>
+					<section class="code-section">
+						<pre class="brush: java">
+							//获得第一区间参数
+							int[] index = getIndexIn2DArray(endLocation[0], x, y);
+							String startFirstIds = A[index[0]]; //A(A0,A1,..Ai...Ax)
+							String startSecondIds = B[index[1]]; //B(B0,B1,...Bj...By)
+							//复制一个新查询参数对象，除了subjectIds，secSubjectIds ，locateStart，pageSize外都保留
+							Map&lt;String, Object> tempQueryMap = cloneQueryMap(paramMap, excludeKeySet);
+							tempQueryMap.put("a", startFirstIds);
+							tempQueryMap.put("b", startSecondIds);
+							//开始值
+							tempQueryMap.put("pageStart", locate.start[1]);
+							//limit值
+							tempQueryMap.put("pageSize",  locate.start[2]);
+							//查询
+							endList = //select * from table t t.a in(Ai) and t.b in (bj) and ... limit 0, locate.end[1]
+							allList.addAll(endList);
+						</pre>
+					</section>
+					<p>当A,B有一个为空时，计算下标时需要把一维数组当成行为1，列个数为分组个数的二维数组计算,得到的下标值即为分组数组下标值，情况和上面的相同，只不过in参数少了一个<br/>
+						eg:只有A时:
+					</p>
+					<section class="code-section">
+						<pre class="brush:java">
+							//开始值所处的位置
+							int[] startLocation = locate(start, totalArr);
+							//结束值所处的位置,0-totalArr;1-起始值距离前一区间的大小，起始值距离本区间值的大小
+							int[] lastLocation = locate(end, totalArr);
+							//复制参数Map不需要的键
+							Set&lt;String> excludeKeySet = new HashSet<>();
+							excludeKeySet.add("a");
+							excludeKeySet.add("b");
+							excludeKeySet.add("pageStart");
+							excludeKeySet.add("pageSize");
+							if (startLocation[0] == lastLocation[0]){
+								int[] index = getIndexIn2DArray(startLocation[0], 1, x);
+								//获得参数
+								String firstIds = firstListArr[index[1]];
+								//复制一个新查询参数对象，除了a，b，pageStart，pageSize外都保留
+								Map&lt;String, Object> tempQueryMap = cloneQueryMap(paramMap, excludeKeySet);
+								tempQueryMap.put("a", firstIds);
+								tempQueryMap.put("pageStart", startLocation[1]);
+								tempQueryMap.put("pageSize", paramMap.get("pageSize"));
+								//查询
+								startList = //select * from table t t.a in(Ai) and ... limit locate.start[2],pageSize
+								allList.addAll(startLsit);
+							}else {
+								//首区间
+								//获得第一区间参数
+								int[] index = getIndexIn2DArray(startLocation[0], 1, x);
+								String startFirstIds = A[index[1]]; //
+								//复制一个新查询参数对象，除了a，b，pageStart，pageSize外都保留
+								Map&lt;String, Object> tempQueryMap = cloneQueryMap(paramMap, excludeKeySet);
+								tempQueryMap.put("a", startFirstIds);
+								//开始值
+								tempQueryMap.put("pageStart", startLocation[1]);
+								//limit值
+								tempQueryMap.put("pageSize", startLocation[2]);
+								//查询
+								startList = //
+								allList.addAll(startList);
+
+								int currentLocationVal = startLocation[0] + 1;
+								//中间部分
+								while(currentLocationVal != lastLocation[0] && lastLocation[0] != -1){
+									//如果和前一个值不相等，查询,相等是由于那组查询条件没有查到结果集
+									if (totalCycle[currentLocationVal] != totalCycle[currentLocationVal - 1]) {
+										int[] middleIndex = getIndexIn2DArray(currentLocationVal, 1, x);
+										String middleFirstIds = A[middleIndex[1]];
+										//复制一个新查询参数对象，除了a，b，pageStart，pageSize外都保留
+										Map&lt;String, Object> tempMiddleQueryMap = cloneQueryMap(paramMap, excludeKeySet);
+										tempMiddleQueryMap.put("a", middleFirstIds);
+										//查询
+										List middleList = //select * from table t t.a in(Ai) and ... 
+										allList.addAll(middleList);
+									}
+									currentLocationVal = currentLocationVal + 1;
+								}
+								//尾区间
+								//最后一个区间
+								if(lastLocation[0] != -1){
+									int[] LastIndex = getIndexIn2DArray(lastLocation[0], 1, x);
+									String lastFirstIds = A[LastIndex[1]];
+									//复制一个新查询参数对象，除了subjectIds ，limitStart，limitSize外都保留
+									Map&lt;String, Object> endTempQueryMap = cloneQueryMap(paramMap, excludeKeySet);
+									endTempQueryMap.put("a", lastFirstIds);
+
+									endTempQueryMap.put("pageStart", 0);
+									endTempQueryMap.put("pageSize", lastLocation[1]);
+									//查询
+									List endList = //select * from table t t.a in(Ai) and ... limit 0,locate.end[1]
+									allList.addAll(endList);
+								}
+							}
+						</pre>
+					</section>
+
+					<p>end</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center"><em>The world is so interesting</em></div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+</body>
+</html>
