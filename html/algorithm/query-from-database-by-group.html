@@ -195,10 +195,10 @@
 					</section>
 					<p>假如计算结果是i,j,取出下标对应的查询参数Ai,Bj,替换paramMap中的a,b,和分页开始位置</p>
 					<p>
-						paramMap.put("a", Ai);
-						paramMap.put("b", bj);
-						paramMap.put("pageStart",locate.start[2]);//locate.start=[1,1,4]
-						//分页大小不变
+						paramMap.put("a", Ai);<br>
+						paramMap.put("b", bj);<br/>
+						paramMap.put("pageStart",locate.start[2]);//locate.start=[1,1,4]<br/>
+						//分页大小不变<br/>
 						resultList = //select count(1) from table t t.a in(Ai) and t.b in (bj) and ... limit locate.start[2],pageSize
 					</p>
 					<p>4.1.1 start end 落在totalArr不同下标内</p>
