@@ -32,14 +32,12 @@
 			</div>
 			<div class="container">
 				<div class="page-header">
-					<h3>两个大数组A，B,分别分成小数组，使A中小数组数量与B中小数组数量的乘积小于一个值</h3>
+					<h3>二个数组分割</h3>
 					<small>2017-07-04</small>
 				</div>
 				<div class="bg-gray">
 					<p><em>
-					Array A ,B A.length * b.length is very large number, the Mysql query operation is slow,we need to divide A and B into many smaller arrays (A1,A2...Am...;B1,B2,...Bn...), to run sql <strong>select * from table t where t.a in(Am) and t.b in (Bn)</strong>
-					now we define a number Treshold = 5000, make sure that Am.length * Bn.length <= Treshold;
-					calculate the volumns of Am and Bn. 
+					两个大数组A(a0,a1,a2,...am)，B(b0,b1,b2...bn),分别分成小数组(A(A0[a0,a1,a2],A1[a3,a4,a5],...Ai...Ax[am-2,am-1,am]),B(B0[b0,b1],B2[b2,b3]...Bj...Bx[bn-1,bn])，使A中小数组Ai.length  与B中小数组(Bj.length)的乘积小于一个值,如何分割A，B?
 					</em></p>
 				</div>
 				<div class="centent">
