@@ -37,7 +37,7 @@
 				</div>
 				<div class="bg-gray">
 					<p><em>
-					两个大数组A(a0,a1,a2,...am)，B(b0,b1,b2...bn),分别分成小数组(A(A0[a0,a1,a2],A1[a3,a4,a5],...Ai...Ax[am-2,am-1,am]),B(B0[b0,b1],B2[b2,b3]...Bj...Bx[bn-1,bn])，使A中小数组Ai.length  与B中小数组(Bj.length)的乘积小于一个值,如何分割A，B?
+					两个大数组A(a0,a1,a2,...am)，B(b0,b1,b2...bn),分别分成小数组(A(A0[a0,a1,a2],A1[a3,a4,a5],...Ai...Ax[am-2,am-1,am]),B(B0[b0,b1],B2[b2,b3]...Bj...Bx[bn-1,bn])，使A中小数组Ai.length  与B中小数组(Bj.length)的乘积小于一个值threshold,如何分割A，B?
 					</em></p>
 				</div>
 				<div class="centent">
@@ -47,9 +47,9 @@
 						<pre class="brush:java">
 							/**
 						     * 获取分组
-						     * @param a
-						     * @param b
-						     * @param threshold
+						     * @param a //A.size
+						     * @param b //B.size
+						     * @param threshold //threshold
 						     * @return
 						     */
 						    public static long[] getBestGroupAndMatch(long a, long b, int threshold) {
