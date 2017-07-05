@@ -37,7 +37,7 @@
 				</div>
 				<div class="bg-gray">
 					<p><em>
-						<strong>SQL:select * from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and ... limit startLocate,pageSize;</strong>
+						<strong>SQL:select * from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and ... limit pageStart,pageSize;</strong>
 						 A(a1,a2,...am,...),B(b1,b2,..bn...) 是查询条件集合;paramMap是查询参数
 						</em>
 					</p>
@@ -46,13 +46,13 @@
 					<p>1. 判断是否需要分割,如果A.size > Threshold or B.size > Threshold or A.size * B.size > Threshold,则需要分割，否则按正常的查询进行计算总数和分页</p>
 					<section class="code-section">
 						<pre class="brush: sql">
-							select count(1) from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and other condition limit startLocate,pageSize;
+							select count(1) from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and other condition limit pageStart,pageSize;
 						</pre>
 					</section>
 					<p>2.需要分割 </p>
 					<p>分割算法:</p>
-					<section>
-						<pre>
+					<section class="code-section">
+						<pre class="brush:java">
 							private String[] divideIds(List A, int size){
 								int farrSize = A.size() % size == 0 ? A.size() / size : A.size() / size + 1;
 								String[] arr = new String[farrSize];
@@ -89,16 +89,16 @@
 							...
 							select count(1) from table t where t.a in (Ax) and other condition
 
-							int[] totalCycle = int[x]
+							int[] totalArr = int[x]
 							int oneCycleCount = 0; //单次查询结果数
 							int allResult = 0; //查询总数
 							for (int i = 0; i < x; i++) {
 								paramMap.put("a", Ai);
 								oneCycleCount = //select count(1) from table t where t.a in (Ai) and ...
 								if(i == 0){
-									totalCycle[0] = oneCycleCount;
+									totalArr[0] = oneCycleCount;
 								}else{
-									totalCycle[i] = oneCycleCount + totalCycle[i - 1];
+									totalArr[i] = oneCycleCount + totalArr[i - 1];
 								}
 								allResult += oneCycleCount;
 							}
@@ -122,16 +122,16 @@
 							int increaseIndex = 0; // < x*y
 							int oneCycleCount = 0; //单次查询结果数
 							int allResult = 0; //查询总数
-							int[] totalCycle = int[x*y]
+							int[] totalArr = int[x*y]
 							for (int i = 0; i < x; i++) {
 								for (int j = 0; j < y; j++) {
 									paramMap.put("a", Ai);
 									paramMap.put("b", bj);
 									oneCycleCount = //select count(1) from table t t.a in(Ai) and t.b in (bj) and ...
 									if (i == 0 && j == 0) {
-										totalCycle[increaseIndex] = oneCycleCount;
+										totalArr[increaseIndex] = oneCycleCount;
 									} else {
-										totalCycle[increaseIndex] = oneCycleCount + totalCycle[increaseIndex - 1];
+										totalArr[increaseIndex] = oneCycleCount + totalArr[increaseIndex - 1];
 									}
 									increaseIndex ++;
 									allResult += oneCycleCount;
@@ -197,7 +197,7 @@
 					<p>
 						paramMap.put("a", Ai);
 						paramMap.put("b", bj);
-						paramMap.put("startLocate",locate.start[2]);//locate.start=[1,1,4]
+						paramMap.put("pageStart",locate.start[2]);//locate.start=[1,1,4]
 						//分页大小不变
 						resultList = //select count(1) from table t t.a in(Ai) and t.b in (bj) and ... limit locate.start[2],pageSize
 					</p>
@@ -211,15 +211,15 @@
 					</p>
 					<p>起始结果集 </p>
 					<p>
-						应该取起始下标的后半部分:根据totalArr下标查询结果集在二维数组中i,j值,startLocation = locate.start[1],pageSize = locate.start[2]
+						应该取起始下标的后半部分:根据totalArr下标查询结果集在二维数组中i,j值,pageStart = locate.start[1],pageSize = locate.start[2]
 					</p>
 					<section class="code-section">
 						<pre class="brush:java">
 							//获得第一区间参数
-							int[] index = getIndexIn2DArray(startLocation[0], firstListArr.length, seconListArr.length);
+							int[] index = getIndexIn2DArray(startLocation[0], x, y);
 							String startFirstIds = A[index[0]]; //A(A0,A1,..Ai...Ax)
 							String startSecondIds = B[index[1]]; //B(B0,B1,...Bj...By)
-							//复制一个新查询参数对象，除了subjectIds，secSubjectIds ，locateStart，pageSize外都保留
+							//复制一个新查询参数对象，除了a，b ，pageStart，pageSize外都保留
 							Map&lt;String, Object> tempQueryMap = cloneQueryMap(paramMap, excludeKeySet);
 							tempQueryMap.put("a", startFirstIds);
 							tempQueryMap.put("b", startSecondIds);
@@ -241,10 +241,10 @@
 							while(currentLocationVal != lastLocation[0] && lastLocation[0] != -1){
 								//如果和前一个值不相等，查询,相等是由于那组查询条件没有查到结果集
 								if (totalCycle[currentLocationVal] != totalCycle[currentLocationVal - 1]) {
-									int[] middleIndex = getIndexIn2DArray(currentLocationVal, 1, seconListArr.length);
+									int[] middleIndex = getIndexIn2DArray(currentLocationVal, x, y);
 									String middleFirstIds = A[middleIndex[0]]; //A(A0,A1,..Ai...Ax)
 									String middleSecondIds = B[middleIndex[1]]; //B(B0,B1,...Bj...By)
-									//复制一个新查询参数对象，除了subjectIds，secSubjectIds ，locateStart，pageSize外都保留
+									//复制一个新查询参数对象，除了a，b ，pageStart，pageSize外都保留
 									Map&tl;String, Object> tempMiddleQueryMap = cloneQueryMap(paramMap, excludeKeySet);
 									tempMiddleQueryMap.put("a", middleFirstIds); //Ai
 									tempMiddleQueryMap.put("b", middleSecondIds);//Bj
@@ -258,7 +258,7 @@
 					</section>
 					<p>末尾结果集 </p>
 					<p>
-						应该取末尾下标的后前部分:根据totalArr下标查询结果集在二维数组中i,j值,startLocation = 0,pageSize = locate.end[1]
+						应该取末尾下标的后前部分:根据totalArr下标查询结果集在二维数组中i,j值,pageStart = 0,pageSize = locate.end[1]
 					</p>
 					<section class="code-section">
 						<pre class="brush: java">
@@ -266,7 +266,7 @@
 							int[] index = getIndexIn2DArray(endLocation[0], x, y);
 							String startFirstIds = A[index[0]]; //A(A0,A1,..Ai...Ax)
 							String startSecondIds = B[index[1]]; //B(B0,B1,...Bj...By)
-							//复制一个新查询参数对象，除了subjectIds，secSubjectIds ，locateStart，pageSize外都保留
+							//复制一个新查询参数对象，除了subjectIds，secSubjectIds ，pageStart，pageSize外都保留
 							Map&lt;String, Object> tempQueryMap = cloneQueryMap(paramMap, excludeKeySet);
 							tempQueryMap.put("a", startFirstIds);
 							tempQueryMap.put("b", startSecondIds);
@@ -294,7 +294,7 @@
 							excludeKeySet.add("b");
 							excludeKeySet.add("pageStart");
 							excludeKeySet.add("pageSize");
-							if (startLocation[0] == lastLocation[0]){
+							if (startLocation[0] == lastLocation[0]){ // locate.start[0] = locate.end[1]
 								int[] index = getIndexIn2DArray(startLocation[0], 1, x);
 								//获得参数
 								String firstIds = firstListArr[index[1]];
