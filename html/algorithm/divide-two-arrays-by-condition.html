@@ -74,9 +74,10 @@
 					<section class="code-section">
 						<pre class="brush: java">
 							/**
+							* 求d的约数对，判断a,b分组是否能按d的约数对分组,返回按某一约数对分组，A、B每组的个数，和对应约数对的值
 						     * @param a 数组a
 						     * @param b 数组b
-						     * @param d 总循环次数
+						     * @param d 总循环次数 
 						     * @return 0 a组内个数， 1 b组内个数， 2 a 分组数， 3 b 分组数， 4 当前分组最大是否小于threshold，5 a分组数*b分组数，
 						     */
 						    public static long[] groupAndMatch(long a, long b, long d, int threshold){
