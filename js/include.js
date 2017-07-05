@@ -6,7 +6,7 @@ var catalog={
 	"algorithm":[
 		{"title":"存储大量文件，让每个文件夹下的文件或文件夹数量不大于1024","href":"html/algorithm/store-files-in-file-sytem-less-than-1024-each.html"},
 		{"title":"打乱数组排列顺序","href":"html/algorithm/disrupt-array-order.html"},
-		{"title":"两个大数组A，B,分别分成小数组，使A中小数组数量与B中小数组数量的乘积小于一个值","href":"html/algorithm/divide-two-arrays-by-condition.html"},
+		{"title":"二个数组分别分成小数组,使A中小数组大小与B中小数组大小的乘积小于一个值","href":"html/algorithm/divide-two-arrays-by-condition.html"},
 		{"title":"SQL:查询条件有两个in,分组拼接查询,分页","href":"html/algorithm/query-from-database-by-group.html"},
 		{"title":"SQL:查询条件有两个in,分组拼接查询,分页-2","href":"html/algorithm/query-from-database-by-group2.html"}
 	]
