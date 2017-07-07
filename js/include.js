@@ -22,7 +22,7 @@ var button = '<div class="btn-group">'+
   					'#{lis}'+
   				'</ul>'+
 			'</div>';
-var alink = '<a class="link" href="#{href}" role="button">#{title}</a>';
+var alink = '<p><a class="link" href="#{href}" role="button">#{title}</a></p>';
 $(function(){
 	//catalog
 	/**
