@@ -38,24 +38,26 @@
 				<div class="bg-gray">
 					<p><em>
 						<strong>SQL:select * from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and ... limit pageStart,pageSize;</strong>
-						 A(a1,a2,...am,...),B(b1,b2,..bn...) 是查询条件集合;paramMap是查询参数
+						 A(a1,a2,...am,...),B(b1,b2,..bn...) 是查询条件集合;paramMap是查询参数,阈值Threshold是一个常量,寻找一中策略使每次查询时Threshold > in1中数量*in2中数量
 						</em>
 					</p>
 				</div>
 				<div class="centent">
 					<p><a href="html/algorithm/query-from-database-by-group2.html">Related articles</a></p>
-					<p>1. 判断是否需要分割,如果A.size > Threshold or B.size > Threshold or A.size * B.size > Threshold,则需要分割，否则按正常的查询进行计算总数和分页</p>
+					<p>1. 判断是否需要分割</p>
+					<p>如果A.size > Threshold or B.size > Threshold or A.size * B.size > Threshold,则需要分割，否则按正常的查询进行计算总数和分页</p>
 					<section class="code-section">
 						<pre class="brush: sql">
 							select count(1) from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and other condition limit pageStart,pageSize;
 						</pre>
 					</section>
-					<p>2.需要分割 </p>
+					<p>2.需要分割,将列表中的数据放入数组中，数组中每个值拼接的个数不大于size,eg:A(1,2,3,4,5,7,6,8,9,10) size = 3 -> Aarr=['1,2,3','4,5,6','7,8,9','10']</p>
 					<p>分割算法:</p>
 					<section class="code-section">
 						<pre class="brush:java">
 							private String[] divideIds(List A, int size){
-								int farrSize = A.size() % size == 0 ? A.size() / size : A.size() / size + 1;
+								//数组容量
+								int farrSize = A.size() % size == 0 ? A.size() / size : A.size() / size + 1; 
 								String[] arr = new String[farrSize];
 								int i = 0;
 								while(i < farrSize){
@@ -80,8 +82,7 @@
 							}
 						</pre>
 					</section>
-					<p>2.1 如果A，B有一个为空,另一个集合数量>Threshold,假如是A,对A按每组有Threshold值分组,A(A0,A1,...,Ai,...Ax),当作一个1行x列的二维数据,分别查询数量:</p>
-					<p>A0,A1,...Ai,...Ax</p>
+					<p>2.1 如果A，B有一个为空,另一个集合数量>Threshold,假如是A,对A按每组有Threshold值分组divideIds(A, Threshold),得到A(A0,A1,...,Ai,...Ax),分别查询Ai为参数的数量:</p>
 					<p>设置数组 totalArr[x],存储<strong>当前查询加上以前查询到结果的总数</strong></p>
 					<p>paramMap将原始参数和a,b和分页删掉重新设置,循环查询设置totalArr[]这个值</p>
 					<section class="code-section">
@@ -141,17 +142,17 @@
 						</pre>
 					</section>
 					<p>3.分页结果集获取</p>
-					<p>3.1 根据原始分页查询条件计算出数据所处的位置</p>
+					<p>3.1 根据原始分页查询条件计算出结果集数据是由哪些组合查询出来的</p>
 					<p>start = (page-1)*pageSize<br/>end = page*pageSize</p>
-					<p>找到start,带入计算第一次小于totalArr中值的下标i，并计算start-totalArr[i-1](如果i=0，就是start)和totalArr[i]-start</p>
-					<p>找到end,带入计算第一次小于totalArr中值的下标i，并计算end-totalArr[i-1](如果i=0，就是end)和totalArr[i]-end</p>
+					<p>带入start计算第一次小于totalArr中值的下标i，并计算start-totalArr[i-1](如果i=0，就是start)和totalArr[i]-start</p>
+					<p>带入end计算第一次小于totalArr中值的下标i，并计算end-totalArr[i-1](如果i=0，就是end)和totalArr[i]-end</p>
 					<section class="code-section">
 						<pre class="brush: java">
 							/**
 							 * 定位
-							 * @param val 分页查询（limit m,n) 中的开始(m)和结束(m+n)的位置
+							 * @param val 分页查询（limit m,n) 中的开始(m)和结束(m+n)的值
 							 * @param totalArr  如：[10,20,30,40] 每个数表示当前查询结束后取到的结果总数
-							 * @return result[0] 表示落在哪个下标；result[1]表示距离开始的距离，result[2]表示距离结束的距离
+							 * @return result[0] 表示落在哪个下标；result[1]表示val距离前一数组值的差值，result[2]表示当前数组-val
 							 */
 							private int[] locate(int val, int[] totalArr){
 								int[] result = new int[]{-1,-1,-1};
@@ -213,11 +214,11 @@
 					</p>
 					<p>起始结果集 </p>
 					<p>
-						应该取起始下标的后半部分:根据totalArr下标查询结果集在二维数组中i,j值,pageStart = locate.start[1],pageSize = locate.start[2]
+						应该取起始下标所代表的数据集的后半部分:根据totalArr下标查询结果集在二维数组中i,j值,pageStart = locate.start[1],pageSize = locate.start[2]
 					</p>
 					<section class="code-section">
 						<pre class="brush:java">
-							//获得第一区间参数
+							//获得起始结果集参数
 							int[] index = getIndexIn2DArray(startLocation[0], x, y);
 							String startFirstIds = A[index[0]]; //A(A0,A1,..Ai...Ax)
 							String startSecondIds = B[index[1]]; //B(B0,B1,...Bj...By)
@@ -260,11 +261,11 @@
 					</section>
 					<p>末尾结果集 </p>
 					<p>
-						应该取末尾下标的后前部分:根据totalArr下标查询结果集在二维数组中i,j值,pageStart = 0,pageSize = locate.end[1]
+						应该取末尾下标所代表的数据集的前部分:根据totalArr下标查询结果集在二维数组中i,j值,pageStart = 0,pageSize = locate.end[1]
 					</p>
 					<section class="code-section">
 						<pre class="brush: java">
-							//获得第一区间参数
+							//获得末尾结果集参数
 							int[] index = getIndexIn2DArray(endLocation[0], x, y);
 							String startFirstIds = A[index[0]]; //A(A0,A1,..Ai...Ax)
 							String startSecondIds = B[index[1]]; //B(B0,B1,...Bj...By)
@@ -281,7 +282,7 @@
 							allList.addAll(endList);
 						</pre>
 					</section>
-					<p>当A,B有一个为空时，计算下标时需要把一维数组当成行为1，列个数为分组个数的二维数组计算,得到的下标值即为分组数组下标值，情况和上面的相同，只不过in参数少了一个<br/>
+					<p>当A,B有一个为空时，计算下标时需要把一维数组当成行为1，列个数为分组个数的二维数组计算,得到的列下标值即为分组数组下标值，情况和上面的相同，只不过in参数少了一个<br/>
 						eg:只有A时:
 					</p>
 					<section class="code-section">
@@ -309,8 +310,7 @@
 								startList = //select * from table t t.a in(Ai) and ... limit locate.start[2],pageSize
 								allList.addAll(startLsit);
 							}else {
-								//首区间
-								//获得第一区间参数
+								//起始结果集
 								int[] index = getIndexIn2DArray(startLocation[0], 1, x);
 								String startFirstIds = A[index[1]]; //
 								//复制一个新查询参数对象，除了a，b，pageStart，pageSize外都保留
@@ -340,8 +340,7 @@
 									}
 									currentLocationVal = currentLocationVal + 1;
 								}
-								//尾区间
-								//最后一个区间
+								//末尾结果集
 								if(lastLocation[0] != -1){
 									int[] LastIndex = getIndexIn2DArray(lastLocation[0], 1, x);
 									String lastFirstIds = A[LastIndex[1]];

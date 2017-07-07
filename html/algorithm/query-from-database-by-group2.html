@@ -139,7 +139,7 @@
 														}
 													}
 												}
-											}else{ //关联主题
+											}else{ //in2
 												String[] secondArr = generaterQueryIds(B,Threshold);
 												for(String paramId : secondArr){
 													queryMap.put("b", paramId);
@@ -184,7 +184,7 @@
 												tempList =  //select * from table t by(queryMap);
 												matchedList.addAll(tempList);
 											}
-										}else { //关联主题太大
+										}else { //in2太大
 											String[] secondArr = generaterQueryIds(B,Threshold);
 											for(String paramId : secondArr){
 												queryMap.put("b", paramId);

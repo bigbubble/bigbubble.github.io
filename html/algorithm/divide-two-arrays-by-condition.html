@@ -49,58 +49,58 @@
 						     * 获取分组
 						     * @param a //A.size
 						     * @param b //B.size
-						     * @param threshold //threshold
+						     * @param threshold //限制值
 						     * @return
 						     */
-						    public static long[] getBestGroupAndMatch(long a, long b, int threshold) {
-						        //循环总次数
-						        long c = a * b;
-						        //按threshold条件需要最少分多少组
-						        long d = c % threshold == 0 ? c / threshold : c / threshold + 1;
+						    public static long[] getBestGroupAndMatch(long sizeA, long sizeB, int threshold) {
+						        //乘积
+						        long productOf = sizeA * sizeA;
+						        //按threshold条件需要最少组合数
+						        long leastGroup = productOf % threshold == 0 ? productOf / threshold : productOf / threshold + 1;
 
-						        long[] r = new long[]{0,0,-1,-1,Long.MAX_VALUE,d};
-						        //如果最少组个数无法找到合适的分组策略，将分组数增加直到找到为止
-						        while(r[4] > threshold){
-						            r = groupAndMatch(a,b,d, threshold);
-						            d ++;
+						        long[] result = new long[]{0,0,-1,-1,Long.MAX_VALUE,leastGroup}; //返回结果
+						        //如果最少组合数无法找到合适的分组策略，将分组数增加直到找到合适的分组策略为止
+						        while(result[4] > threshold){
+						            result = groupAndMatch(sizeA,sizeB,leastGroup, threshold);
+						            leastGroup ++;
 						        }
-						        System.out.println("Am长度："+r[0] +"\nBn长度："+r[1] +"\nA分组数：" +r[2]+"\nB分组数："+r[3]+"\nAm*Bn长度:"+r[4]+"\nSQL需要执行多少次:"+r[5]);
-						        return r;
+						        System.out.println("Am长度："+result[0] +"\nBn长度："+result[1] +"\nA分组数：" +result[2]+"\nB分组数："+result[3]+"\nAm*Bn长度:"+result[4]+"\n最少组合数:"+r[5]);
+						        return result;
 						    }
 						</pre>
 					</section>
 					<section class="code-section">
 						<pre class="brush: java">
 							/**
-							* 求d的约数对，判断a,b分组是否能按d的约数对分组,返回按某一约数对分组，A、B每组的个数，和对应约数对的值
-						     * @param a 数组a
-						     * @param b 数组b
-						     * @param d 总循环次数 
-						     * @return 0 a组内个数， 1 b组内个数， 2 a 分组数， 3 b 分组数， 4 当前分组最大是否小于threshold，5 a分组数*b分组数，
+							* 求leastGroup的约数对，判断A,B分组是否能按leastGroup的约数对分组,返回按某一约数对分组，A、B每组的个数，和对应约数对的值
+						     * @param sizeA A.size
+						     * @param sizeB B.size
+						     * @param leastGroup 按threshold条件需要最少组合数 
+						     * @return 0 A组内个数， 1 B组内个数， 2 A分组数， 3 B分组数， 4 A组内个数*B组内个数，5 leastGroup，
 						     */
-						    public static long[] groupAndMatch(long a, long b, long d, int threshold){
+						    public static long[] groupAndMatch(long sizeA, long sizeB, long leastGroup, int threshold){
 						        //返回值
 						        long min = Long.MAX_VALUE;  //乘积值
 						        long m= 0; // a组内个数
 						        long n=0;  // b组内个数
 						        long x = -1,y=-1; //x - a分组数 y - b分组数
 
-						        double e =Math.sqrt(d);
-						        List&lt;long[]> keyVal = new ArrayList<>();
-						        for(int i = 1; i <= e; i ++){
-						            if(d % i == 0){
-						                long f = d / i;
-						                if( (a >= i && b >= f) || (b >= i && a >= f)){
-						                    keyVal.add(new long[]{i, d / i});
+						        double sqrtVal =Math.sqrt(d); //求leastGroup的约数对，约数不会大于leastGroup的开平方
+						        List&lt;long[]> divisorArrList = new ArrayList<>(); //约数对列表,A，B分组的可能情况就在这些约数对中
+						        for(int i = 1; i <= sqrtVal; i ++){
+						            if(leastGroup % i == 0){
+						                long divisorB = leastGroup / i; //i divisorB是约数对 i*divisorB=leastGroup
+						                if( (sizeA >= i && sizeB >= divisorB) || (sizeB >= i && sizeA >= divisorB)){
+						                    divisorArrList.add(new long[]{i, divisorB});
 						                }
 						            }
 						        }
-						        //是否调换了分组位置
+						        //是否调换了每个约数对中前后位置 eg:[1,5] - >[5,1] A-1,B-5 -> A-5,B-1
 						        boolean flag = false;
-						        for(long[] arr : keyVal){
+						        for(long[] divisorArr : divisorArrList){
 						            long m1 = 0;long n1=0;
 						            if(a >= arr[0]  && b >= arr[1]){
-						                m1 = a % arr[0] == 0 ? a / arr[0] : a /arr[0] + 1;
+						                m1 = a % arr[0] == 0 ? a / arr[0] : a /arr[0] + 1; //如果不能整除，每组数量加1
 						                n1 = b % arr[1] == 0 ? b /arr[1] : b / arr[1] + 1;
 						            }else{
 						                m1 = a % arr[1] == 0 ? a / arr[1] : a /arr[1] + 1;
@@ -109,6 +109,8 @@
 						            }
 
 						            long p = m1*n1;
+						            //1.因为如果不能整除，每组数量加1,可能导致相乘后数量大于阈值，如果大于,不要这组约数对;
+						            //2.取所有约数对中，乘积最小的那组
 						            if(p < min && p <= threshold){
 						                min = p;
 						                m = m1;n = n1;
