@@ -38,7 +38,7 @@
 				<div class="bg-gray">
 					<p><em>
 						<strong>SQL:select * from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and ... limit pageStart,pageSize;</strong>
-						 A(a1,a2,...am,...),B(b1,b2,..bn...) 是查询条件集合;paramMap是查询参数,阈值Threshold是一个常量,寻找一中策略使每次查询时Threshold > in1中数量*in2中数量
+						 A(a1,a2,...am,...),B(b1,b2,..bn...) 是查询条件集合;paramMap是查询参数,阈值Threshold是一个常量,寻找一种策略使每次查询时 in1中数量 x in2中数量 < Threshold
 						</em>
 					</p>
 				</div>
