@@ -9,7 +9,7 @@ var catalog={
 		{"title":"二个数组分别分成小数组,使A中小数组大小与B中小数组大小的乘积小于一个值","href":"html/algorithm/divide-two-arrays-by-condition.html"},
 		{"title":"SQL:查询条件有两个in,分组拼接查询,分页","href":"html/algorithm/query-from-database-by-group.html"},
 		{"title":"SQL:查询条件有两个in,分组拼接查询,分页-2","href":"html/algorithm/query-from-database-by-group2.html"},
-		{"title":"将关键字(多个)从一个字符串中按顺序提取出来","href":"html/algorithm/get-keywords-in-string-ny-order.html"}
+		{"title":"将关键字(多个)从一个字符串中按顺序提取出来","href":"html/algorithm/get-keywords-in-string-by-order.html"}
 	]
 }
 var colors = ["btn-primary","btn-success","btn-info","btn-warning","btn-danger"];
