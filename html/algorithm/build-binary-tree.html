@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title></title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Algorithm</a></li>
+					<li class="active">article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>构建一个二叉树</h3>
+					<small>2017-08-17</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>
+					有一个由节点-关系-节点-关系-节点组成的链式结构字符串，将其转换为一个二叉树形式的结构，其中问号为最终要求解的值，可能是节点-关系-节点组合（问号在关系上），也可能是求解节点（问号在节点上）
+					<br/>
+					求解关系r1:node1-r1?-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7 [rN-nodeN]....
+					<br/>
+					求解节点node3:node1-r1-node2-r2-node3?-r3-node4-r4-node5-r5-node6-r6-node7  [rN-nodeN]....
+					<br/>
+					求解节点node7:node1-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7? [rN-nodeN]....</em></p>
+				</div>
+				<div class="content">
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center"><em>The world is so interesting</em></div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+</body>
+</html>
