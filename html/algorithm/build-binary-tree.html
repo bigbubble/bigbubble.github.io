@@ -37,13 +37,24 @@
 				</div>
 				<div class="bg-gray">
 					<p><em>
-					有一个由节点-关系-节点-关系-节点组成的链式结构字符串，将其转换为一个二叉树形式的结构，其中问号为最终要求解的值，可能是节点-关系-节点组合（问号在关系上），也可能是求解节点（问号在节点上）
-					<br/>
-					求解关系r1:node1-r1?-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7 [rN-nodeN]....
-					<br/>
-					求解节点node3:node1-r1-node2-r2-node3?-r3-node4-r4-node5-r5-node6-r6-node7  [rN-nodeN]....
-					<br/>
-					求解节点node7:node1-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7? [rN-nodeN]....</em></p>
+					有一个由"节点-关系-节点-关系-节点...-关系-节点"组成的链式结构字符串，将其转换为一个二叉树形式的结构，其中问号为最终要求解的值，可能是求解节点-关系-节点组合（问号在关系上），也可能是求解节点（问号在节点上）,根结点为求解的关系或求解节点的左或右关系
+					<br/><br/>
+					<strong>求解关系r1:node1-r1?-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7 [-rN-nodeN]....</strong>
+					<br/><br/>
+					<img src="img/algorithm/build-binary-tree1.png" />
+					<br/><br/>
+					<strong>求解节点node3:node1-r1-node2-r2-node3?-r3-node4-r4-node5-r5-node6-r6-node7  [-rN-nodeN]....</strong>
+					<br/><br/>
+					<img src="img/algorithm/build-binary-tree2.png" />
+					<br/><br/>
+					<strong>求解节点node1:node1?-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7 [-rN-nodeN]....</strong>
+					<br/><br/>
+					<img src="img/algorithm/build-binary-tree3.png" />
+					<br/><br/>
+					<strong>求解节点node7:node1-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7? [-rN-nodeN]....</strong>
+					<br/><br/>
+					<img src="img/algorithm/build-binary-tree4.png" />
+					</em></p>
 				</div>
 				<div class="content">
 					
