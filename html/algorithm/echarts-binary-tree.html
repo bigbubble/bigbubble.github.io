@@ -40,42 +40,45 @@
 				</div>
 				<div class="centent">
 					<div>
-						<p>节点 node 属性:name-名称,left-左节点,right-右节点,direction-方向(1:左边是起始，右边是结束,2:右边是起始，左边是结束),x-节点从左到右的序号,y-节点深度;(x,y)对应以左上角为原点平面坐标系上的一个点</p>
+						<p>节点 node 属性:name-名称,leftChild-左节点,rightChild-右节点,relPos-方向(1:左节点是起始,2:右节点是起始),x-节点从左到右的序号,y-节点深度;(x,y)对应以左上角为原点平面坐标系上的一个点</p>
 						<p>原始数据x,y没有值,通过中序遍历求出,参数：root:根结点, depth:已计算的深度, length:已计算的长度, list:节点信息数组,xy最大深度和长度,links:连线数组</p>
 						<section class="code-section">
 							<pre class="brush:javascript">
 								function traval(root, depth, length, list,xy,links){
 									depth = depth + 1;
-									root.y = depth;
+									root['y'] = depth;
 									if(xy[1] < depth){
 										xy[1] = depth;
 									}
-									if(root.left != null){
-										length = traval(root.left, depth, length, list,xy, links);
+									root["name"] = root.subjectName;
+									if(root.leftChild != null){
+										length = traval(root.leftChild, depth, length, list,xy, links);
 										var link = {
-											"source":root.name,
-											"target":root.left.name
+											"source":root.subjectName,
+											"target":root.leftChild.subjectName,
+											"symbol":["circle","arrow"]
 										}
-										if(root.direction == 2){
-											var symbol = ["circle","arrow"];
-											link["symbol"] = symbol;
+										if(root.leftChild.relPos == 1){
+											link["target"] = root.subjectName;
+											link["source"] = root.leftChild.subjectName;
 										}
 										links.push(link);
 									}
 									length = length + 1;
-									root.x = length;
+									root['x'] = length;
 									if(xy[0] < length){
 										xy[0] = length;
 									}
-									if(root.right != null){
-										length = traval(root.right, depth, length, list,xy, links);
+									if(root.rightChild != null){
+										length = traval(root.rightChild, depth, length, list,xy, links);
 										var link = {
-											"source":root.name,
-											"target":root.right.name
+											"source":root.subjectName,
+											"target":root.rightChild.subjectName,
+											"symbol":["circle","arrow"]
 										}
-										if(root.direction == 1){
-											var symbol = ["circle","arrow"];
-											link["symbol"] = symbol;
+										if(root.rightChild.relPos == 1){
+											link["target"] = root.subjectName;
+											link["source"] = root.rightChild.subjectName;
 										}
 										links.push(link);
 									}
@@ -86,7 +89,7 @@
 								}
 							</pre>
 						</section>
-						<p>测试数据：{"direction":1,"left":{"direction":1,"left":{"direction":0,"name":"l-l","x":0,"y":0},"name":"l","right":{"direction":0,"name":"l-r","x":0,"y":0},"x":0,"y":0},"name":"root","right":{"direction":2,"left":{"direction":0,"name":"r-l","x":0,"y":0},"name":"r","right":{"direction":0,"name":"r-r","x":0,"y":0},"x":0,"y":0},"x":0,"y":0}</p>
+						<p>测试数据：{"leftChild":{"level":2,"order":1,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"subjectId":14,"subjectLib":23,"subjectName":"导致","treePos":1},"level":1,"order":1,"relPos":0,"relationId":0,"rightChild":{"leftChild":{"leftChild":{"level":4,"order":5,"relPos":2,"relationId":11,"relationName":"适用","root":false,"subjectId":18640,"subjectLib":4,"subjectName":"造影","treePos":1},"level":3,"order":3,"relPos":1,"relationId":14,"relationName":"被导致","rightChild":{"level":4,"order":6,"relPos":2,"relationId":3,"relationName":"从属","root":false,"subjectId":12409,"subjectLib":22,"subjectName":"剂","treePos":2},"root":false,"subjectId":45985,"subjectLib":22,"subjectName":"造影剂","treePos":1},"level":2,"order":2,"relPos":2,"relationId":14,"relationName":"导致","rightChild":{"leftChild":{"level":4,"order":7,"relPos":2,"relationId":16,"relationName":"累及","root":false,"subjectId":1553,"subjectLib":3,"subjectName":"肾","treePos":1},"level":3,"order":4,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"level":4,"order":8,"relPos":2,"relationId":4,"relationName":"属于","root":false,"subjectId":1126,"subjectLib":22,"subjectName":"疾病","treePos":2},"root":false,"subjectId":8414,"subjectLib":1,"subjectName":"肾脏疾患","treePos":2},"root":false,"subjectId":412292,"subjectLib":1,"subjectName":"造影剂肾病","treePos":2},"root":true,"subjectId":520019,"subjectLib":7,"subjectName":"所致造影剂肾病","treePos":0}</p>
 					</div>
 					<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
     					<div id="binary-tree" style="width: 800px;height:600px;"></div>
@@ -102,41 +105,44 @@
 	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
 	<script type="text/javascript" src="js/echarts.min.js"></script>
 	<script type="text/javascript">
-		var str = '{"direction":1,"left":{"direction":1,"left":{"direction":0,"name":"l-l","x":0,"y":0},"name":"l","right":{"direction":0,"name":"l-r","x":0,"y":0},"x":0,"y":0},"name":"root","right":{"direction":2,"left":{"direction":0,"name":"r-l","x":0,"y":0},"name":"r","right":{"direction":0,"name":"r-r","x":0,"y":0},"x":0,"y":0},"x":0,"y":0}';
+		var str = '{"leftChild":{"level":2,"order":1,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"subjectId":14,"subjectLib":23,"subjectName":"导致","treePos":1},"level":1,"order":1,"relPos":0,"relationId":0,"rightChild":{"leftChild":{"leftChild":{"level":4,"order":5,"relPos":2,"relationId":11,"relationName":"适用","root":false,"subjectId":18640,"subjectLib":4,"subjectName":"造影","treePos":1},"level":3,"order":3,"relPos":1,"relationId":14,"relationName":"被导致","rightChild":{"level":4,"order":6,"relPos":2,"relationId":3,"relationName":"从属","root":false,"subjectId":12409,"subjectLib":22,"subjectName":"剂","treePos":2},"root":false,"subjectId":45985,"subjectLib":22,"subjectName":"造影剂","treePos":1},"level":2,"order":2,"relPos":2,"relationId":14,"relationName":"导致","rightChild":{"leftChild":{"level":4,"order":7,"relPos":2,"relationId":16,"relationName":"累及","root":false,"subjectId":1553,"subjectLib":3,"subjectName":"肾","treePos":1},"level":3,"order":4,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"level":4,"order":8,"relPos":2,"relationId":4,"relationName":"属于","root":false,"subjectId":1126,"subjectLib":22,"subjectName":"疾病","treePos":2},"root":false,"subjectId":8414,"subjectLib":1,"subjectName":"肾脏疾患","treePos":2},"root":false,"subjectId":412292,"subjectLib":1,"subjectName":"造影剂肾病","treePos":2},"root":true,"subjectId":520019,"subjectLib":7,"subjectName":"所致造影剂肾病","treePos":0}';
 		var root = JSON.parse(str);
 
 		function traval(root, depth, length, list,xy,links){
 			depth = depth + 1;
-		     root.y = depth;
+		     root['y'] = depth;
 			if(xy[1] < depth){
 				xy[1] = depth;
 			}
-	         if(root.left != null){
-	            length = traval(root.left, depth, length, list,xy, links);
+			root["name"] = root.subjectName;
+	         if(root.leftChild != null){
+	            length = traval(root.leftChild, depth, length, list,xy, links);
 	            var link = {
-	            		"source":root.name,
-	            		"target":root.left.name
+	            		"source":root.subjectName,
+	            		"target":root.leftChild.subjectName,
+	            		"symbol":["circle","arrow"]
 	            	}
-	            if(root.direction == 2){
-	            	var symbol = ["circle","arrow"];
-	            	link["symbol"] = symbol;
+	            if(root.leftChild.relPos == 1){
+	            	link["target"] = root.subjectName;
+	            	link["source"] = root.leftChild.subjectName;
 	            }
 	            links.push(link);
 	         }
 	         length = length + 1;
-	         root.x = length;
+	         root['x'] = length;
 			if(xy[0] < length){
 				xy[0] = length;
 			}
-	        if(root.right != null){
-	            length = traval(root.right, depth, length, list,xy, links);
+	        if(root.rightChild != null){
+	            length = traval(root.rightChild, depth, length, list,xy, links);
 	            var link = {
-	            		"source":root.name,
-	            		"target":root.right.name
+	            		"source":root.subjectName,
+	            		"target":root.rightChild.subjectName,
+	            		"symbol":["circle","arrow"]
 	            	}
-	            if(root.direction == 1){
-	            	var symbol = ["circle","arrow"];
-	            	link["symbol"] = symbol;
+	            if(root.rightChild.relPos == 1){
+	            	link["target"] = root.subjectName;
+	            	link["source"] = root.rightChild.subjectName;
 	            }
 	            links.push(link);
 	         }
