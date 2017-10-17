@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>二叉树显示-echarts</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Algorithm</a></li>
+					<li class="active">Article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>二叉树显示-echarts</h3>
+					<small>2017-05-19</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>带关系的二叉树显示-echarts</em></p>
+				</div>
+				<div class="centent">
+					<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    					<div id="binary-tree" style="width: 800px;height:600px;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center"><em>The world is so interesting</em></div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<script type="text/javascript" src="js/echarts.min.js"></script>
+	<script type="text/javascript">
+		var str = '{"direction":1,"left":{"direction":1,"left":{"direction":0,"name":"l-l","x":0,"y":0},"name":"l","right":{"direction":0,"name":"l-r","x":0,"y":0},"x":0,"y":0},"name":"root","right":{"direction":2,"left":{"direction":0,"name":"r-l","x":0,"y":0},"name":"r","right":{"direction":0,"name":"r-r","x":0,"y":0},"x":0,"y":0},"x":0,"y":0}';
+		var root = JSON.parse(str);
+
+		function traval(root, depth, length, list,xy,links){
+			depth = depth + 1;
+		     root.y = depth;
+			if(xy[1] < depth){
+				xy[1] = depth;
+			}
+	         if(root.left != null){
+	            length = traval(root.left, depth, length, list,xy, links);
+	            var link = {
+	            		"source":root.name,
+	            		"target":root.left.name
+	            	}
+	            if(root.direction == 2){
+	            	var symbol = "arrow";
+	            	link["symbol"] = symbol;
+	            }
+	            links.push(link);
+	         }
+	         length = length + 1;
+	         root.x = length;
+			if(xy[0] < length){
+				xy[0] = length;
+			}
+	        if(root.right != null){
+	            length = traval(root.right, depth, length, list,xy, links);
+	            var link = {
+	            		"source":root.name,
+	            		"target":root.right.name
+	            	}
+	            if(root.direction == 1){
+	            	var symbol = "arrow";
+	            	link["symbol"] = symbol;
+	            }
+	            links.push(link);
+	         }
+	         root.left = null;
+	         root.right = null;
+	         list.push(root);
+	         return length;
+		}
+		var list=[];
+		var xy=[0,0];
+		var links = [];
+		traval(root, 0, 0, list,xy,links);
+
+		var xLength = xy[0], yLength = xy[1];
+		var xWidth = $("#binary-tree").width();
+		var yHeight = $("#binary-tree").height();
+
+		var xStep = xWidth / xLength;
+		var yStep = yHeight / yLength;
+
+		var TreeDdata = [];
+		for(var i in list){
+			var node = list[i];
+			var showData = {
+				"name":node.name,
+				"x": (node.x - 1) * xWidth,
+				"y": (node.y - 1) * yHeight
+			}
+			TreeDdata.push(showData)
+		}
+
+		// 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('binary-tree'));
+
+        // 指定图表的配置项和数据
+        var option = {
+		    title: {
+		        text: 'Graph 简单示例'
+		    },
+		    tooltip: {},
+		    animationDurationUpdate: 1500,
+		    animationEasingUpdate: 'quinticInOut',
+		    series : [
+		        {
+		            type: 'graph',
+		            layout: 'none',
+		            symbolSize: 50,
+		            roam: true,
+		            label: {
+		                normal: {
+		                    show: true
+		                }
+		            },
+		            edgeSymbol: ['circle'],
+		            edgeSymbolSize: [4, 10],
+		            edgeLabel: {
+		                normal: {
+		                    textStyle: {
+		                        fontSize: 20
+		                    }
+		                }
+		            },
+		            data: TreeDdata,
+		            // links: [],
+		            links: links,
+		            lineStyle: {
+		                normal: {
+		                    opacity: 0.9,
+		                    width: 2,
+		                    curveness: 0
+		                }
+		            }
+		        }
+		    ]
+		};
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+	</script>
+</body>
+</html>
