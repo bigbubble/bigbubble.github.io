@@ -44,67 +44,158 @@
 						<p>原始数据x,y没有值,通过中序遍历求出,参数：root:根结点, depth:已计算的深度, length:已计算的长度, list:节点信息数组,xy最大深度和长度,links:echarts连线数组</p>
 						<section class="code-section">
 							<pre class="brush:javascript">
+								//echarts link显示的数据
+								function getRelationName(node){
+									return node.data.relationName;
+								}
+								//中序遍历二叉树计算每个节点相对位置,同时构建连线数组
 								function traval(node, depth, length, list,xy,links){
-							        depth = depth + 1;
-							        node['y'] = depth;
-							        if(xy[1] < depth){
-							            xy[1] = depth;
-							        }
-							        if(node["name"] == null || node["name"]== undefined){
-							            node["name"] = "("+node.level+"-"+node.order+")"+node.subjectName;
-							        }
-							        if(node.leftChild != null && node.leftChild != undefined){
-							            length = traval(node.leftChild, depth, length, list,xy, links);
-							            node.leftChild['name'] = "("+node.leftChild.level +"-"+node.leftChild.order+")"+node.leftChild.subjectName;
-							            var link = {
-							                "source":node.name,
-							                "target":node.leftChild.name,
-							                "label":{
-							                    normal:{
-							                        show:true,
-							                        formatter:getRelationName
-							                    }
-							                },
-							                "symbol":["circle","arrow"],
-							                "relationName":node.leftChild.relationName
-							            }
-							            if(node.leftChild.relPos == 1){
-							                link["target"] = node.name;
-							                link["source"] = node.leftChild.name;
-							            }
-							            links.push(link);
-							        }
-							        length = length + 1;
-							        node['x'] = length;
-							        if(xy[0] < length){
-							            xy[0] = length;
-							        }
-							        if(node.rightChild != null && node.rightChild != undefined){
-							            length = traval(node.rightChild, depth, length, list,xy, links);
-							            node.rightChild['name'] = "("+node.rightChild.level+"-"+node.rightChild.order+")"+node.rightChild.subjectName;
-							            var link = {
-							                "source":node.name,
-							                "target":node.rightChild.name,
-							                "label":{
-							                    normal:{
-							                        show:true,
-							                        formatter:getRelationName
-							                    }
-							                },
-							                "symbol":["circle","arrow"],
-							                "relationName":node.rightChild.relationName
-							            }
-							            if(node.rightChild.relPos == 1){
-							                link["target"] = node.name;
-							                link["source"] = node.rightChild.name;
-							            }
-							            links.push(link);
-							        }
-							        node.leftChild = null;
-							        node.rightChild = null;
-							        list.push(node);
-							        return length;
-							    }
+									depth = depth + 1;
+									node['y'] = depth;
+									if(xy[1] < depth){
+										xy[1] = depth;
+									}
+									if(node["name"] == null || node["name"]== undefined){
+										node["name"] = "("+node.level+"-"+node.order+")"+node.subjectName;
+									}
+									//递归处理左节点
+									if(node.leftChild != null && node.leftChild != undefined){
+										length = traval(node.leftChild, depth, length, list,xy, links);
+										node.leftChild['name'] = "("+node.leftChild.level +"-"+node.leftChild.order+")"+node.leftChild.subjectName;
+										//连线
+										var link = {
+											"source":node.name,
+											"target":node.leftChild.name,
+											"label":{
+												normal:{
+													show:true,
+													formatter:getRelationName
+												}
+											},
+											"symbol":["circle","arrow"],
+											"relationName":node.leftChild.relationName
+										}
+										//关系方向
+										if(node.leftChild.relPos == 1){
+											link["target"] = node.name;
+											link["source"] = node.leftChild.name;
+										}
+										links.push(link);
+									}
+									//从左到右计算数量，计算完左节点后+1,也是当前节点的x位置
+									length = length + 1;
+									node['x'] = length;
+									if(xy[0] < length){
+										xy[0] = length;
+									}
+									//递归处理右节点
+									if(node.rightChild != null && node.rightChild != undefined){
+										length = traval(node.rightChild, depth, length, list,xy, links);
+										node.rightChild['name'] = "("+node.rightChild.level+"-"+node.rightChild.order+")"+node.rightChild.subjectName;
+										//连线
+										var link = {
+											"source":node.name,
+											"target":node.rightChild.name,
+											"label":{
+												normal:{
+													show:true,
+													formatter:getRelationName
+												}
+											},
+											"symbol":["circle","arrow"],
+											"relationName":node.rightChild.relationName
+										}
+										//关系方向
+										if(node.rightChild.relPos == 1){
+											link["target"] = node.name;
+											link["source"] = node.rightChild.name;
+										}
+										links.push(link);
+									}
+									//删掉多余属性
+									node.leftChild = null;
+									node.rightChild = null;
+									//加入节点数组
+									list.push(node);
+									return length;
+								}
+								//画二叉树 root-根结点,id-div的id, options-配置项(只有一个title)
+								function drawBinaryTree(root, id, options){
+									var list=[];
+									var xy=[0,0];
+									var links = [];
+									//获取节点相对位置和连线信息
+									traval(root, 0, 0, list,xy,links);
+
+									var xLength = xy[0], yLength = xy[1];
+									var xWidth = $("#"+id).width();
+									var yHeight = $("#"+id).height();
+
+									var xStep = xWidth / xLength;
+									var yStep = yHeight / yLength;
+									//计算节点渲染绝对位置
+									var TreeDdata = [];
+									for(var i in list){
+										var node = list[i];
+										var showData = {
+											"name":node.name,
+											"x": (node.x - 1) * xStep,
+											"y": (node.y - 1) * yStep
+										}
+										TreeDdata.push(showData)
+									}
+
+									// 基于准备好的dom，初始化echarts实例
+									// 配置文档:http://echarts.baidu.com/option.html#series-graph
+									var myChart = echarts.init(document.getElementById(id));
+
+									// 指定图表的配置项和数据
+									var option = {
+										title: {
+											//标题
+											text: options.title,
+											left:'center'
+										},
+										tooltip: {},
+										animationDurationUpdate: 1500,
+										animationEasingUpdate: 'quinticInOut',
+										series : [
+											{
+												type: 'graph',
+												layout: 'none',
+												symbolSize: 50,
+												roam: true,
+												label: {
+													normal: {
+														show: true
+													}
+												},
+												edgeSymbol: ['circle'],
+												edgeSymbolSize: [4, 10],
+												edgeLabel: {
+													normal: {
+														textStyle: {
+															fontSize: 20
+														}
+													}
+												},
+												//节点信息
+												data: TreeDdata,
+												//连线信息
+												links: links,
+												lineStyle: {
+													normal: {
+														opacity: 0.9,
+														width: 2,
+														curveness: 0
+													}
+												}
+											}
+										]
+									};
+									// 使用刚指定的配置项和数据显示图表。
+									myChart.setOption(option);
+								}
 							</pre>
 						</section>
 					</div>
