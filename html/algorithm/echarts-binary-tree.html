@@ -41,58 +41,79 @@
 				<div class="centent">
 					<div>
 						<p>节点 node 属性:name-名称,leftChild-左节点,rightChild-右节点,relPos-方向(1:左节点是起始,2:右节点是起始),x-节点从左到右的序号,y-节点深度;(x,y)对应以左上角为原点平面坐标系上的一个点</p>
-						<p>原始数据x,y没有值,通过中序遍历求出,参数：root:根结点, depth:已计算的深度, length:已计算的长度, list:节点信息数组,xy最大深度和长度,links:连线数组</p>
+						<p>原始数据x,y没有值,通过中序遍历求出,参数：root:根结点, depth:已计算的深度, length:已计算的长度, list:节点信息数组,xy最大深度和长度,links:echarts连线数组</p>
 						<section class="code-section">
 							<pre class="brush:javascript">
-								function traval(root, depth, length, list,xy,links){
-									depth = depth + 1;
-									root['y'] = depth;
-									if(xy[1] < depth){
-										xy[1] = depth;
-									}
-									root["name"] = root.subjectName;
-									if(root.leftChild != null){
-										length = traval(root.leftChild, depth, length, list,xy, links);
-										var link = {
-											"source":root.subjectName,
-											"target":root.leftChild.subjectName,
-											"symbol":["circle","arrow"]
-										}
-										if(root.leftChild.relPos == 1){
-											link["target"] = root.subjectName;
-											link["source"] = root.leftChild.subjectName;
-										}
-										links.push(link);
-									}
-									length = length + 1;
-									root['x'] = length;
-									if(xy[0] < length){
-										xy[0] = length;
-									}
-									if(root.rightChild != null){
-										length = traval(root.rightChild, depth, length, list,xy, links);
-										var link = {
-											"source":root.subjectName,
-											"target":root.rightChild.subjectName,
-											"symbol":["circle","arrow"]
-										}
-										if(root.rightChild.relPos == 1){
-											link["target"] = root.subjectName;
-											link["source"] = root.rightChild.subjectName;
-										}
-										links.push(link);
-									}
-									root.left = null;
-									root.right = null;
-									list.push(root);
-									return length;
-								}
+								function traval(node, depth, length, list,xy,links){
+							        depth = depth + 1;
+							        node['y'] = depth;
+							        if(xy[1] < depth){
+							            xy[1] = depth;
+							        }
+							        if(node["name"] == null || node["name"]== undefined){
+							            node["name"] = "("+node.level+"-"+node.order+")"+node.subjectName;
+							        }
+							        if(node.leftChild != null && node.leftChild != undefined){
+							            length = traval(node.leftChild, depth, length, list,xy, links);
+							            node.leftChild['name'] = "("+node.leftChild.level +"-"+node.leftChild.order+")"+node.leftChild.subjectName;
+							            var link = {
+							                "source":node.name,
+							                "target":node.leftChild.name,
+							                "label":{
+							                    normal:{
+							                        show:true,
+							                        formatter:getRelationName
+							                    }
+							                },
+							                "symbol":["circle","arrow"],
+							                "relationName":node.leftChild.relationName
+							            }
+							            if(node.leftChild.relPos == 1){
+							                link["target"] = node.name;
+							                link["source"] = node.leftChild.name;
+							            }
+							            links.push(link);
+							        }
+							        length = length + 1;
+							        node['x'] = length;
+							        if(xy[0] < length){
+							            xy[0] = length;
+							        }
+							        if(node.rightChild != null && node.rightChild != undefined){
+							            length = traval(node.rightChild, depth, length, list,xy, links);
+							            node.rightChild['name'] = "("+node.rightChild.level+"-"+node.rightChild.order+")"+node.rightChild.subjectName;
+							            var link = {
+							                "source":node.name,
+							                "target":node.rightChild.name,
+							                "label":{
+							                    normal:{
+							                        show:true,
+							                        formatter:getRelationName
+							                    }
+							                },
+							                "symbol":["circle","arrow"],
+							                "relationName":node.rightChild.relationName
+							            }
+							            if(node.rightChild.relPos == 1){
+							                link["target"] = node.name;
+							                link["source"] = node.rightChild.name;
+							            }
+							            links.push(link);
+							        }
+							        node.leftChild = null;
+							        node.rightChild = null;
+							        list.push(node);
+							        return length;
+							    }
 							</pre>
 						</section>
-						<p>测试数据：{"leftChild":{"leftChild":{"level":3,"order":1,"relPos":2,"relationId":3,"relationName":"从属","root":false,"serialNumber":"3-1","subjectId":8080,"subjectLib":2,"subjectLibName":"生理","subjectName":"哺乳","treePos":1},"level":2,"order":1,"relPos":2,"relationId":17,"relationName":"见于","rightChild":{"level":3,"order":2,"relPos":2,"relationId":4,"relationName":"属于","root":false,"serialNumber":"3-2","subjectId":3446,"subjectLib":22,"subjectLibName":"类别","subjectName":"生理阶段","treePos":2},"root":false,"serialNumber":"2-1","subjectId":186456,"subjectLib":2,"subjectLibName":"生理","subjectName":"哺乳期","treePos":1},"level":1,"order":1,"relPos":0,"relationId":0,"rightChild":{"leftChild":{"level":3,"order":3,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"3-3","subjectId":46192,"subjectLib":24,"subjectLibName":"衍生辅词","subjectName":"升","treePos":1},"level":2,"order":2,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"leftChild":{"level":4,"order":7,"relPos":2,"relationId":3,"relationName":"从属","root":false,"serialNumber":"4-7","subjectId":1724,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"分级","treePos":1},"level":3,"order":4,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"level":4,"order":8,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"4-8","subjectId":1198,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"数量","treePos":2},"root":false,"serialNumber":"3-4","subjectId":1724,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"级数","treePos":2},"root":false,"serialNumber":"2-2","subjectId":4907431,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"L分级","treePos":2},"root":true,"serialNumber":"1-1","subjectId":4907497,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"哺乳期L分级","treePos":0}</p>
 					</div>
+					<p>测试数据1,节点和子节点主题相同(3-4,4-7)：{"leftChild":{"leftChild":{"level":3,"order":1,"relPos":2,"relationId":3,"relationName":"从属","root":false,"serialNumber":"3-1","subjectId":8080,"subjectLib":2,"subjectLibName":"生理","subjectName":"哺乳","treePos":1},"level":2,"order":1,"relPos":2,"relationId":17,"relationName":"见于","rightChild":{"level":3,"order":2,"relPos":2,"relationId":4,"relationName":"属于","root":false,"serialNumber":"3-2","subjectId":3446,"subjectLib":22,"subjectLibName":"类别","subjectName":"生理阶段","treePos":2},"root":false,"serialNumber":"2-1","subjectId":186456,"subjectLib":2,"subjectLibName":"生理","subjectName":"哺乳期","treePos":1},"level":1,"order":1,"relPos":0,"relationId":0,"rightChild":{"leftChild":{"level":3,"order":3,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"3-3","subjectId":46192,"subjectLib":24,"subjectLibName":"衍生辅词","subjectName":"升","treePos":1},"level":2,"order":2,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"leftChild":{"level":4,"order":7,"relPos":2,"relationId":3,"relationName":"从属","root":false,"serialNumber":"4-7","subjectId":1724,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"分级","treePos":1},"level":3,"order":4,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"level":4,"order":8,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"4-8","subjectId":1198,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"数量","treePos":2},"root":false,"serialNumber":"3-4","subjectId":1724,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"级数","treePos":2},"root":false,"serialNumber":"2-2","subjectId":4907431,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"L分级","treePos":2},"root":true,"serialNumber":"1-1","subjectId":4907497,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"哺乳期L分级","treePos":0}</p>
 					<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
     					<div id="binary-tree" style="width: 800px;height:600px;"></div>
+    					<p>测试数据2,节点和其他节点主题相同(4-2,4-3)：{"leftChild":{"leftChild":{"leftChild":{"level":4,"order":1,"relPos":1,"relationId":4,"relationName":"被属于","root":false,"serialNumber":"4-1","subjectId":1319,"subjectLib":21,"subjectLibName":"属性","subjectName":"重度","treePos":1},"level":3,"order":1,"relPos":2,"relationId":4,"relationName":"属于","rightChild":{"level":4,"order":2,"relPos":2,"relationId":3,"relationName":"从属","root":false,"serialNumber":"4-2","subjectId":2461,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"程度","treePos":2},"root":false,"serialNumber":"3-1","subjectId":657,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"严重程度","treePos":1},"level":2,"order":1,"relPos":2,"relationId":4,"relationName":"属于","rightChild":{"leftChild":{"level":4,"order":3,"relPos":2,"relationId":4,"relationName":"属于","root":false,"serialNumber":"4-3","subjectId":2461,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"程度","treePos":1},"level":3,"order":2,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"leftChild":{"level":5,"order":7,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"5-7","subjectId":27667,"subjectLib":24,"subjectLibName":"衍生辅词","subjectName":"第","treePos":1},"level":4,"order":4,"relPos":2,"relationId":51,"relationName":"内关联","rightChild":{"level":5,"order":8,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"5-8","subjectId":23656,"subjectLib":19,"subjectLibName":"数值","subjectName":"1","treePos":2},"root":false,"serialNumber":"4-4","subjectId":1661,"subjectLib":24,"subjectLibName":"衍生辅词","subjectName":"第1","treePos":2},"root":false,"serialNumber":"3-2","subjectId":71761,"subjectLib":21,"subjectLibName":"属性","subjectName":"I度","treePos":2},"root":false,"serialNumber":"2-1","subjectId":130600,"subjectLib":21,"subjectLibName":"属性","subjectName":"严重程度1度","treePos":1},"level":1,"order":1,"relPos":0,"relationId":0,"rightChild":{"leftChild":{"level":3,"order":3,"relPos":2,"relationId":16,"relationName":"累及","root":false,"serialNumber":"3-3","subjectId":7520,"subjectLib":3,"subjectLibName":"身体组成","subjectName":"子宫","treePos":1},"level":2,"order":2,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"level":3,"order":4,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"3-4","subjectId":19736,"subjectLib":23,"subjectLibName":"动词","subjectName":"脱垂","treePos":2},"root":false,"serialNumber":"2-2","subjectId":16085,"subjectLib":1,"subjectLibName":"病症","subjectName":"子宫脱垂","treePos":2},"root":true,"serialNumber":"1-1","subjectId":268814,"subjectLib":1,"subjectLibName":"病症","subjectName":"子宫Ⅰ度脱垂","treePos":0}</p>
+					<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    					<div id="binary-tree2" style="width: 800px;height:600px;"></div>
 				</div>
 			</div>
 		</div>
@@ -106,121 +127,149 @@
 	<script type="text/javascript" src="js/echarts.min.js"></script>
 	<script type="text/javascript">
 		var str = '{"leftChild":{"leftChild":{"level":3,"order":1,"relPos":2,"relationId":3,"relationName":"从属","root":false,"serialNumber":"3-1","subjectId":8080,"subjectLib":2,"subjectLibName":"生理","subjectName":"哺乳","treePos":1},"level":2,"order":1,"relPos":2,"relationId":17,"relationName":"见于","rightChild":{"level":3,"order":2,"relPos":2,"relationId":4,"relationName":"属于","root":false,"serialNumber":"3-2","subjectId":3446,"subjectLib":22,"subjectLibName":"类别","subjectName":"生理阶段","treePos":2},"root":false,"serialNumber":"2-1","subjectId":186456,"subjectLib":2,"subjectLibName":"生理","subjectName":"哺乳期","treePos":1},"level":1,"order":1,"relPos":0,"relationId":0,"rightChild":{"leftChild":{"level":3,"order":3,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"3-3","subjectId":46192,"subjectLib":24,"subjectLibName":"衍生辅词","subjectName":"升","treePos":1},"level":2,"order":2,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"leftChild":{"level":4,"order":7,"relPos":2,"relationId":3,"relationName":"从属","root":false,"serialNumber":"4-7","subjectId":1724,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"分级","treePos":1},"level":3,"order":4,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"level":4,"order":8,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"4-8","subjectId":1198,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"数量","treePos":2},"root":false,"serialNumber":"3-4","subjectId":1724,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"级数","treePos":2},"root":false,"serialNumber":"2-2","subjectId":4907431,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"L分级","treePos":2},"root":true,"serialNumber":"1-1","subjectId":4907497,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"哺乳期L分级","treePos":0}';
+		var str2 = '{"leftChild":{"leftChild":{"leftChild":{"level":4,"order":1,"relPos":1,"relationId":4,"relationName":"被属于","root":false,"serialNumber":"4-1","subjectId":1319,"subjectLib":21,"subjectLibName":"属性","subjectName":"重度","treePos":1},"level":3,"order":1,"relPos":2,"relationId":4,"relationName":"属于","rightChild":{"level":4,"order":2,"relPos":2,"relationId":3,"relationName":"从属","root":false,"serialNumber":"4-2","subjectId":2461,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"程度","treePos":2},"root":false,"serialNumber":"3-1","subjectId":657,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"严重程度","treePos":1},"level":2,"order":1,"relPos":2,"relationId":4,"relationName":"属于","rightChild":{"leftChild":{"level":4,"order":3,"relPos":2,"relationId":4,"relationName":"属于","root":false,"serialNumber":"4-3","subjectId":2461,"subjectLib":20,"subjectLibName":"CSIN","subjectName":"程度","treePos":1},"level":3,"order":2,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"leftChild":{"level":5,"order":7,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"5-7","subjectId":27667,"subjectLib":24,"subjectLibName":"衍生辅词","subjectName":"第","treePos":1},"level":4,"order":4,"relPos":2,"relationId":51,"relationName":"内关联","rightChild":{"level":5,"order":8,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"5-8","subjectId":23656,"subjectLib":19,"subjectLibName":"数值","subjectName":"1","treePos":2},"root":false,"serialNumber":"4-4","subjectId":1661,"subjectLib":24,"subjectLibName":"衍生辅词","subjectName":"第1","treePos":2},"root":false,"serialNumber":"3-2","subjectId":71761,"subjectLib":21,"subjectLibName":"属性","subjectName":"I度","treePos":2},"root":false,"serialNumber":"2-1","subjectId":130600,"subjectLib":21,"subjectLibName":"属性","subjectName":"严重程度1度","treePos":1},"level":1,"order":1,"relPos":0,"relationId":0,"rightChild":{"leftChild":{"level":3,"order":3,"relPos":2,"relationId":16,"relationName":"累及","root":false,"serialNumber":"3-3","subjectId":7520,"subjectLib":3,"subjectLibName":"身体组成","subjectName":"子宫","treePos":1},"level":2,"order":2,"relPos":2,"relationId":3,"relationName":"从属","rightChild":{"level":3,"order":4,"relPos":2,"relationId":51,"relationName":"内关联","root":false,"serialNumber":"3-4","subjectId":19736,"subjectLib":23,"subjectLibName":"动词","subjectName":"脱垂","treePos":2},"root":false,"serialNumber":"2-2","subjectId":16085,"subjectLib":1,"subjectLibName":"病症","subjectName":"子宫脱垂","treePos":2},"root":true,"serialNumber":"1-1","subjectId":268814,"subjectLib":1,"subjectLibName":"病症","subjectName":"子宫Ⅰ度脱垂","treePos":0}';
 		var root = JSON.parse(str);
+		var root2 = JSON.parse(str2);
 
-		function traval(root, depth, length, list,xy,links){
-			depth = depth + 1;
-		     root['y'] = depth;
-			if(xy[1] < depth){
-				xy[1] = depth;
-			}
-			root["name"] = root.subjectName;
-	         if(root.leftChild != null){
-	            length = traval(root.leftChild, depth, length, list,xy, links);
-	            var link = {
-	            		"source":root.subjectName,
-	            		"target":root.leftChild.subjectName,
-	            		"symbol":["circle","arrow"]
-	            	}
-	            if(root.leftChild.relPos == 1){
-	            	link["target"] = root.subjectName;
-	            	link["source"] = root.leftChild.subjectName;
-	            }
-	            links.push(link);
-	         }
-	         length = length + 1;
-	         root['x'] = length;
-			if(xy[0] < length){
-				xy[0] = length;
-			}
-	        if(root.rightChild != null){
-	            length = traval(root.rightChild, depth, length, list,xy, links);
-	            var link = {
-	            		"source":root.subjectName,
-	            		"target":root.rightChild.subjectName,
-	            		"symbol":["circle","arrow"]
-	            	}
-	            if(root.rightChild.relPos == 1){
-	            	link["target"] = root.subjectName;
-	            	link["source"] = root.rightChild.subjectName;
-	            }
-	            links.push(link);
-	         }
-	         root.left = null;
-	         root.right = null;
-	         list.push(root);
-	         return length;
-		}
-		var list=[];
-		var xy=[0,0];
-		var links = [];
-		traval(root, 0, 0, list,xy,links);
-
-		var xLength = xy[0], yLength = xy[1];
-		var xWidth = $("#binary-tree").width();
-		var yHeight = $("#binary-tree").height();
-
-		var xStep = xWidth / xLength;
-		var yStep = yHeight / yLength;
-
-		var TreeDdata = [];
-		for(var i in list){
-			var node = list[i];
-			var showData = {
-				"name":node.name,
-				"x": (node.x - 1) * xStep,
-				"y": (node.y - 1) * yStep
-			}
-			TreeDdata.push(showData)
+		function getRelationName(node){
+			return node.data.relationName;
 		}
 
-		// 基于准备好的dom，初始化echarts实例
-        var myChart = echarts.init(document.getElementById('binary-tree'));
+		function traval(node, depth, length, list,xy,links){
+	        depth = depth + 1;
+	        node['y'] = depth;
+	        if(xy[1] < depth){
+	            xy[1] = depth;
+	        }
+	        if(node["name"] == null || node["name"]== undefined){
+	            node["name"] = "("+node.level+"-"+node.order+")"+node.subjectName;
+	        }
+	        if(node.leftChild != null && node.leftChild != undefined){
+	            length = traval(node.leftChild, depth, length, list,xy, links);
+	            node.leftChild['name'] = "("+node.leftChild.level +"-"+node.leftChild.order+")"+node.leftChild.subjectName;
+	            var link = {
+	                "source":node.name,
+	                "target":node.leftChild.name,
+	                "label":{
+	                	normal:{
+	                		show:true,
+	                		formatter:getRelationName
+	                	}
+	                },
+	                "symbol":["circle","arrow"],
+	                "relationName":node.leftChild.relationName
+	            }
+	            if(node.leftChild.relPos == 1){
+	                link["target"] = node.name;
+	                link["source"] = node.leftChild.name;
+	            }
+	            links.push(link);
+	        }
+	        length = length + 1;
+	        node['x'] = length;
+	        if(xy[0] < length){
+	            xy[0] = length;
+	        }
+	        if(node.rightChild != null && node.rightChild != undefined){
+	            length = traval(node.rightChild, depth, length, list,xy, links);
+	            node.rightChild['name'] = "("+node.rightChild.level+"-"+node.rightChild.order+")"+node.rightChild.subjectName;
+	            var link = {
+	                "source":node.name,
+	                "target":node.rightChild.name,
+	                "label":{
+	                	normal:{
+	                		show:true,
+	                		formatter:getRelationName
+	                	}
+	                },
+	                "symbol":["circle","arrow"],
+	                "relationName":node.rightChild.relationName
+	            }
+	            if(node.rightChild.relPos == 1){
+	                link["target"] = node.name;
+	                link["source"] = node.rightChild.name;
+	            }
+	            links.push(link);
+	        }
+	        node.leftChild = null;
+	        node.rightChild = null;
+	        list.push(node);
+	        return length;
+	    }
+	    function drawBinaryTree(root, id, options){
+		    var list=[];
+			var xy=[0,0];
+			var links = [];
+			traval(root, 0, 0, list,xy,links);
 
-        // 指定图表的配置项和数据
-        var option = {
-		    title: {
-		        text: 'Graph 简单示例',
-		        left:'center'
-		    },
-		    tooltip: {},
-		    animationDurationUpdate: 1500,
-		    animationEasingUpdate: 'quinticInOut',
-		    series : [
-		        {
-		            type: 'graph',
-		            layout: 'none',
-		            symbolSize: 50,
-		            roam: true,
-		            label: {
-		                normal: {
-		                    show: true
-		                }
-		            },
-		            edgeSymbol: ['circle'],
-		            edgeSymbolSize: [4, 10],
-		            edgeLabel: {
-		                normal: {
-		                    textStyle: {
-		                        fontSize: 20
-		                    }
-		                }
-		            },
-		            data: TreeDdata,
-		            // links: [],
-		            links: links,
-		            lineStyle: {
-		                normal: {
-		                    opacity: 0.9,
-		                    width: 2,
-		                    curveness: 0
-		                }
-		            }
-		        }
-		    ]
-		};
-        // 使用刚指定的配置项和数据显示图表。
-        myChart.setOption(option);
+			var xLength = xy[0], yLength = xy[1];
+			var xWidth = $("#"+id).width();
+			var yHeight = $("#"+id).height();
+
+			var xStep = xWidth / xLength;
+			var yStep = yHeight / yLength;
+
+			var TreeDdata = [];
+			for(var i in list){
+				var node = list[i];
+				var showData = {
+					"name":node.name,
+					"x": (node.x - 1) * xStep,
+					"y": (node.y - 1) * yStep
+				}
+				TreeDdata.push(showData)
+			}
+
+			// 基于准备好的dom，初始化echarts实例
+	        var myChart = echarts.init(document.getElementById(id));
+
+	        // 指定图表的配置项和数据
+	        var option = {
+			    title: {
+			        text: options.title,
+			        left:'center'
+			    },
+			    tooltip: {},
+			    animationDurationUpdate: 1500,
+			    animationEasingUpdate: 'quinticInOut',
+			    series : [
+			        {
+			            type: 'graph',
+			            layout: 'none',
+			            symbolSize: 50,
+			            roam: true,
+			            label: {
+			                normal: {
+			                    show: true
+			                }
+			            },
+			            edgeSymbol: ['circle'],
+			            edgeSymbolSize: [4, 10],
+			            edgeLabel: {
+			                normal: {
+			                    textStyle: {
+			                        fontSize: 20
+			                    }
+			                }
+			            },
+			            data: TreeDdata,
+			            // links: [],
+			            links: links,
+			            lineStyle: {
+			                normal: {
+			                    opacity: 0.9,
+			                    width: 2,
+			                    curveness: 0
+			                }
+			            }
+			        }
+			    ]
+			};
+	        // 使用刚指定的配置项和数据显示图表。
+	        myChart.setOption(option);
+	    }
+		drawBinaryTree(root,"binary-tree",{"title":"哺乳期L分级"});
+		drawBinaryTree(root2,"binary-tree2",{"title":"子宫Ⅰ度脱垂"});
 	</script>
 </body>
 </html>
