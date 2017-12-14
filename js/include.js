@@ -10,7 +10,8 @@ var catalog={
 		{"title":"SQL:查询条件有两个in,分组拼接查询,分页","href":"html/algorithm/query-from-database-by-group.html"},
 		{"title":"SQL:查询条件有两个in,分组拼接查询,分页-2","href":"html/algorithm/query-from-database-by-group2.html"},
 		{"title":"将关键字(多个)从一个字符串中按顺序提取出来","href":"html/algorithm/get-keywords-in-string-by-order.html"},
-		{"title":"构建表达式二叉树表示","href":"html/algorithm/build-binary-tree.html"}
+		{"title":"构建表达式二叉树表示","href":"html/algorithm/build-binary-tree.html"},
+		{"title":"分隔符转换","href":"html/tools/js-delimiter-transfer.html"}
 	]
 }
 var colors = ["btn-primary","btn-success","btn-info","btn-warning","btn-danger"];
