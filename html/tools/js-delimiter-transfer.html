@@ -41,26 +41,37 @@
 				<div class="centent">
 					<div class="input-group">
 					  <span class="input-group-addon" id="basic-addon1">原始字符串</span>
-					  <textarea class="form-control" placeholder="1;2;3;4;5;6;7" aria-describedby="basic-addon1">
+                      		  <textarea id="originString" class="form-control" placeholder="" aria-describedby="basic-addon1"></textarea>
 					</div>
 					<div class="input-group">
-					  <span class="input-group-addon" id="basic-addon1">原始分割符(正则)</span>
-					  <input type="text" class="form-control" placeholder=";|；" aria-describedby="basic-addon1">
+					  <span class="input-group-addon" id="basic-addon1">原始分割符</span>
+					   <label class="radio-inline">
+					  <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="string" checked> 字符串
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="reg"> 正则
+					</label>
+					  <input id="originSeperator" type="text" class="form-control" placeholder="" aria-describedby="basic-addon1">
 					</div>
 					<div class="input-group">
 					  <span class="input-group-addon" id="basic-addon1">新分割符</span>
-					  <input type="text" class="form-control" placeholder="," aria-describedby="basic-addon1">
+					  <input id="newSeperator" type="text" class="form-control" placeholder="" aria-describedby="basic-addon1">
 					</div>
 					<div class="input-group">
 					  <span class="input-group-addon" id="basic-addon1">前缀</span>
-					  <input type="text" class="form-control" placeholder="(" aria-describedby="basic-addon1">
+					  <input id="prefix" type="text" class="form-control" placeholder="" aria-describedby="basic-addon1">
 					</div>
 					<div class="input-group">
 					  <span class="input-group-addon" id="basic-addon1">后缀</span>
-					  <input type="text" class="form-control" placeholder=")" aria-describedby="basic-addon1">
+					  <input id="sufix" type="text" class="form-control" placeholder="" aria-describedby="basic-addon1">
 					</div>
 					<div>
-					  <span >结果：</span>
+						<input class="btn btn-default" type="button" value="转换" onclick="transfer()">
+						<input class="btn btn-default" type="button" value="清空" onclick="reset()">					
+					</div>
+					<div>
+				        <span >结果：</span>
+				        <div id="result"></div>
 					</div>
 				</div>
 			</div>
@@ -71,6 +82,50 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+    <script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+    <script>
+	function transfer(){
+		var originString = $("#originString").val();
+        	var originSeperator = $("#originSeperator").val();
+        	var newSeperator = $("#newSeperator").val();
+        	var prefix = $("#prefix").val();
+        	var sufix = $("#sufix").val();
+
+		var splitParamType = $("input[name='inlineRadioOptions']:checked").val();
+		var splitParam
+		if(splitParamType == "reg"){
+			originSeperator = new RegExp(originSeperator);
+		}
+        	var originStringArr = originString.split(originSeperator);
+        	var newDatas = uniqueArray(originStringArr);
+        	var newString = newDatas.join(newSeperator);
+        	if(prefix != null && prefix != ''){
+            	newString = prefix + newString
+		}
+		if(sufix != null && sufix != ''){
+		    newString = newString + sufix
+		}
+        	$("#result").empty().text(newString);
+	}
+	function reset(){
+		$("#originString").val("");
+        	$("#originSeperator").val("");
+        	$("#newSeperator").val("");
+        	$("#prefix").val("");
+        	$("#sufix").val("");
+	}
+        //去重
+        function uniqueArray(array){ 
+            var r = []; 
+            for(var i = 0, l = array.length; i < l; i++) { 
+			if(array[i] == '' || array[i].trim() == '')continue;
+                 for(var j = i + 1; j < l; j++) 
+                       if (array[i] === array[j]) j = ++i; 
+                  r.push(array[i]); 
+                   } 
+             return r; 
+        }
+
+    </script>
 </body>
 </html>
