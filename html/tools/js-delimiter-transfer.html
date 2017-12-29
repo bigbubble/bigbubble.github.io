@@ -39,36 +39,42 @@
 					<p><em>1,2,3,4,5,6,7 -> 1;2;3;4;5;6;7</em></p>
 				</div>
 				<div class="centent">
-					<div class="input-group">
-					  <span class="input-group-addon" id="basic-addon1">原始字符串</span>
-                      		  <textarea id="originString" class="form-control" placeholder="" aria-describedby="basic-addon1"></textarea>
+					<div class="input-group" style="width:100%">
+					  <span class="input-group-addon" style="width:100px">原始字符串</span>
+                      		  <textarea id="originString" class="form-control" placeholder="" aria-describedby="basic-addon1" rows=7></textarea>
 					</div>
 					<div class="input-group">
-					  <span class="input-group-addon" id="basic-addon1">原始分割符</span>
-					   <label class="radio-inline">
-					  <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="string" checked> 字符串
-					</label>
-					<label class="radio-inline">
-					  <input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="reg"> 正则
-					</label>
-					  <input id="originSeperator" type="text" class="form-control" placeholder="" aria-describedby="basic-addon1">
+					  <span class="input-group-addon" style="width:100px">原始分割符</span>
+					  <input id="originSeperator" type="text" style="width:100px" class="form-control" placeholder="" aria-describedby="basic-addon1">
+					  &nbsp;&nbsp;&nbsp;&nbsp;
+					  <span>
+						<label class="radio-inline">
+					  		<input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="string" checked> 字符串
+						</label>
+						<label class="radio-inline">
+					  		<input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="reg"> 正则
+						</label>
+					  </span>
+					</div>
+					<br/>
+					<div class="input-group">
+					  <span class="input-group-addon" style="width:100px">新分割符</span>
+					  <input id="newSeperator" type="text" style="width:100px" class="form-control" placeholder="" aria-describedby="basic-addon1">
 					</div>
 					<div class="input-group">
-					  <span class="input-group-addon" id="basic-addon1">新分割符</span>
-					  <input id="newSeperator" type="text" class="form-control" placeholder="" aria-describedby="basic-addon1">
+					  <span class="input-group-addon" style="width:100px">前缀</span>
+					  <input id="prefix" type="text" style="width:100px" class="form-control" placeholder="" aria-describedby="basic-addon1">
 					</div>
 					<div class="input-group">
-					  <span class="input-group-addon" id="basic-addon1">前缀</span>
-					  <input id="prefix" type="text" class="form-control" placeholder="" aria-describedby="basic-addon1">
+					  <span class="input-group-addon" style="width:100px">后缀</span>
+					  <input id="sufix" type="text" style="width:100px" class="form-control" placeholder="" aria-describedby="basic-addon1">
 					</div>
-					<div class="input-group">
-					  <span class="input-group-addon" id="basic-addon1">后缀</span>
-					  <input id="sufix" type="text" class="form-control" placeholder="" aria-describedby="basic-addon1">
-					</div>
+					<br/>
 					<div>
 						<input class="btn btn-default" type="button" value="转换" onclick="transfer()">
 						<input class="btn btn-default" type="button" value="清空" onclick="reset()">					
 					</div>
+					<br/>
 					<div>
 				        <span >结果：</span>
 				        <div id="result"></div>
@@ -78,12 +84,16 @@
 		</div>
 	</div>
 	<div class="container">
-		<div class="footer text-center"><em>The world is so interesting</em></div>
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
     <script>
+	//转换
 	function transfer(){
 		var originString = $("#originString").val();
         	var originSeperator = $("#originSeperator").val();
@@ -107,6 +117,7 @@
 		}
         	$("#result").empty().text(newString);
 	}
+	//重置
 	function reset(){
 		$("#originString").val("");
         	$("#originSeperator").val("");
@@ -115,16 +126,16 @@
         	$("#sufix").val("");
 	}
         //去重
-        function uniqueArray(array){ 
-            var r = []; 
-            for(var i = 0, l = array.length; i < l; i++) { 
+	function uniqueArray(array){ 
+	    var r = []; 
+	    for(var i = 0, l = array.length; i < l; i++) { 
 			if(array[i] == '' || array[i].trim() == '')continue;
-                 for(var j = i + 1; j < l; j++) 
-                       if (array[i] === array[j]) j = ++i; 
-                  r.push(array[i]); 
-                   } 
-             return r; 
-        }
+		 for(var j = i + 1; j < l; j++) 
+		       if (array[i] === array[j]) j = ++i; 
+		  r.push(array[i]); 
+		   } 
+	     return r; 
+	}
 
     </script>
 </body>
