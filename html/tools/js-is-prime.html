@@ -1,1 +1,130 @@
 var isPrime = function(x) { return (!(/^,?$|^(,,+?)\1+$/.test(Array(++x)))); };
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>判断一个数是否是质数</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">tool</a></li>
+					<li class="active"></li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>判断一个数是否是质数</h3>
+					<small>2017-12-14</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>var isPrime = function(x) { return (!(/^,?$|^(,,+?)\1+$/.test(Array(++x)))); };</em></p>
+				</div>
+				<div class="centent">
+					<div class="input-group" style="width:100%">
+					  <span class="input-group-addon" style="width:100px">Number:</span>
+                      		  <input id="number" type="text" style="width:200px" class="form-control" placeholder="" aria-describedby="basic-addon1">
+					  <input class="btn btn-default" type="button" value="验证" onclick="check()">
+					</div>
+					<br/>
+					<div>
+				        <span >结果：</span>
+				        <div id="result">
+					  	<span>&nbsp;</span>
+					  </div>
+					</div>
+					<br/>
+					<span>打印所有质数</span>
+					<div class="input-group" style="width:100%">
+					  <span class="input-group-addon" style="width:100px">最大值:</span>
+                      		  <input id="maxNumber" type="text" style="width:200px" class="form-control" placeholder="" aria-describedby="basic-addon1">
+					  <input class="btn btn-default" type="button" value="验证" onclick="print()">
+					</div>
+					<br/>
+					<div>
+				        <span >结果：</span>
+				        <div id="primes" style="word-break:break-all"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<script>
+		var numberReg = /^\d+$/
+		function check(){
+			var number = $("#number").val();
+			if(!numberReg.test(number)){
+				$("#result").empty().html('<span style="font-size:24px;color:red">'+number+"</span>不是正整数")
+				return;
+			}
+			$("#result").empty().html(isPrime(number))
+			
+		}
+		//是否是质数
+		function isPrime(x){
+			try{
+				var result = (!(/^,?$|^(,,+?)\1+$/.test(Array(++x))));
+				if(result){
+					return '<span style="font-size:24px;color:red">'+(x-1)+'</span>是质数';			
+				}else{
+					return '<span style="font-size:24px;color:red">'+(x-1)+'</span>不是是质数';	
+				}
+			}catch(e){
+				console.log(e.message);
+				return '数字太大了^_^!';	
+			}
+
+		}
+		function isPrime(x){
+			return (!(/^,?$|^(,,+?)\1+$/.test(Array(++x))));
+		}
+		//跑死浏览器
+		function print(){
+			var number = $("#maxNumber").val();
+			if(!numberReg.test(number)){
+				$("#result").empty().html('<span style="font-size:24px;color:red">'+number+"</span>不是正整数")
+				return;
+			}
+			$("#primes").empty();
+			for(let i=0;i<=number;i++){
+				try{
+					if(isPrime(i)){
+						$("#primes").append('<span style="font-size:24px;color:red;padding:5px">'+i+'</span>');
+					}
+				}catch(e){
+					console.log('<span style="font-size:24px;color:red;padding:5px">只能计算到这里了</span>')				
+				}
+				
+			}
+		}
+	</script>
+</body>
+</html>
