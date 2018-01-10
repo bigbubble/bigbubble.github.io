@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title></title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">JAVA</a></li>
+					<li class="active"></li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>java 8 范型问题</h3>
+					<small>2018-01-10</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>
+						将项目由jdk1.7 升级到1.8时，程序出现编译错误。
+					</em></p>
+				</div>
+				<div class="content">
+					<section class="code-section">
+						<pre class="brush: java">
+							import java.util.ArrayList;
+							import java.util.HashMap;
+							import java.util.List;
+							import java.util.Map;
+
+							/**
+							 * java 8 范型 test
+							 * Created by pengbo on 18-1-10.
+							 */
+							public class JavaGenerics {
+
+							    /**
+							     * 方法有范型约束
+							     * @param params
+							     * @return
+							     */
+							    public static List&lt;String&gt; test(Map&lt;String, String&gt; params){
+									return null;
+							    }
+
+							    /**
+							     * 参数没有范型约束
+							     * @param params
+							     * @return
+							     */
+							    public static List&lt;String&gt; test(List params){
+									return null;
+							    }
+
+							    public static void main(String[] args) {
+									//不带范型的参数
+									Map pamraMap = new HashMap();
+									//获取列表没有问题
+									List&lt;String&gt; strs = test(pamraMap);
+									//通过上步列表获取内容没问题
+									String item = strs.get(0);
+									//直接获取返回值列表中的元素，编译错误
+									item = test(pamraMap).get(0);
+
+									//带范型的参数
+									Map&lt;String,String&gt; paramMap2 = new HashMap&lt;&gt;();
+									List&lt;String&gt; strs2 = test(paramMap2);
+									//可以直接通过返回的列表获取某项元素
+									String item2 = test(paramMap2).get(0);
+
+									//调用没有范型约束的方法，编译没有问题
+									List paramList = new ArrayList();
+									item = test(paramList).get(0);
+							    }
+							}
+
+						</pre>
+					</section>
+					<div>38行会报编译错误:<span style="color:red">Error:(38, 34) java: 不兼容的类型: java.lang.Object无法转换为java.lang.String</span><br>为什么参数范型问题，会影响返回值的类型推断?</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+</body>
+</html>
