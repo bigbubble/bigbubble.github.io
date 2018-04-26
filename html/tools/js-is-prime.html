@@ -84,11 +84,11 @@
 				$("#result").empty().html('<span style="font-size:24px;color:red">'+number+"</span>不是正整数")
 				return;
 			}
-			$("#result").empty().html(isPrime(number))
+			$("#result").empty().html(isPrimeText(number))
 			
 		}
 		//是否是质数
-		function isPrime(x){
+		function isPrimeText(x){
 			try{
 				var result = (!(/^,?$|^(,,+?)\1+$/.test(Array(++x))));
 				if(result){
