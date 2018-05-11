@@ -44,7 +44,7 @@
 					<section class="code-section">
 						<pre class="brush: java">
 							String expression = "(#a)-?-(#b);(#b)-适用->(#a)<-适用?-(#x1)<-包含?-(#b)UNION(#b)-禁忌|慎用->(#a)<-禁忌|慎用?-(#x1)<-包含?-(#b)UNION(#a)<-适用-(#功效:x1)<-具有?-(#b);(#b)-导致?->(#x1)-属于|从属->(妇科病)";
-							List<String> keywords = new ArrayList&lt;&gt;();
+							List&lt;String&gt; keywords = new ArrayList&lt;&gt;();
 							int location1 = expression.indexOf(";", 0);
 							int location2 = expression.indexOf("UNION", 0);
 							int fromIndex =  0;
@@ -77,7 +77,7 @@
 						<pre class="brush: java">
 						//主表达式
 						String expression = "(#a)-?-(#b);(#b)-适用->(#a)<-适用?-(#x1)<-包含?-(#b)UNION(#b)-禁忌|慎用->(#a)<-禁忌|慎用?-(#x1)<-包含?-(#b)UNION(#a)<-适用-(#功效:x1)<-具有?-(#b);(#b)-导致?->(#x1)-属于|从属->(妇科病)";
-						List<String> keywords = new ArrayList&lt;&gt;();
+						List&lt;String&gt; keywords = new ArrayList&lt;&gt;();
 						Matcher matcher = Pattern.compile(";|UNION").matcher(expression);
 						while (matcher.find()) {
 							keywords.add(matcher.group());
