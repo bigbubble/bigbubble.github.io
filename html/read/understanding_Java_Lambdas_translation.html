@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>理解JAVA Lambda表达式</title>
+	<style>
+		.en{
+			margin: 10px;
+			font-style: italic;
+		}
+		.cn {
+			margin: 10px;
+			color: #985F0D;
+			font-size: 16px;
+		}
+		.licn{
+			color: #985F0D;
+			font-size: 16px;
+		}
+		hr {
+			height:1px;
+			border:none;
+			border-top:1px solid #555555
+		}
+		h4{
+			font-weight: bolder;
+		}
+	</style>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Read</a></li>
+					<li class="active">Article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>理解JAVA Lambda表达式</h3>
+					<small>2018-05-25</small>
+				</div>
+				<p>原文地址:<a href="http://johannes.tax/Understanding_Java_Lambdas.html">Understanding Java Lambdas</a></p>
+				<div class="bg-gray">
+					<p>first-class citizens</p>
+					<p class="en">wiki:In programming language design, a first-class citizen (also type, object, entity, or value) in a given programming language is an entity which supports all the operations generally available to other entities. These operations typically include being passed as an argument, returned from a function, modified, and assigned to a variable</p>
+					<p class="cn">在编程语言设计中，在给定的编程语言中，一流的公民（类型、对象、实体或值）是支持其他实体通常可用的所有操作的实体。这些操作通常包括作为参数传递、从函数返回、修改并赋值给变量</p>
+				</div>
+				<div class="content">
+					<p>Posted on 2017-04-25</p>
+					<p>2017-04-25发布</p>
+					<div class="en">It took me quite some reading and coding to finally understand how Java Lambdas actually work conceptually. Most tutorials and introductions I read follow a top-down approach, starting with use cases and in the end leaving conceptual questions open. In this post I want to offer a bottom-up explanation, deriving the concept of Lambdas from other established Java concepts.</div>
+					<div class="cn">经过很多的阅读和编码，我终于理解了JAVA Lambda表达式在概念上(conceptually)实际上是如何工作的。我阅读的大多数的教程和介绍都是自上而下的，从用例开始，最后让概念性问题open，在这篇文章中，我想提供一个自下向上的解释，从其他已经建立好的JAVA概念中提取JAVA Lambda的概念</div>
+					<div class="en">Firstly typing of methods is introduced, which is a prerequisite for supporting methods as first-class citizens. Based on this the concept of Lambdas is presented as an advancement and special case of anonymous class usage. All this is illustrated by the implementation and usage of the higher-order function map.</div>
+					<div class="cn">首先介绍方法的类型化，这是将方法作为“一等公民”的先决条件,基于此（方法要像“一等公民”一样使用），Lambda概念被当做匿名内部类的用法一种高级的和特殊的使用用例的方式展现出来。所有这些都被<a href="https://en.wikipedia.org/wiki/Map_(higher-order_function)">高阶函数</a>的实现和映射所证明</div>
+					<div class="en">The primary audience of this post are people who grasp the basics of functional programming and who want to understand how Lambdas fit into the Java language conceptually.</div>
+					<div class="cn">这篇文章的主要读者是那些掌握函数式编程基础的人，他们想从概念上理解Lambdas如何适应Java语言。</div>
+					<hr>
+					<h4>Method types</h4>
+					<h4>方法类型</h4>
+					<div class="en">From Java 8 on methods are first-class citizens. Following the standard definition, a first-class citizen in a programming language is an entity that can be</div>
+					<div class="cn">从JAVA 8开始，方法成为了“一等公民”。遵循标准定义，编程语言中的“一等公民”是如下实体：</div>
+					<div class="en">
+						<ul>
+							<li>passed as an argument,</li>
+							<li class="licn">作为一个参数传递</li>
+							<li>returned from a method and</li>
+							<li class="licn">从方法返回</li>
+							<li>assigned to a variable.</li>
+							<li class="licn">赋值给一个变量</li>
+						</ul>
+					</div>
+					<div class="en">In Java, every argument, return value or variable is typed, therefore every first-class citizen has to be typed. A type in Java can be one of the following:</div>
+					<div class="cn">在java中，每一个参数，返回值或变量都被定义了一个类型，因此每一个“一等公民”也必须要定义一个类型。在java类型可以是下列之一：</div>
+					<div>
+						<ul>
+							<li>a builtin type (e. g. int or double)</li>
+							<li class="licn">基本类型(如，int或double)</li>
+							<li>a class (e. g. ArrayList)</li>
+							<li class="licn">一个类（如 ArrayList）</li>
+							<li>an interface (e. g. Iterable)</li>
+							<li class="licn">一个接口（如 Iterable）</li>
+						</ul>
+					</div>
+					<div class="en">Methods are typed via interfaces. They do not implicitely implement certain interfaces, but, when necessary, the Java compiler implicitely checks during compile time if a method conforms to an interface. An example should illustrate this:</div>
+					<div class="cn">方法通过接口定义为一种类型。它们并不隐式地实现某些接口，但如有必要，JAVA 编译器会编译期隐式的检查方法是否符合一个接口，一个例子应该说明这一点：</div>
+					<section class="code-section">
+						<pre class="brush: java">
+							class LambdaMap {
+							    static void oneStringArgumentMethod(String arg) {
+							        System.out.println(arg);
+							    }
+							}
+						</pre>
+					</section>
+					<div class="en">
+						Regarding the type of the method oneStringArgumentMethod it is of relevance that the method is static, the return type is void and that it accepts one argument of type String. A static method conforms to an interface that contains a method apply, whose signature in turn conforms to the signature of the static method. An interface matching the method oneStringArgumentMethod therefore must meet the following criteria:
+					</div>
+					<div class="cn">关于oneStringArgumentMethod方法的类型，该方法是静态的，返回类型是void，它接受一个String类型的参数。一个静态方法符合一个接口，该接口包含一个apply方法，其签名依次符合静态方法的签名。因此，与oneStringArgumentMethod方法匹配的接口 必须符合以下条件：</div>
+					<div>
+						<ul>
+							<li>It must contain a method called apply.</li>
+							<li class="licn">必须包含apply方法</li>单线程的启发
+							<li>The return type of this method must be void.</li>
+							<li class="licn">方法的返回值必须是void</li>
+							<li>This method must accept one argument that an object of type String can be casted to.</li>
+							<li class="licn">此方法必须接受一个参数，String类型的对象或可以转换为String类型的对象。</li>
+						</ul>
+					</div>
+					<div class="en">Amongst the interfaces conforming to this criteria, the following one might be the most obvious:</div>
+					<div class="cn">在符合此标准的接口中，以下一个可能是最明显的：</div>
+					<section class="code-section">
+						<pre class="brush:java">
+							interface OneStringArgumentInterface {
+							    void apply(String arg);
+							}
+						</pre>
+					</section>
+					<div class="en">With the help of this interface the method can assigned to a variable:</div>
+					<div class="cn">借助此接口，该方法可以分配给一个变量：</div>
+					<section class="code-section">
+						<pre class="brush:java">
+							OneStringArgumentInterface meth = LambdaMap::oneStringArgumentMethod;
+						</pre>
+					</section>
+					<div class="en">
+						Using interfaces as a types in this way, methods can thus be assigned to variables, passed as parameters and returned from methods:
+					</div>
+					<div class="cn">以这种方式使用接口作为类型，可以将方法分配给变量，作为参数传递并从方法返回：</div>
+					<section class="code-section">
+						<pre class="brush: java">
+							static OneStringArgumentInterface getWriter() {
+							    return LambdaMap::oneStringArgumentMethod;
+							}
+							
+							static void write(OneStringArgumentInterface writer, String msg) {
+							    writer.apply(msg);
+							}
+						</pre>
+					</section>
+					<div class="en">Finally methods are first-class citizens in Java!</div>
+					<div class="cn">最后，方法成为了Java中的“一等公民”！</div>
+					<hr>
+					<h4>Generic method types</h4>
+					<h4>泛型</h4>
+					<div class="en">As with collections, generics add a lot of power and flexibility to method types. Generic method types make it possible to implement functional algorithms disregarding certain type informations. This ability will be used below in the implementation of the map method.</div>
+					<div class="cn">与集合一样，泛型为方法类型增加了很多功能和灵活性。泛型可以忽视类型信息来实现功能算法。这个能力将在下面的map方法的实现中使用。</div>
+					<div class="en">A generic version of the OneStringArgumentInterface is provided here:</div>
+					<div class="cn">这里提供了OneStringArgumentInterface的泛型版本：</div>
+					<section class="code-section">
+						<pre class="brush: java">
+							interface OneArgumentInterface&lt;T> {
+							    void apply(T arg);
+							}
+						</pre>
+					</section>
+					<div class="en">The method oneStringArgumentMethod can be assigned to it:</div>
+					<div class="cn">oneStringArgumentMethod方法可以赋值给它：</div>
+					<section class="code-section">
+						<pre class="brush: java">
+							OneArgumentInterface&lt;String> meth = LambdaMap::oneStringArgumentMethod;
+						</pre>
+					</section>
+					<div class="en">
+						Using generic method types one can now implement algorithms in a generic way, as one is used to from collections:
+					</div>
+					<div class="cn">使用泛型类型，现在可以以通用方式（不考虑类型的方式）实现算法，正如集合中使用的那样：</div>
+					<section class="code-section">
+						<pre class="brush: java">
+							static &lt;T> void applyArgument(OneArgumentInterface&lt;T> meth, T arg) {
+							    meth.apply(arg);
+							}
+						</pre>
+					</section>
+					<div class="en">The method above does not do anything useful, however it can at least give a first idea how support for methods as first-class citizens can lead to very concise and flexible code:</div>
+					<div class="cn">上面的方法没有任何用处，但它至少可以给出一个想法，即如何使方法作为“一等公民”使得代码非常简洁和灵活：</div>
+					<section class="code-section">
+						<pre class="brush:java">
+							applyArgument(Lambda::oneStringArgumentMethod, "X");
+						</pre>
+					</section>
+					<hr>
+					<h4>Implementing map</h4>
+					<h4>实现map</h4>
+					<div class="en">Amongst higher-order functions, map is a classic. The first argument to map is a function that accepts one argument and returns a value; the second argument is a list of values. map applies the passed function to every item of the passed list and returns a new list with the resulting values. The following snippet from a Python session illustrates its usage very well:</div>
+					<div class="cn">在高阶函数中，map是经典的。映射的第一个参数 是一个函数，它接受一个参数并返回一个值; 第二个参数是一个值列表。map将传递的函数应用于传递的列表的每个项目，并返回包含结果值的新列表。以下Python片段非常好地说明了它的用法：</div>
+					<section class="code-section">
+						<pre>
+>>> map(math.sqrt, [1, 4, 9, 16])
+[1.0, 2.0, 3.0, 4.0]
+						</pre>
+					</section>
+					<div class="en">In the remaining part of this section a Java implementation of this function will be given. Java 8 already offers this functionality via streams. As it mainly serves educational purposes, the implementation given in this section is kept deliberately simple and will be restricted to work on List objects only.</div>
+					<div class="cn">在本节的其余部分中，将给出该功能的Java实现。Java 8已经通过流提供了这种功能。由于它主要用于学习目的，因此本节中给出它简单的实现，并且仅限于在List对象上工作。</div>
+					<div class="en">In Java, as opposed to Python, one first has to consider the type of the first argument to map: a method accepting one argument and returning a return value. The argument type and the return type can be different. The following interface fits the purpose, where obviously I denotes the type of the argument (input) and O denotes the type of the return value (output):</div>
+					<div class="cn">在Java中，与Python相反，首先必须考虑要映射的第一个参数的类型：一个接受一个参数并有返回值的方法。参数类型和返回类型可以不同。下面的接口符合目的，显然，I表示参数的类型（输入），O表示返回值（输出）的类型：</div>
+					
+					<section class="code-section">
+						<pre class="brush: java">
+							interface MapFunction&lt;I, O> {
+							    O apply(I in);
+							}
+						</pre>
+					</section>
+					
+					<div class="en">The implementation of the generic map method itself becomes surprisingly simple and straightforward:</div>
+					<div class="cn">通用msp方法本身的实现变得非常简单明了：</div>
+					
+					<section class="code-section">
+						<pre class="brush: java">
+							static &lt;I, O> List&lt;O> map(MapFunction&lt;I, O> func, List&lt;I> input) {
+							    List&lt;O> out = new ArrayList&lt;>();
+							
+							    for (I in : input) {
+							        out.add(func.apply(in));
+							    }
+							
+							    return out;
+							}
+						</pre>
+					</section>
+					
+					<div>
+						<ul>
+							<li>A new list out is created (holding objects of the O output type).</li>
+							<li class="licn">一个新的列表被创建（保存O类型的输出对象）。</li>
+							<li>In a loop over the input list, func is applied to every item of the list. The return value is added to out.</li>
+							<li class="licn">在输入列表中的循环中，func应用于列表中的每个项目。返回值被添加到out。</li>
+							<li>out is returned.</li>
+							<li class="licn">返回out对象</li>
+						</ul>
+					</div>
+					
+					<div class="en">Here is an example of the map method in action:</div>
+					<div class="cn">这里是一个map方法的例子：</div>
+					
+					<section class="code-section">
+						<pre class="brush: java">
+							MapFunction&lt;Integer, Double> func = Math::sqrt;
+
+							List&lt;Double> output = map(func, Arrays.asList(1., 4., 9., 16.));
+							System.out.println(output);
+						</pre>
+					</section>
+					
+					<div class="en">Motivated by the Python one-liner, this can of course be expressed in a more concise way:</div>
+					<div class="cn">受到Python one-liner的启发，这当然可以用更简洁的方式表达：</div>
+					
+					<section class="code-section">
+						<pre class="brush: java">
+							System.out.println(map(Math::sqrt, Arrays.asList(1., 4., 9., 16.)));
+						</pre>
+					</section>
+					
+					<div class="en">Well, Java is not Python after all ...</div>
+					<div class="cn">那么，Java毕竟不是Python ......</div>
+					
+					<h4>Lambdas, finally!</h4>
+					<h4>Lambdas!</h4>
+					
+					<div class="en">The inclined reader will have noticed that there has not been any mention of a Lambda yet. That's owing to following a bottom-up approach - however, the foundations are almost set and Lambdas will be introduced in the following section.</div>
+					<div class="cn">倾斜的读者会注意到，还没有提到任何Lambda。这是由于采取了自下而上的方法 - 但是，基础几乎已经确定，Lambdas将在下一节介绍。</div>
+					
+					<div class="en">The following use case serves as a basis: having a list of doubles denoting circle radiuses, a list of corresponding circle areas has to be obtained. The map method is predestined for this task. The formula for calculating the area of a circle is well known:</div>
+					<div class="cn">下面的例子作为基础：用表示圆圈半径的双精度列表，获得相应圆面积的列表。该 map方法是为此任务预定的。计算圆的面积的公式是众所周知的：</div>
+					
+					<div class="en">A method applying this formula is easily implemented:</div>
+					<div class="cn">这个公式的方法很容易实现：</div>
+					
+					<section class="code-section">
+						<pre class="brush: java">
+							static Double circleArea(Double radius) {
+							    return Math.pow(radius, 2) * Math.PI;
+							}
+						</pre>
+					</section>
+					
+					<div class="en">This method can now be used as first argument to the map method:</div>
+					<div class="cn">现在可以将此方法用作map方法的第一个参数：</div>
+					
+					<section class="code-section">
+						<pre class="brush: java">
+							System.out.println(
+						        map(LambdaMap::circleArea,
+						            Arrays.asList(1., 4., 9., 16.)));
+						</pre>
+					</section>
+					
+					<div class="en">Assuming the method circleArea is only needed this one time, it does not make sense to clutter the class interface with it and to separate its implementation from the one place where it is actually used. A Java best practice is to use an anonymous class in this case. As one can see, this works out well with instantiating an anonymous class that implements the MapFunction interface:</div>
+					<div class="cn">假设circleArea方法只需要一次，那么混淆类接口并将它的实现与实际使用的实现分开是没有意义的。Java最佳实践是在这种情况下使用匿名类。正如人们所看到的，通过实例化一个实现MapFunction接口的匿名类可以很好地解决这个 问题：</div>
+					
+					<section class="code-section">
+						<pre class="brush: java">
+							System.out.println(
+						        map(new MapFunction&lt;Double, Double>() {
+						                public Double apply(Double radius) {
+						                    return Math.sqrt(radius) * Math.PI;
+						                }
+						            },
+						            Arrays.asList(1., 2., 3., 4.)));
+						</pre>
+					</section>
+					
+					<div class="en">That's looks nifty, however many will consider the functionally equivalent solution below clearer and more readable:</div>
+					<div class="cn">这看起来很漂亮，但是很多人会认为下面的方式，功能相当的解决方案更清晰和更具可读性：</div>
+					
+					<section>
+						<pre class="brush: java">
+							List&lt;Double> out = new ArrayList&lt;>();
+							for (Double radius : Arrays.asList(1., 2., 3., 4.)) {
+							    out.add(Math.sqrt(radius) * Math.PI);
+							}
+							System.out.println(out);
+						</pre>
+					</section>
+					
+					<div class="en">Having come thus far, it is finally time use a Lambda expression. The reader should notice how the Lambda can replace the anonymous class presented above:</div>
+					<div class="cn">到此，最后是使用Lambda表达式。读者应该注意如何使用Lambda取代上面提到的匿名类：</div>
+					
+					<section>
+						<pre class="brush: java">
+							System.out.println(
+						        map(radius -> { return Math.sqrt(radius) * Math.PI; },
+						            Arrays.asList(1., 2., 3., 4.)));
+						</pre>
+					</section>
+					
+					<div class="en">That looks concise and clear - note how the Lambda expression lacks any explicit type information. No explicit template instantiation, no method signatures.</div>
+					<div class="cn">这看起来简洁明了 - 请注意Lambda表达式：缺少明确的类型信息。没有显式模板实例化，没有方法签名。</div>
+					
+					<div class="en">A Lambda expression consists of two parts, which are separated by a ->. The first part denotes an argument list, the second part contains the actual implementation.</div>
+					<div class="cn">Lambda表达式由两部分组成，它们由“->”分隔。第一部分表示参数列表，第二部分包含实际的实现。</div>
+					
+					<div class="en">The Lambda expression serves the exact same purpose as the anonymous class, however it gets rid of lots of boilerplate code that the compiler can infer automatically anyway. Let's compare the two approaches once again and then analyze, what work the compiler takes off the developer's back.</div>
+					<div class="cn">Lambda表达式的用途与匿名类完全相同，但是它减少了许多通过编译器自动推断可以省略的样板代码。让我们再次比较这两种方法，然后分析一下编译器帮开发者做了什么。</div>
+					
+					<section>
+						<pre class="brush: java">
+							MapFunction&lt;Double, Double> functionLambda =
+							        radius -> Math.sqrt(radius) * Math.PI;
+							
+							MapFunction&lt;Double, Double> functionClass =
+							        new MapFunction&lt;Double, Double>() {
+							            public Double apply(Double radius) {
+							                return Math.sqrt(radius) * Math.PI;
+							            }
+							        };
+						</pre>
+					</section>
+					
+					<div>
+						<ul>
+							<li>For a Lambda implementation that consists of only one expression, the return statement and the curly braces can be omitted. This makes it even shorter. </li>
+							<li class="licn">对于只包含一个表达式的Lambda实现，可以省略return语句和花括号。这使得它更短。</li>
+							<li>The return type of the Lambda expression is infered from the Lambda implementation.</li>
+							<li class="licn">Lambda表达式的返回类型是从Lambda实现中传入的。</li>
+							<li>I am not completely sure about the argument types, but I think those must be infered from the context the Lambda expression is used in.</li>
+							<li class="licn">我不完全确定参数类型，但我认为这些必须从Lambda表达式的使用环境中获得。</li>
+							<li>Finally the compiler has to check if the return type matches the context the Lambda is used in and if the argument types match the Lambda implementation.</li>
+							<li class="licn">最后，编译器必须检查返回类型是否与使用Lambda的上下文相匹配，以及参数类型是否与Lambda实现匹配。</li>
+						</ul>
+					</div>
+					
+					<div class="en">This all can be done during compile time, there is no runtime overhead at all.</div>
+					<div class="cn">这一切都可以在编译期间完成，根本没有运行时间开销。</div>
+					
+					<hr>
+					<h4>Conclusion</h4>
+					<h4>结论</h4>
+					<div class="en">All in all, the concept of Lambdas in Java is neat. I allows for more concise and clearer code and reliefs the programmer from writing boilerplate code that can be infered by the compiler anyway. It's syntactic sugar, as shown above it's nothing that cannot also be achieved by using anonymous classes. However, I would say it is very sweet syntactic sugar.</div>
+					<div class="cn">总而言之，Java中的Lambdas的概念是整洁的。我可以编写更简洁，更清晰的代码，让程序员免于编写可由编译器推断的样板代码。它是语法糖，如上所示，使用匿名类也不是不能实现。但是，我会说这是非常甜蜜的语法糖。</div>
+					
+					<div class="en">On the other hand, Lambdas also allow for code that is much more obfuscated and harder to debug. The Python community realized this long ago - although Python has Lambdas too, it is generally considered bad style to use them extensively (it is not hard to avoid them when nested functions can be used). For Java I would give similar advice. Without doubt there are situations in which the use of Lambdas can lead to significantly shorter and more readable code, mostly in connection with streams. In other situations one is most likely better off if one resorts to more conservative approaches and best practices.</div>
+					<div class="cn">另一方面，Lambdas导致代码更加混淆，难以调试。Python社区很早就意识到了这一点 - 虽然Python也有Lambda，但是使用它时，通常被认为是不好的风格（可以使用嵌套函数来避免Lambda）。对于Java，我会给出类似的建议。毫无疑问，在某些情况下，使用Lambdas会大大缩短代码长度和使代码更易读，主要是在使用流的情况下。在其他情况下，保守的方法和遵循最佳实践，可能会更好。</div>
+					
+					<hr>
+					<h4>Links</h4>
+					<h4>相关链接</h4>
+					
+					<ul>
+						<li>The <a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html" >official documentation</a> for Java Lambdas.</li>
+						<li class="licn">Java Lambdas 的<a href="https://docs.oracle.com/javase/tutorial/java/javaOO/lambdaexpressions.html" >官方文档</a></li>
+						<li>The package <a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html"> java.util.function</a> contains lots of different Lambda interfaces and reliefs the programmer from introducing own interfaces like it was done with MapFunction above.</li>
+						<li class="licn"><a href="https://docs.oracle.com/javase/8/docs/api/java/util/function/package-summary.html">java.util.function</a>包包含许多不同的Lambda接口，并且让程序员不用像上面介绍的MapFunction一样引入自己的接口 。</li>
+						<li>This <a href="https://www.codementor.io/eh3rrera/using-java-8-method-reference-du10866vx">post</a> describes how to use Lambdas for other method types like instance methods or constructors.</li>
+						<li class="licn"><a href="https://www.codementor.io/eh3rrera/using-java-8-method-reference-du10866vx">本文</a>描述了如何将Lambdas用于其他方法类型，如实例方法或构造函数。</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+</body>
+</html>
