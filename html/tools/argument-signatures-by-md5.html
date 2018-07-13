@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>对参数进行MD5签名</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Algorithm</a></li>
+					<li class="active">article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>对参数进行MD5签名</h3>
+					<small>2017-05-22</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>开发通信接口，对传输的参数按字典顺序排序，加入密钥进行MD5签名</em></p>
+				</div>
+				<div class="content">
+					<form>
+					  <div class="form-group">
+						<label for="exampleInputEmail1">原始URL</label>
+						<textarea class="form-control" id="oldUrl" placeholder=""></textarea>
+					  </div>
+					  <div class="form-group">
+						<label for="exampleInputPassword1">密钥</label>
+						<input class="form-control" id="secretKey" placeholder="密钥">
+					 </div>
+					  <button type="button" class="btn btn-default" onclick="sign()">签名</button>
+					  <br />
+					  <br />
+					  <div class="form-group">
+						<label for="exampleInputFile">签名后的URL</label>
+						<textarea class="form-control" id="signedUrl"></textarea>
+					 </div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<script type="text/javascript" src="js/md5.js"></script>
+	<script>
+		function sign(){
+			var oldUrl = $("#oldUrl").val();
+			if(oldUrl == "")alert("原始URL为空")
+			oldUrl = oldUrl.trim();
+			var paramters = oldUrl.substring(oldUrl.indexOf("?") + 1, oldUrl.length);
+			var keyValueArr = paramters.split("&");
+			keyValueArr.sort();
+			var concatedStr = "";
+			$.each(keyValueArr, function(index, item) {
+				var eqIdx = item.indexOf("=");
+				var k = item.substring(0, eqIdx);
+				var v = item.substring(eqIdx + 1, item.length)
+				if(v.length > 0){
+					concatedStr += k + v;
+				}
+			});
+			var secretKey = $("#secretKey").val();
+			if(secretKey == "" || secretKey == undefined){
+				alert("未填写密钥");
+				return;
+			}
+			concatedStr += secretKey;
+			var sign = hex_md5(concatedStr);
+			
+			$("#signedUrl").val(oldUrl + "&sign="+sign)
+		}
+	</script>
+</body>
+</html>
