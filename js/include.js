@@ -12,7 +12,7 @@ var catalog={
 		{"title":"二叉树","href":"html/algorithm/build-binary-tree.html"}
 	],
 	"tools":[
-		{"title":"url md5 签名","href":"html/tools/argument-signatures-by-md5.html}",
+		{"title":"url md5 签名","href":"html/tools/argument-signatures-by-md5.html"},
 		{"title":"分隔符转换","href":"html/tools/js-delimiter-transfer.html"},
 		{"title":"判断一个数是否是质数","href":"html/tools/js-is-prime.html"}
 	]
