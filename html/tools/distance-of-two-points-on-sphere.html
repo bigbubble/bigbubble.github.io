@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>两点间距离</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">tool</a></li>
+					<li class="active"></li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>两点间距离</h3>
+					<small>2018-07-21</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>两个经纬度之间的距离</em></p>
+				</div>
+				<div class="centent">
+					<div class="input-group" style="width:100%">
+					  	<span class="input-group-addon" style="width:100px">P1:</span>
+                      		  <input id="p1input" type="text" style="width:400px" class="form-control" placeholder="经度,纬度" aria-describedby="basic-addon1">
+					</div>
+					<div class="input-group" style="width:100%">
+						<span class="input-group-addon" style="width:100px">P2:</span>
+                      		  <input id="p2input" type="text" style="width:400px" class="form-control" placeholder="经度,纬度" aria-describedby="basic-addon1">
+					</div>
+					<br />
+					<input class="btn btn-default" type="button" value="墨卡托" onclick="calculate('1')">
+					&nbsp;&nbsp;&nbsp;&nbsp;
+					<input class="btn btn-default" type="button" value="球面" onclick="calculate('2')">
+					<div style="margin: 10px 0 0 0;">
+				        <span >结果：</span>
+				        <div id="result" style="word-break:break-all"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<script>
+		 /** 地球半径 */
+	    var EARTH_RADIUS = 6378137; //米 地心到赤道距离，平均距离为6371393
+	    /** 中间常量，减少计算 **/
+	    var C_PI_DIVIDE_180 = Math.PI / 180;
+	
+	    var C_PI_DIVIDE_360 = Math.PI / 360;
+	
+	    var C_20037508d34_DIVIDE_180  = 20037508.3427892 / 180; //地球周长 / 180
+	    
+		function calculate(type){
+			var point1 = $("#p1input").val();//p1
+			if(point1.trim() == ''){
+				return ;
+			}
+			var point1Arr = point1.split(/,|，| /);
+			
+			var point2 = $("#p2input").val();
+			if(point2.trim() == ''){
+				return ;
+			}
+			var point2Arr = point2.split(/,|，/);
+			var result = 0;
+			if(type == '1'){
+				var p1 = mercator(point1Arr);
+				var p2 = mercator(point2Arr);
+				result = getDistanceInMercatorCoordinate(p1, p2);
+			}else if(type == '2'){
+				result = sphere(point1Arr[0], point1Arr[1], point2Arr[0], point2Arr[1]);
+			}
+			$("#result").text(result);
+		}
+		
+		function getDistanceInMercatorCoordinate(point1, point2){
+			var a = point1[0] - point2[0];
+			var b = point1[1] - point2[1];
+			return Math.sqrt(a * a + b * b);
+		}
+		
+		function mercator(p){
+			var loc = [];
+	        loc[0] = p[0] * C_20037508d34_DIVIDE_180;
+	        var y = Math.log(Math.tan((90 + p[1]) * C_PI_DIVIDE_360)) / (C_PI_DIVIDE_180);
+	        loc[1] = y *  C_20037508d34_DIVIDE_180;
+	        return loc;
+		}
+		
+		function sphere(lng1, lat1, lng2, lat2){
+			var radLat1 = lat1 * C_PI_DIVIDE_180;
+	        var radLat2 = lat2 * C_PI_DIVIDE_180;
+	        var a = radLat1 - radLat2;
+	        var b = lng1 * C_PI_DIVIDE_180 - lng2 * C_PI_DIVIDE_180;
+	        var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2),2)
+	                + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2),2)));
+	        s = s * EARTH_RADIUS;
+	        s = Math.round(s * 10000) / 10000;
+	        return s;
+		}
+	</script>
+</body>
+</html>
