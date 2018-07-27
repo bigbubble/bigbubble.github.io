@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>图片编辑</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">tool</a></li>
+					<li class="active"></li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>图片编辑</h3>
+					<small>2018-07-27</small>
+				</div>
+				<div class="bg-gray">
+					<p><em><a href="https://github.com/nhnent/tui.image-editor">https://github.com/nhnent/tui.image-editor</a></em></p>
+				</div>
+				<div class="centent" style="height: 1000px;">
+					<div id="tui-image-editor-container">
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="js/tui/tui-image-editor/tui-image-editor.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.6.7/fabric.js"></script>
+    <script type="text/javascript" src="js/tui/tui-code-snippet/tui-code-snippet.js"></script>
+    <script type="text/javascript" src="js/tui/tui-color-picker/tui-color-picker.js"></script>
+    <link rel="stylesheet" href="js/tui/tui-color-picker/tui-color-picker.css" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
+	<script type="text/javascript" src="js/tui/tui-image-editor/tui-image-editor.js"></script>
+	<script>
+
+         // Image editor
+         var imageEditor = new tui.ImageEditor('#tui-image-editor-container', {
+             includeUI: {
+                 loadImage: {
+                     path: 'img/read/design-patterns.png',
+                     name: 'SampleImage'
+                 },
+                 theme:{
+				    'common.bi.image': 'https://uicdn.toast.com/toastui/img/tui-image-editor-bi.png',
+				    'common.bisize.width': '251px',
+				    'common.bisize.height': '21px',
+				    'common.backgroundImage': 'none',
+				    'common.backgroundColor': '#1e1e1e',
+				    'common.border': '0px',
+				
+				    // header
+				    'header.backgroundImage': 'none',
+				    'header.backgroundColor': 'transparent',
+				    'header.border': '0px',
+				
+				    // load button
+				    'loadButton.backgroundColor': '#fff',
+				    'loadButton.border': '1px solid #ddd',
+				    'loadButton.color': '#222',
+				    'loadButton.fontFamily': 'NotoSans, sans-serif',
+				    'loadButton.fontSize': '12px',
+				
+				    // download button
+				    'downloadButton.backgroundColor': '#fdba3b',
+				    'downloadButton.border': '1px solid #fdba3b',
+				    'downloadButton.color': '#fff',
+				    'downloadButton.fontFamily': 'NotoSans, sans-serif',
+				    'downloadButton.fontSize': '12px',
+				
+				    // main icons
+				    'menu.normalIcon.path': 'js/tui/tui-image-editor/svg/icon-b.svg',
+				    'menu.normalIcon.name': 'icon-b',
+				    'menu.activeIcon.path': 'js/tui/tui-image-editor/svg/icon-a.svg',
+				    'menu.activeIcon.name': 'icon-a',
+				    'menu.iconSize.width': '24px',
+				    'menu.iconSize.height': '24px',
+				
+				    // submenu primary color
+				    'submenu.backgroundColor': '#1e1e1e',
+				    'submenu.partition.color': '#858585',
+				
+				    // submenu icons
+				    'submenu.normalIcon.path': 'js/tui/tui-image-editor/svg/icon-a.svg',
+				    'submenu.normalIcon.name': 'icon-a',
+				    'submenu.activeIcon.path': 'js/tui/tui-image-editor/svg/icon-c.svg',
+				    'submenu.activeIcon.name': 'icon-c',
+				    'submenu.iconSize.width': '32px',
+				    'submenu.iconSize.height': '32px',
+				
+				    // submenu labels
+				    'submenu.normalLabel.color': '#858585',
+				    'submenu.normalLabel.fontWeight': 'lighter',
+				    'submenu.activeLabel.color': '#fff',
+				    'submenu.activeLabel.fontWeight': 'lighter',
+				
+				    // checkbox style
+				    'checkbox.border': '1px solid #ccc',
+				    'checkbox.backgroundColor': '#fff',
+				
+				    // rango style
+				    'range.pointer.color': '#fff',
+				    'range.bar.color': '#666',
+				    'range.subbar.color': '#d1d1d1',
+				    'range.value.color': '#fff',
+				    'range.value.fontWeight': 'lighter',
+				    'range.value.fontSize': '11px',
+				    'range.value.border': '1px solid #353535',
+				    'range.value.backgroundColor': '#151515',
+				    'range.title.color': '#fff',
+				    'range.title.fontWeight': 'lighter',
+				
+				    // colorpicker style
+				    'colorpicker.button.border': '1px solid #1e1e1e',
+				    'colorpicker.title.color': '#fff'
+				},
+                 initMenu: 'filter',
+                 menuBarPosition: 'bottom'
+             },
+             cssMaxWidth: 700,
+             cssMaxHeight: 500
+         });
+
+         window.onresize = function() {
+             imageEditor.ui.resizeEditor();
+         }
+        </script>
+</body>
+</html>
