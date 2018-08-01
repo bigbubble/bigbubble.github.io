@@ -1,22 +1,34 @@
 //目录
-var catalog={
-	"read":[
-		{"title":"计算机是如何启动的？","href":"html/read/how-computer-bootup.html"}
-		],
-	"algorithm":[
-		{"title":"存储大量文件，让每个文件夹下的文件或文件夹数量不大于1024","href":"html/algorithm/store-files-in-file-sytem-less-than-1024-each.html"},
-		{"title":"打乱数组排列顺序","href":"html/algorithm/disrupt-array-order.html"},
-		{"title":"二个数组分别分成小数组,使A中小数组大小与B中小数组大小的乘积小于一个值","href":"html/algorithm/divide-two-arrays-by-condition.html"},
-		{"title":"SQL:查询条件有两个in,分组拼接查询,分页","href":"html/algorithm/query-from-database-by-group.html"},
-		{"title":"SQL:查询条件有两个in,分组拼接查询,分页-2","href":"html/algorithm/query-from-database-by-group2.html"},
-		{"title":"二叉树","href":"html/algorithm/build-binary-tree.html"}
-	],
-	"tools":[
-		{"title":"url md5 签名","href":"html/tools/argument-signatures-by-md5.html"},
-		{"title":"分隔符转换","href":"html/tools/js-delimiter-transfer.html"},
-		{"title":"判断一个数是否是质数","href":"html/tools/js-is-prime.html"}
-	]
+function notRepeatedRandomInt(start, end, count){
+    var randomArr = [];
+
+    start = parseInt(start);
+    end = parseInt(end);
+    count = parseInt(count);
+
+    if(isNaN(start) || isNaN(end) || start > end || isNaN(count) || count <= 0){
+        return randomArr
+    }
+
+    for(var i = start; i <= end; i ++){
+        randomArr.push(i);
+    }
+    var length = end - start + 1;
+    for(var i = 0; i < length; i ++){
+        var randomInt = Math.floor(Math.random() * length);
+        if(randomInt != i){
+            var temp = randomArr[i];
+            randomArr[i] = randomArr[randomInt];
+            randomArr[randomInt] = temp;
+        }
+    }
+    if(length <= count){
+        return randomArr;
+    }else{
+        return randomArr.slice(0, count);
+    }
 }
+//colors
 var colors = ["btn-primary","btn-success","btn-info","btn-warning","btn-danger"];
 
 var lihtml = '<li><a href="#{href}">#{title}</a></li>';
@@ -48,13 +60,6 @@ $(function(){
 	}
 	$("#catalog").empty().append('<div class="catalog">' + buttonsHtml + '</div>');
 	*/
-	var keys = Object.keys(catalog);
-	var allLinks = [];
-	for(var i = 0; i < keys.length; i ++){
-		var key =keys[i];
-		var links = catalog[key];
-		allLinks = allLinks.concat(links);
-	}
 	var alinksHtml = ""; 
 	var indxArr = notRepeatedRandomInt(0,allLinks.length-1,100);
 	for(var i = 0; i < indxArr.length; i ++){
