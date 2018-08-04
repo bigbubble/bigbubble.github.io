@@ -1,6 +1,6 @@
 var allLinks = [
   {
-    "title": "",
+    "title": "构建二叉树",
     "href": "html\\algorithm\\build-binary-tree.html"
   },
   {
@@ -16,7 +16,7 @@ var allLinks = [
     "href": "html\\algorithm\\echarts-binary-tree.html"
   },
   {
-    "title": "",
+    "title": "SQL:查询条件有两个in,分组拼接查询,分页",
     "href": "html\\algorithm\\query-from-database-by-group.html"
   },
   {
@@ -28,7 +28,7 @@ var allLinks = [
     "href": "html\\algorithm\\store-files-in-file-sytem-less-than-1024-each.html"
   },
   {
-    "title": "",
+    "title": "java 8泛型问题",
     "href": "html\\function_test\\java-generics.html"
   },
   {
@@ -42,6 +42,10 @@ var allLinks = [
   {
     "title": "计算机是如何启动的？",
     "href": "html\\read\\how-computer-bootup.html"
+  },
+  {
+    "title": "jul-to-slf4j使用",
+    "href": "html\\read\\jul-to-slf4j-in-webapp.html"
   },
   {
     "title": "理解JAVA Lambda表达式",
