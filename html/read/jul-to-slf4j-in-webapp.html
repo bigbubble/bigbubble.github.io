@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>jul-to-slf4j使用</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Read</a></li>
+					<li class="active">Article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>jul-to-slf4j使用</h3>
+					<small>2018-08-04</small>
+				</div>
+				<div class="bg-gray">
+					<em>
+						WEB项目中使用了一个框架，框架中使用的是JDK logging,WEB应用使用的日志系统是SLF+logback，现在想要把外部框架中的日志输出到应用日志系统体系
+					</em>
+				</div>
+				<div class="centent">
+					<p>
+						0.首先在maven依赖中加入JDK logging到slf4j的桥接包
+					</p>
+					<section class="code-section">
+						<pre class="brush:xml">
+						<dependency>
+							<groupId>org.slf4j</groupId>
+								<artifactId>jul-to-slf4j</artifactId>
+							<version>1.7.25</version>
+						</dependency>
+						</pre>
+					</section>
+					<p>
+						0.JDK logging 与 SLF4J日志级别对应.jul-to-slf4j.jar中只有一个类，如下
+						<section class="code-section">
+							<pre class="brush:java">
+								//
+								// Source code recreated from a .class file by IntelliJ IDEA
+								// (powered by Fernflower decompiler)
+								//
+								// SLF4JBridgeHandler.java
+								package org.slf4j.bridge;
+								
+								import java.text.MessageFormat;
+								import java.util.MissingResourceException;
+								import java.util.ResourceBundle;
+								import java.util.logging.Handler;
+								import java.util.logging.Level;
+								import java.util.logging.LogManager;
+								import java.util.logging.LogRecord;
+								import java.util.logging.Logger;
+								import org.slf4j.LoggerFactory;
+								import org.slf4j.Marker;
+								import org.slf4j.spi.LocationAwareLogger;
+								
+								public class SLF4JBridgeHandler extends Handler {
+								    private static final String FQCN = Logger.class.getName();
+								    private static final String UNKNOWN_LOGGER_NAME = "unknown.jul.logger";
+								    private static final int TRACE_LEVEL_THRESHOLD;
+								    private static final int DEBUG_LEVEL_THRESHOLD;
+								    private static final int INFO_LEVEL_THRESHOLD;
+								    private static final int WARN_LEVEL_THRESHOLD;
+									// 设置JDK logging的rootLogger的处理器为SLF4JBridgeHandler，实现JDK日志转由SLF4J处理
+								    public static void install() {
+								        LogManager.getLogManager().getLogger("").addHandler(new SLF4JBridgeHandler());
+								    }
+								
+								    private static Logger getRootLogger() {
+								        return LogManager.getLogManager().getLogger("");
+								    }
+									//去掉rootLogger的SLF4JBridgeHandler处理器
+								    public static void uninstall() throws SecurityException {
+								        Logger rootLogger = getRootLogger();
+								        Handler[] handlers = rootLogger.getHandlers();
+								
+								        for(int i = 0; i &lt;" handlers.length; ++i) {
+								            if (handlers[i] instanceof SLF4JBridgeHandler) {
+								                rootLogger.removeHandler(handlers[i]);
+								            }
+								        }
+								
+								    }
+									//rootLogger是否有SLF4JBridgeHandler处理器
+								    public static boolean isInstalled() throws SecurityException {
+								        Logger rootLogger = getRootLogger();
+								        Handler[] handlers = rootLogger.getHandlers();
+								
+								        for(int i = 0; i &lt; handlers.length; ++i) {
+								            if (handlers[i] instanceof SLF4JBridgeHandler) {
+								                return true;
+								            }
+								        }
+								
+								        return false;
+								    }
+									// 去掉JDK rootLogger的所有Handlers
+								    public static void removeHandlersForRootLogger() {
+								        Logger rootLogger = getRootLogger();
+								        Handler[] handlers = rootLogger.getHandlers();
+								
+								        for(int i = 0; i &lt; handlers.length; ++i) {
+								            rootLogger.removeHandler(handlers[i]);
+								        }
+								
+								    }
+								
+								    public SLF4JBridgeHandler() {
+								    }
+								
+								    public void close() {
+								    }
+								
+								    public void flush() {
+								    }
+								
+								    protected org.slf4j.Logger getSLF4JLogger(LogRecord record) {
+								        String name = record.getLoggerName();
+								        if (name == null) {
+								            name = "unknown.jul.logger";
+								        }
+								
+								        return LoggerFactory.getLogger(name);
+								    }
+									//日志级别转换相关
+								    protected void callLocationAwareLogger(LocationAwareLogger lal, LogRecord record) {
+								        int julLevelValue = record.getLevel().intValue();
+								        byte slf4jLevel;
+								        if (julLevelValue &lt;= TRACE_LEVEL_THRESHOLD) {
+								            slf4jLevel = 0;
+								        } else if (julLevelValue &lt;= DEBUG_LEVEL_THRESHOLD) {
+								            slf4jLevel = 10;
+								        } else if (julLevelValue &lt;= INFO_LEVEL_THRESHOLD) {
+								            slf4jLevel = 20;
+								        } else if (julLevelValue &lt;= WARN_LEVEL_THRESHOLD) {
+								            slf4jLevel = 30;
+								        } else {
+								            slf4jLevel = 40;
+								        }
+								
+								        String i18nMessage = this.getMessageI18N(record);
+								        lal.log((Marker)null, FQCN, slf4jLevel, i18nMessage, (Object[])null, record.getThrown());
+								    }
+									//日志级别转换相关
+								    protected void callPlainSLF4JLogger(org.slf4j.Logger slf4jLogger, LogRecord record) {
+								        String i18nMessage = this.getMessageI18N(record);
+								        int julLevelValue = record.getLevel().intValue();
+								        if (julLevelValue &lt;= TRACE_LEVEL_THRESHOLD) {
+								            slf4jLogger.trace(i18nMessage, record.getThrown());
+								        } else if (julLevelValue &lt;= DEBUG_LEVEL_THRESHOLD) {
+								            slf4jLogger.debug(i18nMessage, record.getThrown());
+								        } else if (julLevelValue &lt;= INFO_LEVEL_THRESHOLD) {
+								            slf4jLogger.info(i18nMessage, record.getThrown());
+								        } else if (julLevelValue &lt;= WARN_LEVEL_THRESHOLD) {
+								            slf4jLogger.warn(i18nMessage, record.getThrown());
+								        } else {
+								            slf4jLogger.error(i18nMessage, record.getThrown());
+								        }
+								
+								    }
+								
+								    private String getMessageI18N(LogRecord record) {
+								        String message = record.getMessage();
+								        if (message == null) {
+								            return null;
+								        } else {
+								            ResourceBundle bundle = record.getResourceBundle();
+								            if (bundle != null) {
+								                try {
+								                    message = bundle.getString(message);
+								                } catch (MissingResourceException var7) {
+								                    ;
+								                }
+								            }
+								
+								            Object[] params = record.getParameters();
+								            if (params != null && params.length > 0) {
+								                try {
+								                    message = MessageFormat.format(message, params);
+								                } catch (IllegalArgumentException var6) {
+								                    return message;
+								                }
+								            }
+								
+								            return message;
+								        }
+								    }
+								
+								    public void publish(LogRecord record) {
+								        if (record != null) {
+								            org.slf4j.Logger slf4jLogger = this.getSLF4JLogger(record);
+								            String message = record.getMessage();
+								            if (message == null) {
+								                message = "";
+								            }
+								
+								            if (slf4jLogger instanceof LocationAwareLogger) {
+								                this.callLocationAwareLogger((LocationAwareLogger)slf4jLogger, record);
+								            } else {
+								                this.callPlainSLF4JLogger(slf4jLogger, record);
+								            }
+								
+								        }
+								    }
+								
+								    static {
+								        TRACE_LEVEL_THRESHOLD = Level.FINEST.intValue();
+								        DEBUG_LEVEL_THRESHOLD = Level.FINE.intValue();
+								        INFO_LEVEL_THRESHOLD = Level.INFO.intValue();
+								        WARN_LEVEL_THRESHOLD = Level.WARNING.intValue();
+								    }
+								}
+
+							</pre>
+						</section>
+						<div class="table-responsive">
+							<table class="table table-bordered">
+								<tbody>
+									<tr>
+										<td><strong>JUL</strong></td>
+										<td>SEVERE</td>
+										<td>WARNING</td>
+										<td>INFO</td>
+										<td>CONFIG</td>
+										<td>FINE</td>
+										<td>FINER</td>
+										<td>FINEST</td>
+									</tr>
+									<tr>
+										<td><strong>SLF4J</strong></td>
+										<td>ERROR</td>
+										<td>WARNING</td>
+										<td>INFO</td>
+										<td>INFO</td>
+										<td>DEBUG</td>
+										<td>DEBUG</td>
+										<td>TRACE</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</p>
+					<p>
+						2.logback日志级别设置为DEBUG,启动WEB应用发现jul的fine日志（应该对应SLF4J的DEBUG级别）无法打印出来，经过调试发现，
+						JDK logging记录日志时会调用一个isLoggable(Level)方法，此方法里会根据当前logger的levelValue属性对比参数Level来决定是否继续记录日志，
+						此时日志信息还没有到handler了。
+					</p>
+					<section class="code-section">
+						<pre class="brush: java">
+							public void fine(String msg) {
+							    log(Level.FINE, msg);
+							}
+							
+							public void log(Level level, String msg) {
+							    if (!isLoggable(level)) {
+							        return;
+							    }
+							    LogRecord lr = new LogRecord(level, msg);
+							    doLog(lr);
+							}
+							
+							public boolean isLoggable(Level level) {
+							    if (level.intValue() &lt; levelValue || levelValue == offValue) {
+							        return false;
+							    }
+							    return true;
+							}
+						</pre>
+					</section>
+					<p>
+						而调用的logger没有配置（设置）处理level级别，将会使用rootLogger日志级别，rootLogger的日志级别由JDK logging的配置文件配置，默认为INFO;
+						然后尝试去修改JDK下的logging配置文件 C:\Program Files\Java\jdk1.7.0_80\jre\lib\logging.properties,将日志级别修改为FINE,重启后发现应用依然不打印JDK logging的日志
+						（一脸黑人问号。。。）
+					</p>
+					<p>
+						3.后发现，应用服务器tomcat在启动脚本catalina.bat里修改了JDK logging的配置文件位置,需要修改的配置文件是tomcat下的\conf\logging.properties配置文件
+					</p>
+					<section class="code-section">
+						<pre class="brush：text">
+if not "%LOGGING_CONFIG%" == "" goto noJuliConfig
+set LOGGING_CONFIG=-Dnop
+if not exist "%CATALINA_BASE%\conf\logging.properties" goto noJuliConfig
+set LOGGING_CONFIG=-Djava.util.logging.config.file="%CATALINA_BASE%\conf\logging.properties"
+:noJuliConfig
+						</pre>
+					</section>
+					<p>
+						4.由SLF4JBridgeHanlder的代码可知，要想使用这个handler必须要将handler加入到JDK logging的rootLogger的handler列表里（用的时候不会傻到每个logger加一遍），
+						就是执行SLF4JBridgeHandler.install()方法。在项目中并没有手动调用过这个方法，logback就能打印出日志内容是为什么呢？
+						在SLF4JBridgeHandler.install()方法中设置断点，查看调用栈，发现原来是logback-ext-spring.jar提供了这个功能
+					</p>
+					<section class="code-section">
+						<pre class="brush: xml">
+							web.xml
+							<listener>
+							    <listener-class>ch.qos.logback.ext.spring.web.LogbackConfigListener</listener-class>
+							</listener>
+						</pre>
+					</section>
+					<section class="code-section">
+						<pre class="brush: java">
+							public class LogbackConfigListener implements ServletContextListener {
+
+							    @Override
+							    public void contextDestroyed(ServletContextEvent event) {
+							        WebLogbackConfigurer.shutdownLogging(event.getServletContext());
+							    }
+							
+							    @Override
+							    public void contextInitialized(ServletContextEvent event) {
+							        WebLogbackConfigurer.initLogging(event.getServletContext());
+							    }
+							}
+						</pre>
+						<p>在WebLogbackConfigurer.initLogging中除了配置了logback相关的参数外还，通过反射方式调用了SLF4JBridgeHandler.install()方法</p>
+						<pre class="brush: java">
+							//If SLF4J's java.util.logging bridge is available in the classpath, install it. This will direct any messages
+							//from the Java Logging framework into SLF4J. When logging is terminated, the bridge will need to be uninstalled
+							try {
+							    Class&lt;?> julBridge = ClassUtils.forName("org.slf4j.bridge.SLF4JBridgeHandler", ClassUtils.getDefaultClassLoader());
+							    
+							    Method removeHandlers = ReflectionUtils.findMethod(julBridge, "removeHandlersForRootLogger");
+							    if (removeHandlers != null) {
+							        servletContext.log("Removing all previous handlers for JUL to SLF4J bridge");
+							        ReflectionUtils.invokeMethod(removeHandlers, null);
+							    }
+							    
+							    Method install = ReflectionUtils.findMethod(julBridge, "install");
+							    if (install != null) {
+							        servletContext.log("Installing JUL to SLF4J bridge");
+							        ReflectionUtils.invokeMethod(install, null);
+							    }
+							} catch (ClassNotFoundException ignored) {
+							    //Indicates the java.util.logging bridge is not in the classpath. This is not an indication of a problem.
+							    servletContext.log("JUL to SLF4J bridge is not available on the classpath");
+							}
+						</pre>
+						<p>在WebLogbackConfigurer.shutdownLogging中通过反射方式调用了SLF4JBridgeHandler.uninstall()方法</p>
+						<pre class="brush: java">
+							public static void shutdownLogging(ServletContext servletContext) {
+							    //Uninstall the SLF4J java.util.logging bridge *before* shutting down the Logback framework.
+							    try {
+							        Class&lt;?> julBridge = ClassUtils.forName("org.slf4j.bridge.SLF4JBridgeHandler", ClassUtils.getDefaultClassLoader());
+							        Method uninstall = ReflectionUtils.findMethod(julBridge, "uninstall");
+							        if (uninstall != null) {
+							            servletContext.log("Uninstalling JUL to SLF4J bridge");
+							            ReflectionUtils.invokeMethod(uninstall, null);
+							        }
+							    } catch (ClassNotFoundException ignored) {
+							        //No need to shutdown the java.util.logging bridge. If it's not on the classpath, it wasn't started either.
+							    }
+							
+							    try {
+							        servletContext.log("Shutting down Logback");
+							        LogbackConfigurer.shutdownLogging();
+							    } finally {
+							        // Remove the web app root system property.
+							        if (exposeWebAppRoot(servletContext)) {
+							            WebUtils.removeWebAppRootSystemProperty(servletContext);
+							        }
+							    }
+							}
+						</pre>	
+					</section>
+					
+					<p>5.那么，如果具体的日志实现是log4j2，log4j2中没有提供这中功能，那么就必须手动写一个Listener在webapp启动时，调用SLF4JBridgeHandler.install()方法,仿照logback中的写法</p>
+					<section class="code-section">
+						<pre class="brush: java">
+							package me.pengbo.web.listener;
+							
+							import org.springframework.util.ClassUtils;
+							import org.springframework.util.ReflectionUtils;
+							
+							import javax.servlet.ServletContext;
+							import javax.servlet.ServletContextEvent;
+							import javax.servlet.ServletContextListener;
+							import java.lang.reflect.Method;
+							public class JulToSlf4jHanlderBinding implements ServletContextListener {
+							    @Override
+							    public void contextInitialized(ServletContextEvent servletContextEvent) {
+							        ServletContext servletContext = servletContextEvent.getServletContext();
+							        //If SLF4J's java.util.logging bridge is available in the classpath, install it. This will direct any messages
+							        //from the Java Logging framework into SLF4J. When logging is terminated, the bridge will need to be uninstalled
+							        try {
+							            Class&lt;?> julBridge = ClassUtils.forName("org.slf4j.bridge.SLF4JBridgeHandler", ClassUtils.getDefaultClassLoader());
+							
+							            Method removeHandlers = ReflectionUtils.findMethod(julBridge, "removeHandlersForRootLogger");
+							            if (removeHandlers != null) {
+							                servletContext.log("Removing all previous handlers for JUL to SLF4J bridge");
+							                ReflectionUtils.invokeMethod(removeHandlers, null);
+							            }
+							
+							            Method install = ReflectionUtils.findMethod(julBridge, "install");
+							            if (install != null) {
+							                servletContext.log("Installing JUL to SLF4J bridge");
+							                ReflectionUtils.invokeMethod(install, null);
+							            }
+							        } catch (ClassNotFoundException ignored) {
+							            //Indicates the java.util.logging bridge is not in the classpath. This is not an indication of a problem.
+							            servletContext.log("JUL to SLF4J bridge is not available on the classpath");
+							        }
+							    }
+							
+							    @Override
+							    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+							        ServletContext servletContext = servletContextEvent.getServletContext();
+							        //Uninstall the SLF4J java.util.logging bridge *before* shutting down the web application.
+							        try {
+							            Class&lt;?> julBridge = ClassUtils.forName("org.slf4j.bridge.SLF4JBridgeHandler", ClassUtils.getDefaultClassLoader());
+							            Method uninstall = ReflectionUtils.findMethod(julBridge, "uninstall");
+							            if (uninstall != null) {
+							                servletContext.log("Uninstalling JUL to SLF4J bridge");
+							                ReflectionUtils.invokeMethod(uninstall, null);
+							            }
+							        } catch (ClassNotFoundException ignored) {
+							            //No need to shutdown the java.util.logging bridge. If it's not on the classpath, it wasn't started either.
+							        }
+							    }
+							}
+						</pre>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+</body>
+</html>
