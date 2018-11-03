@@ -68,6 +68,10 @@ var allLinks = [
     "href": "html\\tools\\js-is-prime.html"
   },
   {
+    "title": "将文字信息保存到PNG图片中",
+    "href": "html\\tools\\put-text-into-png.html"
+  },
+  {
     "title": "图片编辑",
     "href": "html\\tools\\tui-image-editor.html"
   }
