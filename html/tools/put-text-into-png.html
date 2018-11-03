@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>将文字信息保存到PNG图片中</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">tool</a></li>
+					<li class="active"></li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>将文字信息保存到PNG图片中</h3>
+					<small>2017-11-03</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>将信息存储到图片中；从图片中恢复</em></p>
+				</div>
+				<div class="content">
+					<p><a href="https://www.igorkromin.net/index.php/2018/09/06/hijacking-html-canvas-and-png-images-to-store-arbitrary-text-data/" >https://www.igorkromin.net/index.php/2018/09/06/hijacking-html-canvas-and-png-images-to-store-arbitrary-text-data/</a></a></p>
+					<p><a href="https://www.igorkromin.net/index.php/2018/09/20/retrieving-data-from-hijacked-png-images-using-html-canvas-and-javascript/" />https://www.igorkromin.net/index.php/2018/09/20/retrieving-data-from-hijacked-png-images-using-html-canvas-and-javascript/</a></a></p>
+					<div class="input-group" style="width:100%">
+					  <span class="input-group-addon" style="width:100px">信息:</span>
+                      		  <input id="msg" type="text" style="width:200px" class="form-control" placeholder="" aria-describedby="basic-addon1">
+					  <input class="btn btn-default" type="button" value="GO!" onclick="getMsgedPng()">
+					</div>
+					<div class="input-group" style="width:100%">
+					  <span class="input-group-addon" style="width:100px">IMG URL:</span>
+                      		  <input id="imgUrl" type="text" style="width:200px" class="form-control" placeholder="" aria-describedby="basic-addon1">
+					  <input class="btn btn-default" type="button" value="GO!" onclick="retrievingDataFromPng()">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<script>
+		function getMsgedPng() {
+			var originStr = $("#msg").val();
+			if(!originStr){
+				alert("input the msg");
+				return ;
+			}
+			var strUnit8Array = new TextEncoder('utf-8').encode(originStr);
+			var dataSize = Math.ceil(Math.sqrt(strUnit8Array.length / 3));
+			var paddedData = new  Uint8ClampedArray(dataSize * dataSize * 4);
+			var idx = 0 ;
+			for(var i = 0 ; i <strUnit8Array.length; i += 3){
+			  var subArray = strUnit8Array.subarray(i,i + 3);
+			  paddedData.set(subArray,idx);
+			  paddedData.set([ 255 ],idx + 3);
+			  idx += 4 ;
+			}
+			
+			var imageData = new ImageData(paddedData,dataSize,dataSize);
+			
+			var imgSize = 256 ;
+			var canvas = document .createElement('canvas');
+			canvas.width = canvas.height = imgSize;
+			var ctx = canvas.getContext('2d');
+			ctx.fillStyle = '＃AA0000' ;
+			ctx.fillRect(0,0,imgSize,imgSize);
+			
+			ctx.fillStyle = 'rgb(' + dataSize + ',0,0)' ;
+			ctx.fillRect(0,0,1,1);
+			ctx.putImageData(imageData, 0, 1);
+			
+			$('body').append('<a id="hiddenLink" href="' + canvas.toDataURL() +
+			  '" style="display:none;" download="image.png">Download</a>');
+			var link = $('#hiddenLink')[0];
+			link.click();
+			link.remove();
+		}
+		
+		function retrievingDataFromPng(){
+			var imgUrl = $("#imgUrl").val();
+			if(!imgUrl || !imgUrl.endsWith(".png")){
+				alert("输入正确的图片地址");
+				return ;
+			}
+			var img = new Image();
+			img.onload = function() {
+				var imgSize = img.width;
+				var canvas = document.createElement('canvas');
+				canvas.width = canvas.height = imgSize;
+				var ctx = canvas.getContext('2d');
+				ctx.drawImage(img, 0, 0);
+				
+				var headerData = ctx.getImageData(0, 0, 1, 1);
+				var dataSize = headerData.data[0];
+				
+				var imageData = ctx.getImageData(0, 1, dataSize, dataSize);
+				var paddedData = imageData.data;
+				var uint8array = new Uint8Array(paddedData.length / 4 * 3);
+				
+				var idx = 0;
+				for (var i = 0; i < paddedData.length - 1; i += 4) {
+					var subArray = paddedData.subarray(i, i + 3);
+					uint8array.set(subArray, idx);
+					idx += 3;
+				}
+				
+				var includeBytes = uint8array.length;
+				for (var i = uint8array.length - 1; i > 0; i--) {
+					if (uint8array[i] == 0) {
+						includeBytes--;
+					}
+					else {
+						break;
+					}
+				}
+				
+				var data = uint8array.subarray(0, includeBytes);
+				var strData = (new TextDecoder('utf-8')).decode(data);
+				console.log(strData);
+			};
+			img.src = imgUrl;
+		}
+	</script>
+</body>
+</html>
