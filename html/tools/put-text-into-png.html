@@ -25,7 +25,7 @@
 		<div class="col-lg-8">
 			<div class="container-fluid">
 				<ol class="breadcrumb">
-					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="mainpage.html">Home</a></li> 
 					<li><a href="#">tool</a></li>
 					<li class="active"></li>
 				</ol>
@@ -50,6 +50,14 @@
 					  <span class="input-group-addon" style="width:100px">IMG URL:</span>
                       		  <input id="imgUrl" type="text" style="width:200px" class="form-control" placeholder="" aria-describedby="basic-addon1">
 					  <input class="btn btn-default" type="button" value="GO!" onclick="retrievingDataFromPng()">
+					</div>
+					<div class="input-group" style="width:100%">
+					  <span class="input-group-addon" style="width:100px">Local IMG:</span>
+                      		  <input id="imgUrl" type="file" style="width:200px" class="form-control" placeholder="" aria-describedby="basic-addon1" onchange="retrievingDataFromLocalPng(this)" />
+					</div>
+					
+					<div style="margin: 10px;">
+						<p>结果：<span id="decodeInfo" style="color: red;font-size: 16px;"></span></p>
 					</div>
 				</div>
 			</div>
@@ -145,6 +153,57 @@
 				console.log(strData);
 			};
 			img.src = imgUrl;
+		}
+		
+		function retrievingDataFromLocalPng(input){
+			if (window.FileReader) {  
+                var file = input.files[0];  
+                filename = file.name.split(".")[0];  
+                var reader = new FileReader();
+                reader.readAsDataURL(file);
+                console.log("Read File:" + filename);
+                reader.onload = function(e) {  
+                    var imgUrl = e.target.result;
+                    var img = new Image();
+					img.onload = function() {
+						var imgSize = img.width;
+						var canvas = document.createElement('canvas');
+						canvas.width = canvas.height = imgSize;
+						var ctx = canvas.getContext('2d');
+						ctx.drawImage(img, 0, 0);
+						
+						var headerData = ctx.getImageData(0, 0, 1, 1);
+						var dataSize = headerData.data[0];
+						
+						var imageData = ctx.getImageData(0, 1, dataSize, dataSize);
+						var paddedData = imageData.data;
+						var uint8array = new Uint8Array(paddedData.length / 4 * 3);
+						
+						var idx = 0;
+						for (var i = 0; i < paddedData.length - 1; i += 4) {
+							var subArray = paddedData.subarray(i, i + 3);
+							uint8array.set(subArray, idx);
+							idx += 3;
+						}
+						
+						var includeBytes = uint8array.length;
+						for (var i = uint8array.length - 1; i > 0; i--) {
+							if (uint8array[i] == 0) {
+								includeBytes--;
+							}
+							else {
+								break;
+							}
+						}
+						
+						var data = uint8array.subarray(0, includeBytes);
+						var strData = (new TextDecoder('utf-8')).decode(data);
+						console.log(strData);
+						$("#decodeInfo").text(strData);
+					};
+					img.src = imgUrl;
+                }
+           }
 		}
 	</script>
 </body>
