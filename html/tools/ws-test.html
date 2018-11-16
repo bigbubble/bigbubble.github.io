@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>websokect test</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">tool</a></li>
+					<li class="active"></li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>websokect test</h3>
+					<small>2017-05-22</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>websokect test</em></p>
+				</div>
+				<div class="content">
+					<br />
+					<div class="input-group" style="width:100%">
+					  <span class="input-group-addon" style="width:100px">你的昵称:</span>
+                      		  <input id="talkFrom" type="text" style="width:200px" class="form-control" placeholder="" aria-describedby="basic-addon1">
+                      		  <button id="connectBtn" class="btn btn-default" onclick="connect()">连接服务器</button>
+					</div>
+					<br />
+					<p>在线列表 <button id="connectBtn" class="btn btn-default" onclick="refresh()">刷新</button></p>
+					<hr>
+					<div id="onlineList">
+						
+					</div>
+					
+					<br />
+					<p>消息</p>
+					<hr>
+					<div id="msgContent">
+					  
+					</div>
+					
+					<br />
+					<p>输入</p>
+					<hr>
+					<div class="input-group" style="width:100%">
+                      		  <textarea class="form-control" id="msg"></textarea>
+                      		  <button class="btn btn-default" onclick="sendMsg()">发送</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<style>
+		hr{
+			margin: 1px;
+		}
+		.online{
+			margin: 5px 10px;
+			padding: 5px;
+			cursor: pointer;
+			border: 1px solid #000000;
+			display: inline-block;
+		}
+		.selected {
+			color: #ffffff;
+			background: #006699;
+		}
+	</style>
+	<script>
+		$(document).ready(function(){
+			$(document).on("click", ".online", function(){
+				$(".online").removeClass("selected");
+				$(this).addClass("selected");
+				currentDialog = $(this).text();
+			})
+		})
+		var onlineSpanTemplate = '<div class="online">{#id}</div>';
+		var curentID='';
+		var currentDialog = '';
+		var WS = null;
+		//定时器
+		var interval = null;
+		/**
+		 * 连接服务器
+		 */
+		function connect() {
+			if($("#connectBtn").hasClass("disabled")) return;
+			let talkFrom = $("#talkFrom").val();
+			if(talkFrom == undefined || talkFrom == "") {
+				alert("请输入你的昵称");
+				return;
+			}
+			curentID = talkFrom;
+			var ws = new WebSocket("wss://47.94.193.162:3000/ws");
+			ws.onopen = function() {
+				let msg = {type: 1, message:"_ping", talkFrom: curentID};
+				ws.send(JSON.stringify(msg));
+				interval = setInterval(function(){
+					ws.send(JSON.stringify(msg));
+				}, 10000);
+				$("#connectBtn").addClass("disabled");
+				$("#talkFrom").addClass("disabled");
+			}
+			
+			ws.onclose = function() {
+				console.log("closed");
+				$("#connectBtn").removeClass("disabled");
+				curentID = '';
+				currentDialog = '';
+				$("#talkFrom").removeClass("disabled");
+				WS = null;
+				if(interval != null) {
+					clearInterval(interval);
+				}
+			}
+			
+			ws.onerror = function() {
+				console.log("error");
+			}
+			
+			ws.onmessage = function(evt) {
+				let receiveText = evt.data;
+				if(receiveText == "") return;
+				let data = JSON.parse(receiveText);
+				// ping
+				if(data.type == 1) {
+					console.log(data.message);
+					$("#talkFrom").val(data.talkTo);
+					curentID = data.talkTo;
+					return;
+				}else if (data.type == 2) {
+					//system info
+					console.log("system:" + data.message);
+					$("#msgContent").append("<p style='color:red'>SYSTEM:"+data.message+"</p>");
+				} else if (data.type == 3) {
+					//online list
+					console.log("onlien:" + data.message);
+					$("#onlineList").empty();
+					if(data.message != "") {
+						let onlineList = JSON.parse(data.message);
+						for(let i in onlineList) {
+							let id = onlineList[i];
+							let html = onlineSpanTemplate.replace("{#id}", id);
+							let $online = $(html);
+							if(id == currentDialog) {
+								$online.addClass("selected");
+							}
+							$("#onlineList").append($online);
+						}
+					}
+				}else {
+					console.log("receive:" + data.message);
+					$("#msgContent").append("<p><span style='font-size: 16px;font-weight: bold;'>"+data.talkFrom+"["+data.createTime+"] 对你说：</span></p><p style='margin-left: 40px;'>"+data.message+"</p>");
+				}
+			}
+			WS = ws;
+			return ws;
+		}
+		/**
+		 * 发送消息
+		 */
+		function sendMsg() {
+			var msg = $("#msg").val();
+			if(curentID == "") return ;
+			if(currentDialog == "") {
+				alert("请输入talkTo");
+				return;
+			}
+			if(msg == "") {
+				alert("请输入MSG");
+				return;
+			}
+			let message = {type:0, message:msg, talkTo:currentDialog, talkFrom: curentID};
+			WS.send(JSON.stringify(message));
+			$("#msgContent").append("<p style='margin-right:20px;font-size: 16px;font-weight: bold;text-align: right;'>我：</p><p style='margin-right20px;text-align: right;'>"+message.message+"</p>");
+		}
+		
+		function refresh() {
+			var message = {};
+			message.type = 3;
+			message.talkFrom = curentID;
+			message.message = '';
+			WS.send(JSON.stringify(message));
+		}
+	</script>
+</body>
+</html>
