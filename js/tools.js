@@ -74,5 +74,9 @@ var allLinks = [
   {
     "title": "图片编辑",
     "href": "html\\tools\\tui-image-editor.html"
+  },
+  {
+    "title": "websokect test",
+    "href": "html\\tools\\ws-test.html"
   }
 ]
