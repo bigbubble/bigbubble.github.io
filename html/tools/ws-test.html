@@ -120,7 +120,7 @@
 				return;
 			}
 			curentID = talkFrom;
-			var ws = new WebSocket("wss://47.94.193.162:3000/ws");
+			var ws = new WebSocket("wss://47.94.193.162/ws");
 			ws.onopen = function() {
 				let msg = {type: 1, message:"_ping", talkFrom: curentID};
 				ws.send(JSON.stringify(msg));
