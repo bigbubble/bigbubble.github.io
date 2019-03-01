@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>java SimpleDateFormat和FastDateFormat格式化yyMMdd日期问题</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">JAVA</a></li>
+					<li class="active"></li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>java SimpleDateFormat和FastDateFormat格式化yyMMdd日期问题</h3>
+					<small>2019-03-02</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>
+						使用十五位身份证号码获取出生日期，当年龄大于80岁时格式化的日期会错误
+						SimpleDateFormat表现为大于80周岁就会发生错误，FastDateFormat表现为当前年份-出生年份 > 80会出错
+					</em></p>
+				</div>
+				<div class="content">
+					<section class="code-section">
+						<pre class="brush: java">
+							public static void main(String[] args) throws ParseException {
+								System.out.println("now:" + new Date());
+								// now:Fri Mar 01 13:55:57 CST 2019
+								System.out.println();
+								Date birthDate = new SimpleDateFormat("yyMMdd").parse("390302");
+								System.out.println("SimpleDateFormat:" + birthDate);
+								// SimpleDateFormat:Thu Mar 02 00:00:00 CST 1939
+								Date birthDate2 = new SimpleDateFormat("yyMMdd").parse("390301");
+								System.out.println("SimpleDateFormat:" + birthDate2);
+								// SimpleDateFormat:Tue Mar 01 00:00:00 CST 2039
+
+								System.out.println();
+
+								Date birthDate3 = FastDateFormat.getInstance("yyMMdd").parse("390302");
+								System.out.println("FastDateFormat:" + birthDate3);
+								// FastDateFormat:Thu Mar 02 00:00:00 CST 1939
+								Date birthDate4 = FastDateFormat.getInstance("yyMMdd").parse("390301");
+								System.out.println("FastDateFormat:" + birthDate4);
+								// FastDateFormat:Wed Mar 01 00:00:00 CST 1939
+								
+								System.out.println();
+								
+								Date birthDate5 = FastDateFormat.getInstance("yyMMdd").parse("381231");
+								System.out.println("FastDateFormat:" + birthDate5);
+								// FastDateFormat:Fri Dec 31 00:00:00 CST 2038
+								Date birthDate6 = FastDateFormat.getInstance("yyMMdd").parse("390101");
+								System.out.println("FastDateFormat:" + birthDate6);
+								// FastDateFormat:Sun Jan 01 00:00:00 CST 1939
+							}
+
+						</pre>
+					</section>
+					<div></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+</body>
+</html>
