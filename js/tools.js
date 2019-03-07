@@ -28,6 +28,10 @@ var allLinks = [
     "href": "html\\algorithm\\store-files-in-file-sytem-less-than-1024-each.html"
   },
   {
+    "title": "java SimpleDateFormat和FastDateFormat格式化yyMMdd日期问题",
+    "href": "html\\function_test\\java-dateformat-of-yymmdd.html"
+  },
+  {
     "title": "java 8泛型问题",
     "href": "html\\function_test\\java-generics.html"
   },
