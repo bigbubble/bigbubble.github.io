@@ -31,8 +31,8 @@
 			init();
 			animate();
 			function init( ) {
-				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 10000 );
-				camera.position.set( 0, - 400, 600 );
+				camera = new THREE.PerspectiveCamera( 65, window.innerWidth / window.innerHeight, 1, 10000 );
+				camera.position.set( 0, -400, 600 );
 				var controls = new THREE.OrbitControls( camera );
 				controls.target.set( 0, 0, 0 );
 				controls.update();
@@ -52,7 +52,7 @@
 						opacity: 0.4,
 						side: THREE.DoubleSide
 					} );
-					var message = "   B_Pt\nThe world is so interesting";
+					var message = "      B_Pt\nThe world is so interesting";
 					var shapes = font.generateShapes( message, 100 );
 					var geometry = new THREE.ShapeBufferGeometry( shapes );
 					geometry.computeBoundingBox();
@@ -60,7 +60,7 @@
 					geometry.translate( xMid, 0, 0 );
 					// make shape ( N.B. edge view not visible )
 					text = new THREE.Mesh( geometry, matLite );
-					text.position.z = - 150;
+					text.position.z = - 250;
 					scene.add( text );
 					// make line shape ( N.B. edge view remains visible )
 					var holeShapes = [];
