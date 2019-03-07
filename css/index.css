@@ -1,7 +1,7 @@
 body {
-	background-color: #000;
+	/**background-color: #000;*/
 	/**background-image: url(img/eg_bg_04.gif);*/
-	color: #fff;
+	/**color: #fff;*/
 }
 .center{
 	margin-left: auto;
