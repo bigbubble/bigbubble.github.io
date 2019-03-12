@@ -1,0 +1,25 @@
+{
+  "name": "bigbubble.github.io",
+  "version": "1.0.0",
+  "description": "my websit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigbubble/bigbubble.github.io.git"
+  },
+  "author": "pengbo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bigbubble/bigbubble.github.io/issues"
+  },
+  "homepage": "https://github.com/bigbubble/bigbubble.github.io#readme",
+  "dependencies": {
+    "imagemin": "^6.1.0",
+    "imagemin-mozjpeg": "^8.0.0",
+    "imagemin-pngquant": "^7.0.0",
+    "imagemin-webp": "^5.0.0"
+  }
+}
