@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>关于数据库连接池大小</title>
+	<style>
+		.en{
+			margin: 10px;
+			font-style: italic;
+		}
+		.cn {
+			margin: 10px;
+			color: #985F0D;
+			font-size: 16px;
+		}
+		.licn{
+			color: #985F0D;
+			font-size: 16px;
+		}
+		.formula {
+			size: 16px;
+			font-weight: bolder;
+		}
+		hr {
+			height:1px;
+			border:none;
+			border-top:1px solid #555555
+		}
+		h4{
+			font-weight: bolder;
+		}
+	</style>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Read</a></li>
+					<li class="active">Article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>关于数据库连接池大小</h3>
+					<small>2019-03-30</small>
+				</div>
+				<p>原文地址:<a href="https://github.com/brettwooldridge/HikariCP/wiki/About-Pool-Sizing">About Pool Sizing</a></p>
+				<div class="bg-gray">
+					<em>
+						GITHUB brettwooldridge/HikariCP WIKI
+					</em>
+				</div>
+				<div class="centent">
+					<div class="en">Configuring a connection pool is something that developers often get wrong. There are several, possibly counter-intuitive for some, principles that need to be understood when configuring the pool.</div>
+					<div class="cn">配置连接池是开发者经常出错误的地方。这里有几个在配置连接池时需要了解的，可能是反直觉的原则</div>
+					<hr>
+					<h4>10,000 Simultaneous Front-End Users</h4>
+					<h4>10,000个前端用户同时访问</h4>
+					<div class="en">Imagine that you have a website that while maybe not Facebook-scale still often has 10,000 users making database requests simultaneously -- accounting for some 20,000 transactions per second. How big should your connection pool be? You might be surprised that the question is not <i>how big</i> but rather <i>how small</i></div>
+					<div class="cn">假如你有一个网站，虽然没有Facebook那样的规模，但仍然有10,000个用户在同时访问数据库-- 每秒需要20,000个数据库事务。你的数据库连接池应该是多大？您可能会感到惊讶的是，与其问连接池<strong><i>该配置多大</strong></i>倒不如问<strong><i>该配置多小</i></strong>！</div>
+					<br/>
+					<div class="en">Watch this short video from the Oracle Real-World Performance group for an eye-opening demonstration (~10 min.):</div>
+					<div class="cn">观看来自Oracle Real-World Performance组的的这段让人大开眼界的简短演示视频（约10分钟）：</div>
+					<div style="text-align: center;"><a href="https://www.dailymotion.com/video/x2s8uec">OLTP Performance - Concurrent Mid-Tier Connections</a></div>
+					<br/>
+					<div class="en">{Spoiler Alert} if you didn't watch the video. Oh come on! Watch it then come back here.</div>
+					<div class="cn">{剧透警告} 如果你没有看这个视频， 小伙子，看完再回来。</div>
+					
+					<div class="en">You can see from the video that reducing the connection pool size alone, in the absence of any other change, decreased the response times of the application from ~100ms to ~2ms -- over 50x improvement.</div>
+					<div class="cn">从视频总可以看出，单单减少连接池的大小，不用做其他改变，使应用的响应时间从 ~100ms 降低到了 ~2ms --超过50被的提升</div>
+					
+					<br />
+					<h4>But why?</h4>
+					<h4>原因是什么</h4>
+					<br />
+					<div class="en">We seem to have understood in other parts of computing recently that less is more. Why is it that with only 4-threads an nginx web-server can substantially out-perform an Apache web-server with 100 processes? Isn't it obvious if you think back to Computer Science 101?</div>
+					
+					<div class="cn">我们好像可以从其他计算场景中去理解为什么越少越好。为什么只有4个线程的nginx Web服务器可以大大超过100个进程的Apache Web服务器？如果你回想一下Computer Science 101，这不是很明显吗？</div>
+					
+					<div class="en">Even a computer with one CPU core can "simultaneously" support dozens or hundreds of threads. But we all [should] know that this is merely a trick by the operating system though the magic of time-slicing. In reality, that single core can only execute one thread at a time; then the OS switches contexts and that core executes code for another thread, and so on. It is a basic Law of Computing that given a single CPU resource, executing A and B sequentially will <i>always</i> be faster than executing A and B "simultaneously" through time-slicing. Once the number of threads exceeds the number of CPU cores, you're going slower by adding more threads, not faster.</div>
+					<div class="cn">即使是具有一个CPU内核的计算机也可以“同时”支持数十个或数百个线程。但是我们都【应该】知道这只是操作系统使用<i>时间片</i>的一个技巧.实际上，单个核心一次只能执行一个线程; 然后OS通过切换上下文，去执行另一个线程代码，依此类推。一个基本的计算法则是，给定资源的单个CPU， 顺序执行A和B <i>总是</i>比通过时间片切换“同时” 执行A和B更快。一旦线程数超过了CPU核心数，添加更多线程就会变得更慢，而不是更快。</div>
+					<div class="en">That is almost true...</div>
+					<div class="cn">这<i>几乎</i>是真的......</div>
+					<br />
+					<h4>Limited Resources</h4>
+					<h4>有限的资源</h4>
+					<br />
+					
+					<div class="en">It is not quite as simple as stated above, but it's close. There are a few other factors at play. When we look at what the major bottlenecks for a database are, they can be summarized as three basic categories: CPU, Disk, Network. We could add Memory in there, but compared to Disk and Network there are several orders of magnitude difference in bandwidth.</div>
+					<div class="cn">虽然它并不像上面说的那么简单，但它很接近。还有一些其他因素在起作用。当我们查看数据库的主要瓶颈是什么时，它们可以归纳为三个基本类别：CPU，磁盘，网络。我们可以添加内存改善状况，但与内存相比，磁盘和网络与内存带宽有几个数量级的差异。</div>
+					<div class="en">If we ignored Disk and Network it would be simple. On a server with 8 computing cores, setting the number of connections to 8 would provide optimal performance, and anything beyond this would start slowing down due to the overhead of context switching. But we cannot ignore Disk and Network. Databases typically store data on a Disk, which traditionally is comprised of spinning plates of metal with read/write heads mounted on a stepper-motor driven arm. The read/write heads can only be in one place at a time (reading/writing data for a single query) and must "seek" to a new location to read/write data for a different query. So there is a seek-time cost, and also a rotational cost whereby the disk has to wait for the data to "come around again" on the platter to be read/written. Caching of course helps here, but the principle still applies.</div>
+					<div class="cn">如果我们忽略了磁盘和网络，那将很简单。在具有8个计算核心的服务器上，将连接数设置为8将提供最佳性能，并且由于上下文切换的开销，超出此数的配置都会使CPU计算减慢。但我们不能忽视磁盘和网络。数据库通常将数据存储在由金属旋转板组成，读/写头安装在步进电机驱动臂的传统磁盘上，读/写磁头一次只能在一个地方（读/写单个查询的数据），并且必须“寻找”到新位置以读取/写入不同查询的数据。因此存在寻道时间成本，以及旋转成本，其中磁盘必须等待数据在盘片上“再次出现”以进行读/写。缓存当然有帮助，但原则仍然适用。</div>
+					<div class="en">During this time ("I/O wait"), the connection/query/thread is simply "blocked" waiting for the disk. And it is during this time that the OS could put that CPU resource to better use by executing some more code for another thread. So, because threads become blocked on I/O, we can actually get more work done by having a number of connections/threads that is greater than the number of physical computing cores.</div>
+					<div class="cn">在此期间（“I/O等待”），连接/查询/线程被“阻塞”等待磁盘。在此期间，操作系统可以通过为另一个线程执行更多代码来更好地利用CPU资源。因此，由于线程在I/O上被阻塞，我们实际上可以通过使连接/线程大于物理计算核心数来完成更多工作。</div>
+					<div class="en">How many more? We shall see. The question of how many more also depends on the disk subsystem, because newer SSD drives do not have a "seek time" cost or rotational factors to deal with. Don't be tricked into thinking, "SSDs are faster and therefore I can have more threads". That is exactly 180 degrees backwards. Faster, no seeks, no rotational delays means less blocking and therefore fewer threads [closer to core count] will perform better than more threads. More threads only perform better when blocking creates opportunities for executing.</div>
+					<div class="cn">更多是多少？我们知道，这个问题还取决于磁盘子系统，因为较新的SSD驱动器没有处理“寻道时间”成本或旋转因素。不要误以为“SSD 速度更快，因此我可以拥有更多线程”。那恰恰相反。更快，没有搜索，没有旋转延迟意味着更少的阻塞，因此更少的线程[更接近核心数量]将比更多线程更好地执行。 当阻塞创建执行机会时，更多线程才执行得更好。</div>
+					<div class="en">Network is similar to disk. Writing data out over the wire, through the ethernet interface, can also introduce blocking when the send/receive buffers fill up and stall. A 10-Gig interface is going to stall less than Gigabit ethernet, which will stall less than a 100-megabit. But network is a 3rd place runner in terms of resource blocking and some people often omit it from their calculations.</div>
+					<div class="cn">网络类似于磁盘。通过以太网接口通过线路写出数据也会在发送/接收缓冲区填满和停止时引起阻塞。一个10-Gig接口阻塞小于千兆以太网，千兆网接口阻塞小于百兆网接口。但就资源阻塞而言，网络排名第三，有些人经常在计算中忽略它。</div>
+					<div class="en">Here's another chart to break up the wall of text.</div>
+					<div class="cn">这是一个图表，比文字更有说服力。</div>
+					<div>
+						<img style="width:640px" src="https://github.com/brettwooldridge/HikariCP/wiki/Postgres_Chart.png" />
+					</div>
+					
+					<div class="en">You can see in the above PostgreSQL benchmark that TPS rates start to flatten out at around 50 connections. And in Oracle's video above they showed dropping the connections from 2048 down to just 96. We would say that even 96 is probably too high, unless you're looking at a 16 or 32-core box.</div>
+					<div class="cn">您可以在上面的PostgreSQL基准测试中看到，TPS速率曲线开始在大约50个连接处变平。在上面的Oracle视频中，他们把连接从2048下降到96个.我们会说即使96也可能太高了，除非你有一个16或32核的CPU</div>
+					<br />
+					<h4>The Formula</h4>
+					<h4>公式</h4>
+					<br />
+					
+					<div class="en">The formula below is provided by the PostgreSQL project as a starting point, but we believe it will be largely applicable across databases. You should test your application, i.e. simulate expected load, and try different pool settings around this starting point:</div>
+					<div class="cn">下面的公式由PostgreSQL项目提供的一个基础配置数值，但我们相信它将在很大程度上适用于所有数据库。您应该测试您的应用程序，比如模拟预期的负载，并在此数值上下尝试不同的池设置：</div>
+					<div class="en">connections = ((core_count * 2) + effective_spindle_count)</div>
+					<div class="cn"></div>
+					<div class="en">A formula which has held up pretty well across a lot of benchmarks for years is that for optimal throughput the number of active connections should be somewhere near ((core_count * 2) + effective_spindle_count). Core count should not include HT threads, even if hyperthreading is enabled. Effective spindle count is zero if the active data set is fully cached, and approaches the actual number of spindles as the cache hit rate falls. ... There hasn't been any analysis so far regarding how well the formula works with SSDs.</div>
+					<div class="cn">为优化数据库多个连接的吞吐量的这个公式<strong>(cpu核心数 * 2) + 磁盘列阵中的硬盘数</strong> 已经被这几年来的许多基准测试所支持。核心数不应该包含HT threads（超线程），即使开启了超线程功能。如果数据集已全部被缓存，那么Effective spindle count 是 0，并且接近缓存命中率下降时的实际轴数。..到目前为止，还没有任何关于这个公式在SSD硬盘情况下的分析</div>
+					<div class="en">Guess what that means? Your little 4-Core i7 server with one hard disk should be running a connection pool of: 9 = ((4 * 2) + 1). Call it 10 as a nice round number. Seem low? Give it a try, we'd wager that you could easily handle 3000 front-end users running simple queries at 6000 TPS on such a setup. If you run load tests, you will probably see TPS rates starting to fall, and front-end response times starting to climb, as you push the connection pool much past 10 (on that given hardware).</div>
+					<div class="cn">猜猜那意味着什么？你的带有一个硬盘的小型4核i7服务器应运行以下连接池： 9 = ((4 * 2) + 1)。10个连接可能是个不错的配置，看起来很少？让我来试一下，在这样的设置下，我们打赌您可以轻松处理3000个前端用户以6000 TPS进行简单查询。如果您运行负载测试，将连接池连接数量设置为大于10个（在给定硬件上），您可能会看到TPS速率开始下降，并且前端响应时间开始攀升。</div>
+					<br />
+					<h4>Axiom: You want a small pool, saturated with threads waiting for connections.</h4>
+					<h4>定理：你想要一个小型池，其中包含等待连接的线程。</h4>
+					<br />
+					
+					<div class="en">If you have 10,000 front-end users, having a connection pool of 10,000 would be shear insanity. 1000 still horrible. Even 100 connections, overkill. You want a small pool of a few dozen connections at most, and you want the rest of the application threads blocked on the pool awaiting connections. If the pool is properly tuned it is set right at the limit of the number of queries the database is capable of processing simultaneously -- which is rarely much more than (CPU cores * 2) as noted above.</div>
+					<div class="cn">如果您拥有10,000个前端用户，有一个10,000个连接的连接池就太疯狂了。1000个仍然可怕。即使100个连接，依然让人受不了。您最多需要一个包含几十个连接的小池，并且您希望池中的其他应用程序线程被阻塞等待连接。如果连接池被正确调整，则它被设置为数据库能够同时处理的查询数量的限制 - 这几乎不会超过（CPU核心* 2），如上所述。</div>
+					<div class="en">We never cease to amaze at the in-house web applications we've encountered, with a few dozen front-end users performing periodic activity, and a connection pool of 100 connections. Don't over-provision your database.</div>
+					<div class="cn">我们一直对一个只有几十个前端用户执行定期活动，配置了一个100个连接的连接池的Web应用程序感到惊讶。不要过度配置您的数据库。</div>
+					<hr />
+					
+					<br />
+					<h4>"Pool-locking"</h4>
+					<h4>“池锁”</h4>
+					<br />
+					
+					<div class="en">The prospect of "pool-locking" has been raised with respect to single actors that acquire many connections. This is largely an application-level issue. Yes, increasing the pool size can alleviate lockups in these scenarios, but we would urge you to examine first what can be done at the application level before enlarging the pool.</div>
+					<div class="cn">“池锁”问题在单个参与者需要多个连接的情况下被提出。这主要是应用程序级的问题，是的，增加池大小可以减轻这些情况下的锁定，但我们建议您先检查在扩展池之前可以在应用程序级别执行的操作。</div>
+					<div class="en">The calculation of pool size in order to avoid deadlock is a fairly simple resource allocation formula:</div>
+					<div class="cn">为避免死锁而计算池大小是一个相当简单的资源分配公式：</div>
+					<div class="formula"> pool size = Tn x (Cm - 1) + 1</div>
+					<div class="cn"></div>
+					<div class="en">Where Tn is the maximum number of threads, and Cm is the maximum number of simultaneous connections held by a single thread.</div>
+					<div class="cn">其中Tn是最大线程数，Cm是单个线程持有的最大同时连接数。</div>
+					<div class="en">For example, imagine three threads (Tn=3), each of which requires four connections to perform some task (Cm=4). The pool size required to ensure that deadlock is never possible is:</div>
+					<div class="cn">例如，假如有三个线程（Tn = 3），每个线程需要四个连接来执行某些任务（Cm = 4）。确保永远不会出现死锁所需的池大小是：</div>
+					<div class="formula"> pool size = 3 x (4 - 1) + 1 = 10</div>
+					<div class="cn">另一个例子，你最多有8个线程（Tn = 8），每个线程需要三个连接才能执行某项任务（Cm = 3）。确保永远不会出现死锁所需的池大小是：</div>
+					<div class="en">Another example, you have a maximum of eight threads (Tn=8), each of which requires three connections to perform some task (Cm=3). The pool size required to ensure that deadlock is never possible is:</div>
+					<div class="cn"></div>
+					<div class="formula">pool size = 8 x (3 - 1) + 1 = 17</div>
+					<div class="cn"></div>
+					
+					<div class="en">👉 This is not necessarily the optimal pool size, but the minimum required to avoid deadlock.</div>
+					<div class="cn">👉这不一定是最佳池大小，而是避免死锁所需的最小值。</div>
+					<div class="en">👉 In some environments, using a JTA (Java Transaction Manager) can dramatically reduce the number of connections required by returning the same Connection from getConnection() to a thread that is already holding a Connection in the current transaction.</div>
+					<div class="cn">👉在某些环境中，使用JTA（Java事务管理器）可以显着减少将同一连接返回getConnection()到当前事务中已持有Connection的线程所需的连接数。👉</div>
+					<hr />
+					<br />
+					<h4>Caveat Lector</h4>
+					<h4></h4>
+					<br />
+					
+					<div class="en">Pool sizing is ultimately very specific to deployments.</div>
+					<div class="cn">池大小最终是非常特定于部署的。</div>
+					<div class="en">For example, systems with a mix of long running transactions and very short transactions are generally the most difficult to tune with any connection pool. In those cases, creating two pool instances can work well (eg. one for long-running jobs, another for "realtime" queries).</div>
+					<div class="cn">例如，混合了长时间运行事务和非常短事务的系统通常是最难调整的。在这些情况下，创建两个池实例可以很好地工作（例如，一个用于长时间运行的作业，另一个用于“实时”查询）。</div>
+					<div class="en">In systems with primarily long running transactions, there is often an "outside" constraint on the number of connections needed -- such as a job execution queue that only allows a certain number of jobs to run at once. In these cases, the job queue size should be "right-sized" to match the pool (rather than the other way around).</div>
+					<div class="cn">在主要具有长时间运行事务的系统中，所需的连接数通常存在“外部”约束 - 例如，只允许一次运行一定数量的作业的作业执行队列。在这些情况下，作业队列大小应该是“恰好”匹配池大小（而不是相反）。</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+</body>
+</html>

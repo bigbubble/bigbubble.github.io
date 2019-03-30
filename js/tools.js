@@ -40,6 +40,10 @@ var allLinks = [
     "href": "html\\function_test\\MScomm32.html"
   },
   {
+    "title": "关于数据库连接池大小",
+    "href": "html\\read\\about-pool-sizing.html"
+  },
+  {
     "title": "设计模式",
     "href": "html\\read\\design-patterns.html"
   },
