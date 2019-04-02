@@ -137,13 +137,13 @@
 					<div class="cn">猜猜那意味着什么？你的带有一个硬盘的小型4核i7服务器应运行以下连接池： 9 = ((4 * 2) + 1)。10个连接可能是个不错的配置，看起来很少？让我来试一下，在这样的设置下，我们打赌您可以轻松处理3000个前端用户以6000 TPS进行简单查询。如果您运行负载测试，将连接池连接数量设置为大于10个（在给定硬件上），您可能会看到TPS速率开始下降，并且前端响应时间开始攀升。</div>
 					<br />
 					<h4>Axiom: You want a small pool, saturated with threads waiting for connections.</h4>
-					<h4>定理：你想要一个小型池，其中包含等待连接的线程。</h4>
+					<h4>定理：你想要一个小型池，和一个充满了等待连接的线程的队列。</h4>
 					<br />
 					
 					<div class="en">If you have 10,000 front-end users, having a connection pool of 10,000 would be shear insanity. 1000 still horrible. Even 100 connections, overkill. You want a small pool of a few dozen connections at most, and you want the rest of the application threads blocked on the pool awaiting connections. If the pool is properly tuned it is set right at the limit of the number of queries the database is capable of processing simultaneously -- which is rarely much more than (CPU cores * 2) as noted above.</div>
-					<div class="cn">如果您拥有10,000个前端用户，有一个10,000个连接的连接池就太疯狂了。1000个仍然可怕。即使100个连接，依然让人受不了。您最多需要一个包含几十个连接的小池，并且您希望池中的其他应用程序线程被阻塞等待连接。如果连接池被正确调整，则它被设置为数据库能够同时处理的查询数量的限制 - 这几乎不会超过（CPU核心* 2），如上所述。</div>
+					<div class="cn">如果您拥有10,000个前端用户，有一个10,000个连接的连接池就太疯狂了。1000个仍然可怕。即使100个连接，依然让人受不了。您最多需要一个包含几十个连接的小池，然后让剩下的业务线程都在队列里等待。如果连接池被正确调整，连接池中的连接数量应该等于你的数据库能够有效同时进行的查询任务数（通常不会高于2*CPU核心数）。如上所述。</div>
 					<div class="en">We never cease to amaze at the in-house web applications we've encountered, with a few dozen front-end users performing periodic activity, and a connection pool of 100 connections. Don't over-provision your database.</div>
-					<div class="cn">我们一直对一个只有几十个前端用户执行定期活动，配置了一个100个连接的连接池的Web应用程序感到惊讶。不要过度配置您的数据库。</div>
+					<div class="cn">我们经常见到一些小规模的web应用，应付着大约十来个的并发用户，却使用着一个100连接数的连接池。这会对你的数据库造成极其不必要的负担。</div>
 					<hr />
 					
 					<br />
@@ -179,7 +179,7 @@
 					<br />
 					
 					<div class="en">Pool sizing is ultimately very specific to deployments.</div>
-					<div class="cn">池大小最终是非常特定于部署的。</div>
+					<div class="cn">连接池的大小最终与系统特性相关。</div>
 					<div class="en">For example, systems with a mix of long running transactions and very short transactions are generally the most difficult to tune with any connection pool. In those cases, creating two pool instances can work well (eg. one for long-running jobs, another for "realtime" queries).</div>
 					<div class="cn">例如，混合了长时间运行事务和非常短事务的系统通常是最难调整的。在这些情况下，创建两个池实例可以很好地工作（例如，一个用于长时间运行的作业，另一个用于“实时”查询）。</div>
 					<div class="en">In systems with primarily long running transactions, there is often an "outside" constraint on the number of connections needed -- such as a job execution queue that only allows a certain number of jobs to run at once. In these cases, the job queue size should be "right-sized" to match the pool (rather than the other way around).</div>
