@@ -1,3 +1,5 @@
 node_modules
 .project
 /**/.DS_Store
+dist
+.idea
