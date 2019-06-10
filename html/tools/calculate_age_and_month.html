@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>根据日期计算年龄和月份</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">tool</a></li>
+					<li class="active"></li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>根据日期计算年龄和月份</h3>
+					<small>2019-06-10</small>
+				</div>
+				<div class="bg-gray">
+					<p><em></em></p>
+				</div>
+				<div class="centent">
+					<div class="input-group" style="width:100%">
+					  <span class="input-group-addon" style="width:100px">出生日期或时间戳:</span>
+                      		  <input id="input_date" type="text" style="width:200px" class="form-control" placeholder="eg:1980-12-31" aria-describedby="basic-addon1">
+					  <input class="btn btn-default" type="button" value="验证" onclick="calculate()">
+					</div>
+					<br/>
+					<div>
+				        <span >结果：</span>
+				        <div id="result">
+					  	<span>&nbsp;</span>
+					  </div>
+					</div>
+					
+					<hr/>
+					<section class="code-section">
+						<pre class="brush: js">
+						// 根据日期计算年龄和月份
+						function calcAgeMonth(birthday) {
+						    if (birthday == undefined) return [0, 0];
+						    let today = new Date();
+						    let birthDate = new Date(birthday);
+						    let year = today.getYear() - birthDate.getYear();
+						
+						
+						    let todayMonth = today.getMonth() + 1;
+						    let birthDateMonth = birthDate.getMonth() + 1;
+						
+						    let todayDays = today.getDate();
+						    let birthDateDays = birthDate.getDate();
+						
+						    let month = 0;
+						    if(todayMonth < birthDateMonth) {
+						        year --;
+						        if (todayDays >= birthDateDays) {
+						            month = 12 - birthDateMonth + todayMonth;
+						        } else {
+						            month = 12 - birthDateMonth + todayMonth - 1;
+						        }
+						    } else if (todayMonth > birthDateMonth) {
+						        if (todayDays >= birthDateDays) {
+						            month = todayMonth - birthDateMonth;
+						        } else {
+						            month = todayMonth - birthDateMonth - 1;
+						        }
+						    } else {
+						        //
+						        if (todayDays < birthDateDays) {
+						            year --;
+						            month = 11;
+						        }
+						    }
+						
+						    return [year, month];
+						}
+				        </pre>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<script>
+		function calculate() {
+			let birthday = $("#input_date").val();
+			if (!birthday) {
+				$("#result").empty().text("请输入字符");
+				return;
+			}
+			if (birthday.indexOf("-") < 0) {
+				birthday = new Number(birthday);
+				if(isNaN(birthday)) {
+					$("#result").empty().text("请输入出生日期或时间戳");
+					return;
+				}
+			}
+			try {
+                var r = calcAgeMonth(birthday);
+                $("#result").empty().text(r[0] +"岁" + r[1] + "月")
+			} catch (e) {
+				$("#result").empty().text("请输入正确的日期")
+            }
+        }
+		// 根据日期计算年龄和月份
+        function calcAgeMonth(birthday) {
+            // console.log("根据生日计算年龄&月份",birthday);
+            if (birthday == undefined) return [0, 0];
+            let today = new Date();
+            let birthDate = new Date(birthday);
+            let year = today.getYear() - birthDate.getYear();
+
+
+            let todayMonth = today.getMonth() + 1;
+            let birthDateMonth = birthDate.getMonth() + 1;
+
+            let todayDays = today.getDate();
+            let birthDateDays = birthDate.getDate();
+
+            let month = 0;
+            if(todayMonth < birthDateMonth) {
+                year --;
+                if (todayDays >= birthDateDays) {
+                    month = 12 - birthDateMonth + todayMonth;
+                } else {
+                    month = 12 - birthDateMonth + todayMonth - 1;
+                }
+            } else if (todayMonth > birthDateMonth) {
+                if (todayDays >= birthDateDays) {
+                    month = todayMonth - birthDateMonth;
+                } else {
+                    month = todayMonth - birthDateMonth - 1;
+                }
+            } else {
+                //
+                if (todayDays < birthDateDays) {
+                    year --;
+                    month = 11;
+                }
+            }
+
+            return [year, month];
+        }
+
+
+	</script>
+</body>
+</html>
