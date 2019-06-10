@@ -64,6 +64,10 @@ var allLinks = [
     "href": "html\\tools\\argument-signatures-by-md5.html"
   },
   {
+    "title": "根据日期计算年龄和月份",
+    "href": "html\\tools\\calculate_age_and_month.html"
+  },
+  {
     "title": "两点间距离",
     "href": "html\\tools\\distance-of-two-points-on-sphere.html"
   },
