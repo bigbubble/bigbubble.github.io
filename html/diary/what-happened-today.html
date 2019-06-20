@@ -63,22 +63,29 @@
                     <div class="panel-body">
                         <h5>java 8:java.library.path  dll 和 so 该放在哪里</h5>
                         默认情况下：System.getProperty("java.library.path");
-                        <p> windows 10:
-                            = %PATH%
-                        </p>
-                        <p> linux:
-                            = $LD_LIBRARY_PATH:
-                            java.library.path=$LD_LIBRARY_PATH:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+                        <div style="margin-left: 10px">
+                            <p>1.windows 10:
+                                = %PATH%
+                            </p>
+                            <p>2.linux:
+                                <section>
+                                <pre class="brush: shell">
+                                    =$LD_LIBRARY_PATH:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+                                </pre>
+                                </section>
+                            <p>3.mac 10.14
+                                <section>
+                                <pre class="brush: shell">
+                                     =$JAVA_LIBRARY_PATH:~/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.
+                                </pre>
+                                </section>
+                                <br>
+                                <span style="font-size: 12px;color: red;">DYLD_LIBRARY_PATH 和 LD_LIBRARY_PATH 将会被忽略 </span>
+                            </p>
+                        </div>
+                        <br>
                         <p>
-                            mac 10.14
-                            = $JAVA_LIBRARY_PATH:~/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.
-                            <br>
-                            DYLD_LIBRARY_PATH 和 LD_LIBRARY_PATH 将会被忽略
-                        </p>
-
-                        <p>
-                            如果指定了JVM参数，-Djava.library.path 将会覆盖默认值,
-                            结果将是你设定的值
+                            如果指定了JVM参数，-Djava.library.path 将会覆盖默认值, 结果将是你设定的值
                         </p>
                     </div>
                 </div>
