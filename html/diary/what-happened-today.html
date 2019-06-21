@@ -58,6 +58,55 @@
             <div>
                 <div class="panel panel-my">
                     <div class="panel-heading">
+                        <h3 class="panel-title">2019-06-20</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h5>log4j2日志：开发环境正常，服务器上不输出</h5>
+                        <p>
+                            <a target="_blank" href="https://www.cnblogs.com/zeng1994/p/df2559e6dc66c99065676e0ee70545eb.html">记一次项目上线后Log4j2不输出日志的坑</a>
+                        </p>
+                        <p>防链接丢失，简要记录</p>
+                        <p>
+                            1.查看日志：<code>Class path contains multiple SLF4J bindings.</code><br/>
+                            maven依赖中有两个对日志实现的桥接包 <code>slf4j-log4j12-1.7.22.jar</code>（log4j），<code>log4j-slf4j-impl-2.6.6.jar</code> （log4j2）
+                            <br/><br/>
+                            2.官方资料发现slf4j在绑定时，如果有多个可以绑定的包，SLF4J选择绑定的方式由JVM确定，并且出于所有实际目的应该被认为是随机的。
+                            <br/>
+                            <code>slf4j-api.1.7.21.jar</code> 中的<code>LoggerFactory.java</code>
+                            <section>
+                                <pre class="brush: java">
+                                    import org.slf4j.helpers.SubstituteLoggerFactory;
+                                    import org.slf4j.helpers.Util;
+                                    import org.slf4j.impl.StaticLoggerBinder; // 此行 import的是桥接包中的类，由JVM选择
+                                    ...
+                                    // 绑定方法
+                                    private final static void bind() {
+                                        try {
+                                            Set&gt;URL> staticLoggerBinderPathSet = null;
+                                            // skip check under android, see also
+                                            // http://jira.qos.ch/browse/SLF4J-328
+                                            if (!isAndroid()) {
+                                                staticLoggerBinderPathSet = findPossibleStaticLoggerBinderPathSet();
+                                                reportMultipleBindingAmbiguity(staticLoggerBinderPathSet);
+                                            }
+                                            // the next line does the binding
+                                            StaticLoggerBinder.getSingleton(); // 桥接包的类在此使用
+                                            INITIALIZATION_STATE = SUCCESSFUL_INITIALIZATION;
+                                            reportActualBinding(staticLoggerBinderPathSet);
+                                            fixSubstituteLoggers();
+                                            replayEvents();
+                                            // release all resources in SUBST_FACTORY
+                                            SUBST_FACTORY.clear();
+                                </pre>
+                            </section>
+                            3.所以可能开发时，JVM选择了<code>log4j-slf4j-impl</code>， 服务器上选择了<code>slf4j-log4j12</code>，导致没有日志输出和报错
+                            <br/><br/>
+                            4.使用<code>dependency:tree</code> 命令查看多余的依赖并删除
+                        </p>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
                         <h3 class="panel-title">2019-06-19</h3>
                     </div>
                     <div class="panel-body">
