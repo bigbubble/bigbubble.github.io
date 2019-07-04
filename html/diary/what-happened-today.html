@@ -58,6 +58,41 @@
             <div>
                 <div class="panel panel-my">
                     <div class="panel-heading">
+                        <h3 class="panel-title">2019-07-04</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h4>iframe中调用摄像头和麦克风</h4>
+                        <p>
+                            需要在iframe中增加allow属性<code>allow="geolocation; microphone; camera; midi; encrypted-media;"</code>
+                            <br/>
+                            在react中
+                            <section>
+                                <pre class="brush: javascript">
+                                    <iframe id="mainIframe" src={this.state.currentSrc} width="100%" className="iframe_body"
+                                            allow="geolocation; microphone; camera; midi; encrypted-media;"></Iframe>
+                                </pre>
+                                或者使用react组件react-iframe
+                                <pre class="brush: javascript">
+                                    import Iframe from 'react-iframe'
+                                    <Iframe id="mainIframe" src={this.state.currentSrc} width="100%" className="iframe_body"
+                                        allow="geolocation; microphone; camera; midi; encrypted-media;"></Iframe>
+                                </pre>
+                            </section>
+                            但是在一些低版本react中，不支持allow属性，代码中加了打包之后allow属性会消失
+                            需要其他方式设置
+                            <section>
+                                <pre class="brush: javascript">
+                                    componentDidMount() {
+                                        let iframe = window.document.getElementById("mainIframe");
+                                        iframe.allow="microphone;camera;midi;encrypted-media;";
+                                    }
+                                </pre>
+                            </section>
+                        </p>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
                         <h3 class="panel-title">2019-06-26</h3>
                     </div>
                     <div class="panel-body">
