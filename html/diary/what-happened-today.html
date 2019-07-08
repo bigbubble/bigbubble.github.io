@@ -11,6 +11,9 @@
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <title>WHAT HAPPENED TODAY</title>
     <style>
+        body {
+            line-height: 25px;
+        }
         .panel-my {
             border-color: #bce8f1;
         }
@@ -58,6 +61,36 @@
             <div>
                 <div class="panel panel-my">
                     <div class="panel-heading">
+                        <h3 class="panel-title">2019-07-08</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h3>表单中使用bootstrap组件iCheck</h3>
+                        <p>
+                            在表单中使用时，如果调用重置表单，iCheck的显示会错乱；
+                            <br/>
+                            原因：使用iCheck的选中样式是由input外面包裹他的div的<code>checked</code> class样式的有无决定的，如果使用表单的reset的方法，不会影响div样式；
+                            如果checkbox的初始是没有选中的，选中checkbox后，reset表单,导致input的选中状态已经是uncheck的，但是iCheck样式还是显示选中状态；
+                            <br/>
+                            解决办法：在reset form之前，将iCheck的input表单项使用iCheck方法重置其初始状态（但是如果绑定了check uncheck事件，可能会处发，注意业务逻辑处理）
+                        </p>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">2019-07-08</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h3>Bean 属性复制</h3>
+                        <p>不要使用<code>Apache BeanUtils</code>,建议使用<code>Spring BeanUtils</code> 或 <code>Cglib BeanCopier</code>
+                            <br/>
+                            <a href="https://mp.weixin.qq.com/s/PHdYfAWzGOLojGAeOFTCLQ">为什么阿里代码规约要求避免使用 Apache BeanUtils 进行属性复制</a>
+                            <br/>
+                            原因：1，性能问题 输出了大量的日志调试信息，重复的对象类型检查和类型转换；2.在进行属性拷贝时，低版本CommonsBeanUtils 为了解决Date为空的问题会导致为目标对象的原始类型的包装类属性赋予初始值，如 Integer 属性默认赋值为 0，尽管你的来源对象该字段的值为 null。
+                        </p>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
                         <h3 class="panel-title">2019-07-04</h3>
                     </div>
                     <div class="panel-body">
@@ -88,6 +121,19 @@
                                     }
                                 </pre>
                             </section>
+                        </p>
+                        <p>
+                            顶级window必须是https的（iframe一定得是https的，不然浏览器会报错:Mixed Content），iframe可以与顶级window是跨域的， 否则<code>window.navigator.mediaDevices</code>对象回事undefined，无法访问媒体设备;
+                            <br/>
+                            Mixed Content:
+                            <br/>
+                            https网页中，如果请求的内容属于http协议，则称为 Mixed Content，W3C 将 Mixed Content 分为 Optionally-blockable 和 Blockable，Optionally-blockable定义为：
+                            <br/>
+                            1.通过 &lt;img&gt; 标签加载的图片；
+                            2.通过 &lt;video&gt; / &lt;audio&gt; 和 &lt;source&gt; 标签加载的视频或音频；
+                            3.预读的（Prefetched）资源；
+                            <br/>
+                            除Optionally-blockable之外所有的 Mixed Content 都是Blockable，浏览器必须禁止加载这类资源。所以现代浏览器中，对于 HTTPS 页面中的 JavaScript、CSS，iframe等 HTTP 资源，一律不加载，直接在控制台打印错误信息
                         </p>
                     </div>
                 </div>
