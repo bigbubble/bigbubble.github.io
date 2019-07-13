@@ -16,6 +16,10 @@ var allLinks = [
     "href": "html\\algorithm\\echarts-binary-tree.html"
   },
   {
+    "title": "JS LRU Cache",
+    "href": "html\\algorithm\\js-lru.html"
+  },
+  {
     "title": "SQL:查询条件有两个in,分组拼接查询,分页",
     "href": "html\\algorithm\\query-from-database-by-group.html"
   },
@@ -26,6 +30,10 @@ var allLinks = [
   {
     "title": "存储大量文件，让每个文件夹下的文件或文件夹数量不大于1024",
     "href": "html\\algorithm\\store-files-in-file-sytem-less-than-1024-each.html"
+  },
+  {
+    "title": "WHAT HAPPENED TODAY",
+    "href": "html\\diary\\what-happened-today.html"
   },
   {
     "title": "java SimpleDateFormat和FastDateFormat格式化yyMMdd日期问题",

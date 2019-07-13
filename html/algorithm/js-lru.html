@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>JS LRU Cache</title>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Algorithm</a></li>
+					<li class="active">article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>JS LRU</h3>
+					<small>2019-07-13</small>
+				</div>
+				<div class="bg-gray">
+					<p><em>打开控制台测试</em></p>
+				</div>
+				<div class="content">
+					<section>
+						<pre class="brush:javascript">
+							function _instanceof(left, right) {
+								if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+									return right[Symbol.hasInstance](left);
+								} else {
+									return left instanceof right;
+								}
+							}
+
+							function _classCallCheck(instance, Constructor) {
+								if (!_instanceof(instance, Constructor)) {
+									throw new TypeError("Cannot call a class as a function");
+								}
+							}
+
+							function _defineProperties(target, props) {
+								for (var i = 0; i < props.length; i++) {
+									var descriptor = props[i];
+									descriptor.enumerable = descriptor.enumerable || false;
+									descriptor.configurable = true;
+									if ("value" in descriptor) descriptor.writable = true;
+									Object.defineProperty(target, descriptor.key, descriptor);
+								}
+							}
+
+							function _createClass(Constructor, protoProps, staticProps) {
+								if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+								if (staticProps) _defineProperties(Constructor, staticProps);
+								return Constructor;
+							}
+
+							var LruCache =
+								function () {
+									function LruCache(limit) {
+										_classCallCheck(this, LruCache);
+
+										this.limit = limit || 10;
+
+										this.head = this.tail = undefined;
+										this.map = new Map();
+										this.size = 0;
+									}
+
+									_createClass(LruCache, [{
+										key: "get",
+										value: function get(key, IfreturnNode) {
+											var node = this.map.get(key);
+
+											if (node === undefined) return;
+											// 如果是第一个节点直接返回
+											if (node === this.head) {
+												return IfreturnNode ? node : node.value;
+											}
+
+											// 非尾节点
+											if (node.next) {
+												node.prev.next = node.next;
+												node.next.prev = node.prev;
+											} else {
+												// 尾节点
+												node.prev.next = undefined;
+												this.tail = node.prev;
+											}
+
+											node.prev = undefined;
+
+											node.next = this.head;
+
+											this.head.prev = node;
+
+											this.head = node;
+
+											return IfreturnNode ? node : node.value;
+										}
+									}, {
+										key: "set",
+										value: function set(key, value) {
+											var node = this.get(key, true);
+											// map中没有值
+											if (!node) {
+												node = {key: key, value: value};
+												this.map.set(key, node);
+												// 已到最大容量
+												if (this.size === this.limit) {
+													//删除结尾,如果结尾有上一个元素，将结尾设成上一个元素
+													if (this.tail.prev) {
+														var lastOne = this.tail;
+														lastOne.prev.next = undefined;
+														this.tail = lastOne.prev;
+
+														delete this.map.delete(lastOne.key);
+
+														this.head.prev = node;
+														node.next = this.head;
+														this.head = node;
+													} else {
+														this.head = this.tail = node
+													}
+												} else {
+													if (this.head) {
+														//判断缓存里面是不是有节点
+														this.head.prev = node;
+														node.next = this.head;
+														this.head = node;
+													} else {
+														//缓存里没有值
+														this.head = this.tail = node;
+													}
+													this.size++;
+												}
+											} else {
+												node.value = value;
+											}
+										}
+									}, {
+										key: "getAll",
+										value: function () {
+											var node = this.head;
+											var r = "    head -> tail    ";
+											while (node) {
+												r += "[key:" + node.key + ",value:" + node.value + "]    ";
+												node = node.next;
+											}
+											r += "***** tail -> head    ";
+											node = this.tail;
+											while (node) {
+												r += "[key:" + node.key + ",value:" + node.value + "]    ";
+												node = node.prev;
+											}
+											r = "map_size:" + this.map.size + "->>>" + r;
+											console.log(r);
+										}
+									}]);
+
+									return LruCache;
+								}();
+						</pre>
+					</section>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<script>
+        function _instanceof(left, right) {
+            if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+                return right[Symbol.hasInstance](left);
+            } else {
+                return left instanceof right;
+            }
+        }
+
+        function _classCallCheck(instance, Constructor) {
+            if (!_instanceof(instance, Constructor)) {
+                throw new TypeError("Cannot call a class as a function");
+            }
+        }
+
+        function _defineProperties(target, props) {
+            for (var i = 0; i < props.length; i++) {
+                var descriptor = props[i];
+                descriptor.enumerable = descriptor.enumerable || false;
+                descriptor.configurable = true;
+                if ("value" in descriptor) descriptor.writable = true;
+                Object.defineProperty(target, descriptor.key, descriptor);
+            }
+        }
+
+        function _createClass(Constructor, protoProps, staticProps) {
+            if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+            if (staticProps) _defineProperties(Constructor, staticProps);
+            return Constructor;
+        }
+
+        var LruCache =
+            function () {
+                function LruCache(limit) {
+                    _classCallCheck(this, LruCache);
+
+                    this.limit = limit || 10;
+
+                    this.head = this.tail = undefined;
+                    this.map = new Map();
+                    this.size = 0;
+                }
+
+                _createClass(LruCache, [{
+                    key: "get",
+                    value: function get(key, IfreturnNode) {
+                        var node = this.map.get(key);
+
+                        if (node === undefined) return;
+                        // 如果是第一个节点直接返回
+                        if (node === this.head) {
+                            return IfreturnNode ? node : node.value;
+                        }
+
+                        // 非尾节点
+                        if (node.next) {
+                            node.prev.next = node.next;
+                            node.next.prev = node.prev;
+                        } else {
+                            // 尾节点
+                            node.prev.next = undefined;
+                            this.tail = node.prev;
+                        }
+
+                        node.prev = undefined;
+
+                        node.next = this.head;
+
+                        this.head.prev = node;
+
+                        this.head = node;
+
+                        return IfreturnNode ? node : node.value;
+                    }
+                }, {
+                    key: "set",
+                    value: function set(key, value) {
+                        var node = this.get(key, true);
+                        // map中没有值
+                        if (!node) {
+                            node = {key: key, value: value};
+                            this.map.set(key, node);
+                            // 已到最大容量
+                            if (this.size === this.limit) {
+                                //删除结尾,如果结尾有上一个元素，将结尾设成上一个元素
+                                if (this.tail.prev) {
+                                    var lastOne = this.tail;
+                                    lastOne.prev.next = undefined;
+                                    this.tail = lastOne.prev;
+
+                                    delete this.map.delete(lastOne.key);
+
+                                    this.head.prev = node;
+                                    node.next = this.head;
+                                    this.head = node;
+                                } else {
+                                    this.head = this.tail = node
+                                }
+                            } else {
+                                if (this.head) {
+                                    //判断缓存里面是不是有节点
+                                    this.head.prev = node;
+                                    node.next = this.head;
+                                    this.head = node;
+                                } else {
+                                    //缓存里没有值
+                                    this.head = this.tail = node;
+                                }
+                                this.size++;
+                            }
+                        } else {
+                            node.value = value;
+                        }
+                    }
+                }, {
+                    key: "getAll",
+                    value: function () {
+                        var node = this.head;
+                        var r = "    head -> tail    ";
+                        while (node) {
+                            r += "[key:" + node.key + ",value:" + node.value + "]    ";
+                            node = node.next;
+                        }
+                        r += "***** tail -> head    ";
+                        node = this.tail;
+                        while (node) {
+                            r += "[key:" + node.key + ",value:" + node.value + "]    ";
+                            node = node.prev;
+                        }
+                        r = "map_size:" + this.map.size + "->>>" + r;
+                        console.log(r);
+                    }
+                }]);
+
+                return LruCache;
+            }();
+
+
+        var a = new LruCache(3);
+        // 测试set
+        console.log("=============测试 set")
+        console.log("放入1")
+        a.set(1,1);
+        a.getAll();
+        console.log("放入2")
+        a.set(2,2);
+        a.getAll();
+        console.log("放入3")
+        a.set(3,3);
+        a.getAll();
+        console.log("放入4")
+        a.set(4,4);
+        a.getAll();
+        console.log("放入3")
+        a.set(3,3);
+        a.getAll();
+        //测试get
+        console.log("==============测试 get")
+        console.log("取头3")
+        a.get(3);
+        a.getAll()
+        console.log("取尾2")
+        a.get(2);
+        a.getAll()
+        console.log("取中间3")
+        a.get(3);
+        a.getAll();
+	</script>
+</body>
+</html>
