@@ -61,6 +61,29 @@
             <div>
                 <div class="panel panel-my">
                     <div class="panel-heading">
+                        <h3 class="panel-title">2019-07-11</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h3>Java图片上传背景变黑问题</h3>
+                        <p>
+                            前端上传的png图片（如canvas画图），如果背景是透明的，在使用
+                            <code>java.awt.Graphics#drawImage(java.awt.Image, int, int, int, int, java.awt.image.ImageObserver)</code>压缩处理时，
+                            注意透明的处理，否则会出现背景变黑的情况<br/>
+                            需要在正常处理中加入：
+                            <sectioin>
+                                <pre class="brush:java">
+                                    BufferedImage to = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+                                    Graphics2D g2d = to.createGraphics();
+                                    to = g2d.getDeviceConfiguration().createCompatibleImage(newWidth, newHeight, Transparency.TRANSLUCENT);
+                                    g2d.dispose();
+                                </pre>
+                            </sectioin>
+                        </code>
+                        </p>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
                         <h3 class="panel-title">2019-07-08</h3>
                     </div>
                     <div class="panel-body">
