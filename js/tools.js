@@ -56,6 +56,10 @@ var allLinks = [
     "href": "html\\read\\design-patterns.html"
   },
   {
+    "title": "双锁检测",
+    "href": "html\\read\\double-checked-locking.html"
+  },
+  {
     "title": "计算机是如何启动的？",
     "href": "html\\read\\how-computer-bootup.html"
   },
