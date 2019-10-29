@@ -61,12 +61,32 @@
             <div>
                 <div class="panel panel-my">
                     <div class="panel-heading">
+                        <h3 class="panel-title">2019-19-29</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h5>react+antd+mobx umi项目 less文件引入</h5>
+                        <code>import styles from '../less/index.less';</code>
+                        <h5>使用：</h5>
+                        <code>&lt;Layout className={styles.layout}></code>
+                        <h5>问题：umi默认开启了webpack的CSS Modules，但是当想要在less文件样式中覆盖antd的默认样式时无法生效，且原有非umi的工程迁移时，需要改造大量样式使用方式</h5>
+                        <h5>解决方式：</h5>
+                        <h5>1 .umirc.js文件中增加配置：<code>disableCSSModules:true,</code></h5>
+                        <h5>
+                            禁用webpack的CSS Modules
+                        </h5>
+                        <h5>
+                            2.在less中使用全局样式 :global 用来覆盖antd原有样式，把非CSS Modules的写法改写成CSS Modules的写法（CSS Modules还是挺好用的）
+                        </h5>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
                         <h3 class="panel-title">2019-07-24</h3>
                     </div>
                     <div class="panel-body">
-                        <h4>公司重启了路由器和交换机，本机的IP地址发生了改变，导致开发的网站使用的一个外网的JS文件报
+                        <h5>公司重启了路由器和交换机，本机的IP地址发生了改变，导致开发的网站使用的一个外网的JS文件报
                             <code>net::ERR_CONNECTION_RESET</code>，断下网，再连回来就好了，原因待查
-                        </h4>
+                        </h5>
                     </div>
                 </div>
                 <div class="panel panel-my">
@@ -74,7 +94,7 @@
                         <h3 class="panel-title">2019-07-23</h3>
                     </div>
                     <div class="panel-body">
-                        <h4>嗯。。页面右键“重新加载”不会处发页面unload，会触发beforeunload事件</h4>
+                        <h5>嗯。。页面右键“重新加载”不会处发页面unload，会触发beforeunload事件</h5>
                     </div>
                 </div>
                 <div class="panel panel-my">
