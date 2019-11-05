@@ -61,13 +61,106 @@
             <div>
                 <div class="panel panel-my">
                     <div class="panel-heading">
+                        <h3 class="panel-title">2019-11-04</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h5>react-cookie 使用注意</h5>
+                        <div>
+                            低版本load(name, doNotParse )
+                            经常忽略第二个参数，是否对值做JSON.parse() 当存储的是数据是纯数字的字符串，将会导致数据类型变化
+                            <br/>
+                            "12345678" => 12345678
+                            <br/>
+                            导致后面使用时出现非预期现象，如使用Number类型JSEncrypt做RSA加密时，在后台得到的是空字符串
+                            <br/>
+                            <section>
+                                <pre class="brush:javascript">
+                                    function load(name, doNotParse) {
+                                      var cookies = (typeof document === 'undefined') ? _rawCookie : cookie.parse(document.cookie);
+                                      var cookieVal = cookies && cookies[name];
+
+                                      if (!doNotParse) {
+                                        try {
+                                          cookieVal = JSON.parse(cookieVal);
+                                        } catch(e) {
+                                          // Not serialized object
+                                        }
+                                      }
+
+                                      return cookieVal;
+                                    }
+                                </pre>
+                            </section>
+                            高版本 get(name, [options.doNotParse]) 已作了处理，猜测value是否是序列化后的值, 而不是全由doNotParse值确定
+                            <sectioin>
+                                <pre class="brush:javascript">
+                                    export function readCookie(value: Cookie, options: CookieGetOptions = {}) {
+                                      const cleanValue = cleanupCookieValue(value);
+                                      if (isParsingCookie(cleanValue, options.doNotParse)) {
+                                        try {
+                                          return JSON.parse(cleanValue);
+                                        } catch (e) {
+                                          // At least we tried
+                                        }
+                                      }
+                                </pre>
+                            </sectioin>
+                            <sectioin>
+                                <pre class="brush:javascript">
+                                    function cleanupCookieValue(value: Cookie): Cookie {
+                                      // express prepend j: before serializing a cookie
+                                      if (value && value[0] === 'j' && value[1] === ':') {
+                                        return value.substr(2);
+                                      }
+
+                                      return value;
+                                    }
+                                </pre>
+                            </sectioin>
+                            <sectioin>
+                                <pre class="brush:javascript">
+                                    export function isParsingCookie(value: Cookie, doNotParse?: boolean) {
+                                      if (typeof doNotParse === 'undefined') {
+                                        // We guess if the cookie start with { or [, it has been serialized
+                                        doNotParse =
+                                          !value || (value[0] !== '{' && value[0] !== '[' && value[0] !== '"');
+                                      }
+
+                                      return !doNotParse;
+                                    }
+                                </pre>
+                            </sectioin>
+                            <code>
+                                JSON.parse("12345678") => 12345678 <br/>
+                                JSON.parse("abcdefg") => 报错，返回原始字符串 <br/>
+                                JSON.parse("\"abc\"") => "abc" <br/>
+                            </code>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">2019-11-01</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h5>将 JS 的正则表达式转成图形解释的在线工具</h5>
+                        <div>
+                            <a href="https://regexper.com/" target="_blank">regexper.com</a>
+                        </div>
+                        <div>
+                            <a href="https://mp.weixin.qq.com/s/JcJGXSYkko5O_YAM37LBXA" target="_blank">互联网项目中mysql应该选什么事务隔离级别？</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
                         <h3 class="panel-title">2019-10-31</h3>
                     </div>
                     <div class="panel-body">
                         <h5>FastJson转换时的一些奇怪现象</h5>
                         <div>
                             java属性第二个字母大写，转字符串后会变小写  pId => pid <br/>
-                            <a href="https://segmentfault.com/a/1190000015634321">fastjson转换json时，碰到的那些首字母大小写转换的坑！</a>
+                            <a href="https://segmentfault.com/a/1190000015634321" target="_blank">fastjson转换json时，碰到的那些首字母大小写转换的坑！</a>
                         </div>
                     </div>
                 </div>
@@ -80,7 +173,7 @@
                         <code>import styles from '../less/index.less';</code>
                         <h5>使用：</h5>
                         <code>&lt;Layout className={styles.layout}></code>
-                        <h5>问题：umi默认开启了webpack的CSS Modules，但是当想要在less文件样式中覆盖antd的默认样式时无法生效，且原有非umi的工程迁移时，需要改造大量样式使用方式</h5>
+                        <h5>问题：umi默认开启了webpack的ccs-loader的CSS Modules，但是当想要在less文件样式中覆盖antd的默认样式时无法生效，且原有非umi的工程迁移时，需要改造大量样式使用方式</h5>
                         <h5>解决方式：</h5>
                         <h5>1 .umirc.js文件中增加配置：<code>disableCSSModules:true,</code></h5>
                         <h5>
