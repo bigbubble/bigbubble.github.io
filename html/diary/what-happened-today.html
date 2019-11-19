@@ -61,6 +61,28 @@
             <div>
                 <div class="panel panel-my">
                     <div class="panel-heading">
+                        <h3 class="panel-title">2019-11-19</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h5>redis模糊查询key</h5>
+                        <div>
+                            <h4>生产环境中不要使用keys命令</h4>
+                            1、redis是单线程的，其所有操作都是原子的，不会因并发产生数据异常；
+                            2、使用高耗时的Redis命令是很危险的，会占用唯一的一个线程的大量处理时间，导致所有的请求都被拖慢。（例如时间复杂度为O(N)的KEYS命令，严格禁止在生产环境中使用）；
+                            <h4>单机使用scan接口获取key</h4>
+                            1、scan命令的时间复杂度虽然也是O(N)，但它是分次进行的，不会阻塞线程。
+                            2、scan命令提供了limit参数，可以控制每次返回结果的最大条数。
+                            这两个优势就帮助我们解决了上面的难题，不过scan命令也并不是完美的，它返回的结果有可能重复，因此需要客户端去重。
+                            <br/>
+                            <a href="https://www.jianshu.com/p/be15dc89a3e8" target="_blank">深入理解Redis的scan命令</a>
+                            spring-data-redis中，注意使用完毕后及时释放连接，调用cursor.close()方法；否则将一致占用
+                            <br/>
+                            在集群模式下，scan接口没有作用，会报错 <code>scan is not supported across multiple nodes within a cluster</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
                         <h3 class="panel-title">2019-11-04</h3>
                     </div>
                     <div class="panel-body">
