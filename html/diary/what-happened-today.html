@@ -75,7 +75,8 @@
                             这两个优势就帮助我们解决了上面的难题，不过scan命令也并不是完美的，它返回的结果有可能重复，因此需要客户端去重。
                             <br/>
                             <a href="https://www.jianshu.com/p/be15dc89a3e8" target="_blank">深入理解Redis的scan命令</a>
-                            spring-data-redis中，注意使用完毕后及时释放连接，调用cursor.close()方法；否则将一致占用
+                            <br/>
+                            spring-data-redis中，注意使用完毕后及时释放连接，调用cursor.close()方法；否则将一直占用
                             <br/>
                             在集群模式下，scan接口没有作用，会报错 <code>scan is not supported across multiple nodes within a cluster</code>
                         </div>
