@@ -61,6 +61,32 @@
             <div>
                 <div class="panel panel-my">
                     <div class="panel-heading">
+                        <h3 class="panel-title">2019-12-05</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h5>阿里云aliyun-java-sdk-core（4.4.2）设置代理服务器</h5>
+                        <div>
+                            媒体服务转码请求：
+                            <section>
+                                <pre class="brush:java">
+                                    DefaultProfile profile = DefaultProfile.getProfile("cn-beijing", accesskey, secretKey);
+                                    // 如果时内网环境，设置代理服务器
+                                    if (needProxy) {
+                                        HttpClientConfig httpClientConfig = HttpClientConfig.getDefault();
+                                        httpClientConfig.setHttpProxy("http://pengbo:12345678@110.110.110.001:3128");
+                                        httpClientConfig.setHttpsProxy("https://pengbo:12345678@110.110.110.001:3128");
+                                        profile.setHttpClientConfig(httpClientConfig);
+                                    }
+                                    IAcsClient client = new DefaultAcsClient(profile);
+                                    SubmitJobsRequest request = new SubmitJobsRequest();
+                                    ...
+                                </pre>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-my">
+                    <div class="panel-heading">
                         <h3 class="panel-title">2019-11-19</h3>
                     </div>
                     <div class="panel-body">
