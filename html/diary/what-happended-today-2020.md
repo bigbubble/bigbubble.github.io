@@ -1,5 +1,5 @@
-#2020
 
+# 2020
 ##### 03-17
 公众号【前端宇宙】文章：  
 [4W字长文带你深度解锁Webpack系列(上)](https://mp.weixin.qq.com/s/X9fWN4GbDFOLfOODZlLoVg)  
@@ -10,3 +10,18 @@
 [npm install 原理分析](https://mp.weixin.qq.com/s/5tmND0G_ZkYVR7Dmug0ugQ)  
 
 [-> 2019](what-happened-today.html)
+
+```javascript 1.6
+ function ajaxGet(url, fn) {
+         var xhr = new XMLHttpRequest();
+         xhr.open('GET', url, true);
+         xhr.onreadystatechange=function(){
+             if(xhr.readyState==4){
+                 if(xhr.status==200 || xhr.status==304){
+                     fn(xhr.responseText);
+                 }
+             }
+         }
+         xhr.send();
+     }
+```

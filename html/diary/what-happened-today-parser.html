@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf8">
+    <link rel="stylesheet"
+          href="../../js/highlight-9.18.0/styles/a11y-dark.css">
+    <script src="../../js/highlight-9.18.0/highlight.pack.js"></script>
+</head>
+<script>
+    function ajaxGet(url, fn) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange=function(){
+            if(xhr.readyState==4){
+                if(xhr.status==200 || xhr.status==304){
+                    fn(xhr.responseText);
+                }
+            }
+        }
+        xhr.send();
+    }
+</script>
+<body>
+    <div id="root">
+    </div>
+    <script src="../../js/marked.js"></script>
+    <script>
+        ajaxGet("what-happended-today-2020.md", function (res) {
+            document.getElementById('root').innerHTML =
+                marked(res, {
+                    highlight: function(code, language) {
+                        const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+                        return hljs.highlight(validLanguage, code).value;
+                    },
+                    preCls: 'hljs'
+                });
+        });
+    </script>
+</body>
+</html>
