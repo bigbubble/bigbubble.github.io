@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/monokai-sublime.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>从源码构建nginx</title>
+	<style>
+		.en{
+			margin: 10px;
+			font-style: italic;
+		}
+		.cn {
+			margin: 10px;
+			color: #985F0D;
+			font-size: 16px;
+		}
+		.licn{
+			color: #985F0D;
+			font-size: 16px;
+		}
+		.formula {
+			size: 16px;
+			font-weight: bolder;
+		}
+		hr {
+			height:1px;
+			border:none;
+			border-top:1px solid #555555
+		}
+		h4{
+			font-weight: bolder;
+		}
+		.indent {
+			padding-left: 20px;
+			padding-bottom: 20px;
+		}
+	</style>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Read</a></li>
+					<li class="active">Article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>从源码构建nginx</h3>
+					<small>2020-03-21</small>
+				</div>
+				<p>原文地址:<a href="http://nginx.org/en/docs/configure.html">Building nginx from Sources</a></p>
+				<div class="bg-gray">
+					<em>
+
+					</em>
+				</div>
+				<div class="content">
+					<div class="en">
+						The build is configured using the configure command. It defines various aspects of the system, including the methods nginx is allowed to use for connection processing. At the end it creates a Makefile.
+					</div>
+					<div class="cn">
+						使用configure命令配置构建。它定义了包括允许nginx用于连接处理的方法等系统的各个方面。最后，它会创建一个Makefile。
+					</div>
+					<div class="en">
+						The configure command supports the following parameters:
+					</div>
+					<div class="cn">
+						该configure命令支持以下参数：
+					</div>
+
+					<div>
+						<code>
+							--help
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							prints a help message.
+						</div>
+						<div class="cn">
+							打印帮助信息
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--prefix=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							defines a directory that will keep server files. This same directory will also be used for all relative paths set by configure (except for paths to libraries sources) and in the nginx.conf configuration file. It is set to the /usr/local/nginx directory by default.
+						</div>
+						<div class="cn">
+							定义nginx服务文件的保存目录。此目录为<code>configure</code>（资源库路径除外)和<code>nginx.conf</code>配置文件中的相对路径。默认值为 <code>/usr/local/nginx</code>。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--sbin-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of an nginx executable file. This name is used only during installation. By default the file is named prefix/sbin/nginx.
+						</div>
+						<div class="cn">
+							设置nginx可执行文件的名称。此名称仅在安装期间使用。默认情况下，文件名为 <code>prefix/sbin/nginx</code>。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--modules-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							defines a directory where nginx dynamic modules will be installed. By default the prefix/modules directory is used.
+						</div>
+						<div class="cn">
+							定义安装nginx动态模块的目录。默认情况下使用<code>prefix/modules</code>目录。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--conf-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of an nginx.conf configuration file. If needs be, nginx can always be started with a different configuration file, by specifying it in the command-line parameter -c file. By default the file is named prefix/conf/nginx.conf.
+						</div>
+						<div class="cn">
+							设置nginx.conf配置文件的名称.可以通过在命令行参数中使用<code>-c</code>参数来指定一个不同的配置文件来启动nginx。默认文件名称为<code>prefix/conf/nginx.conf</code>
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--error-log-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of the primary error, warnings, and diagnostic file. After installation, the file name can always be changed in the nginx.conf configuration file using the error_log directive. By default the file is named prefix/logs/error.log.
+						</div>
+						<div class="cn">
+							设置错误，警告和诊断日志文件的名称。安装后，可以在nginx.conf中使用<code><a href="http://nginx.org/en/docs/ngx_core_module.html#error_log">error-log</a></code>指令更改 。默认名称为 <code>prefix/logs/error.log</code>。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--pid-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of an nginx.pid file that will store the process ID of the main process. After installation, the file name can always be changed in the nginx.conf configuration file using the pid directive. By default the file is named prefix/logs/nginx.pid.
+						</div>
+						<div class="cn">
+							设置主进程的进程ID的文件名。安装后，可以在nginx.conf使用<code><a href="http://nginx.org/en/docs/ngx_core_module.html#pid">pid</a></code>指令在配置文件中更改 。默认名称为 <code>prefix/logs/nginx.pid</code>。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--lock-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets a prefix for the names of lock files. After installation, the value can always be changed in the nginx.conf configuration file using the lock_file directive. By default the value is prefix/logs/nginx.lock.
+						</div>
+						<div class="cn">
+							为lock file文件设置前缀。安装后，可以在nginx.conf中使用<code><a href="http://nginx.org/en/docs/ngx_core_module.html#lock_file">lock_file</a></code>指令更改 。默认值为 <code> prefix/logs/nginx.lock</code>。
+						</div>
+						<div class="bg-gray">
+							<div class="en">
+								nginx uses the locking mechanism to implement accept_mutex and serialize access to shared memory. On most systems the locks are implemented using atomic operations, and this directive is ignored. On other systems the “lock file” mechanism is used. This directive specifies a prefix for the names of lock files.
+							</div>
+							<div class="cn">
+								nginx使用锁定机制来实现accept_mutex 并序列化对共享内存的访问。在大多数系统上，锁是使用原子操作实现的，并且此指令将被忽略。在其他系统上，使用“锁定文件”机制。该伪指令为锁定文件的名称指定前缀。
+							</div>
+						</div>
+					</div>
+
+
+					<div>
+						<code>
+							--user=name
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of an unprivileged user whose credentials will be used by worker processes. After installation, the name can always be changed in the nginx.conf configuration file using the user directive. The default user name is nobody.
+						</div>
+						<div class="cn">
+							设置非特权用户的名称，其凭据将由工作进程使用。安装后，可以在nginx.conf使用<code><a href="http://nginx.org/en/docs/ngx_core_module.html#user">user</a> </code>指令更改 。默认用户名是<code>nobody</code>。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--group=name
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of a group whose credentials will be used by worker processes. After installation, the name can always be changed in the nginx.conf configuration file using the user directive. By default, a group name is set to the name of an unprivileged user.
+						</div>
+						<div class="cn">
+							设置工作进程将使用其凭据的组的名称。安装后，可以在nginx.conf使用<code><a href="http://nginx.org/en/docs/ngx_core_module.html#user">user</a></code>指令更改 。默认情况下，组名设置为非特权用户的名称。
+						</div>
+					</div>
+
+
+					<div>
+						<code>
+							--build=name
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets an optional nginx build name.
+						</div>
+						<div class="cn">
+							设置一个可选的nginx构建名称。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--builddir=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets a build directory.
+						</div>
+						<div class="cn">
+							设置构建目录。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-select_module
+							<br/>
+							--without-select_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables or disables building a module that allows the server to work with the select() method. This module is built automatically if the platform does not appear to support more appropriate methods such as kqueue, epoll, or /dev/poll.
+						</div>
+						<div class="cn">
+							启用或禁用构建允许服务器使用该select()方法的模块。如果平台不支持<code>kqueue</code>，<code>epoll</code>或<code>/dev/poll</code>等更合适的方法，则会自动构建此模块。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-poll_module
+							<br />
+							--without-poll_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables or disables building a module that allows the server to work with the poll() method. This module is built automatically if the platform does not appear to support more appropriate methods such as kqueue, epoll, or /dev/poll.
+						</div>
+						<div class="cn">
+							启用或禁用构建允许服务器使用poll()方法的模块。如果平台不支持<code>kqueue</code>，<code>epoll</code>或<code>/dev/poll</code>等更合适的方法，则会自动构建此模块。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-threads
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables the use of thread pools.
+						</div>
+						<div class="cn">
+							启用<a href="http://nginx.org/en/docs/ngx_core_module.html#thread_pool">线程池</a>
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-file-aio
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables the use of asynchronous file I/O (AIO) on FreeBSD and Linux.
+						</div>
+						<div class="cn">
+							支持在FreeBSD和Linux上使用<a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#aio">异步文件I/O</a>AIO）。
+						</div>
+					</div>
+
+
+					<div>
+						<code>
+							--with-http_ssl_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building a module that adds the HTTPS protocol support to an HTTP server. This module is not built by default. The OpenSSL library is required to build and run this module.
+						</div>
+						<div class="cn">
+							启用构建将<a href="http://nginx.org/en/docs/http/ngx_http_ssl_module.html">HTTPS协议支持</a> 添加到HTTP服务器的模块功能。默认情况下未构建此模块。需要OpenSSL库来构建和运行此模块。
+						</div>
+					</div>
+
+
+					<div>
+						<code>
+							--with-http_v2_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building a module that provides support for HTTP/2. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建一个模块，该模块提供对<a href="http://nginx.org/en/docs/http/ngx_http_v2_module.html">HTTP/2</a> 的支持 。默认情况下未构建此模块。
+						</div>
+					</div>
+
+
+					<div>
+						<code>
+							--with-http_realip_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_realip_module module that changes the client address to the address sent in the specified header field. This module is not built by default.
+						</div>
+						<div class="cn">
+							启用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_realip_module.html">ngx_http_realip_module</a> </code>模块的功能，该模块将客户端地址更改为在指定的标头字段中发送的地址。默认情况下未构建此模块。
+						</div>
+					</div>
+
+
+					<div>
+						<code>
+							--with-http_addition_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_addition_module module that adds text before and after a response. This module is not built by default.
+						</div>
+						<div class="cn">
+							使您能够构建<code><a href="http://nginx.org/en/docs/http/ngx_http_addition_module.html">ngx_http_addition_module</a></code>模块，该模块在响应之前和之后添加文本。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_xslt_module
+							<br/>
+							--with-http_xslt_module=dynamic
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_xslt_module module that transforms XML responses using one or more XSLT stylesheets. This module is not built by default. The libxml2 and libxslt libraries are required to build and run this module.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_xslt_module.html">ngx_http_xslt_module</a></code>模块，该模块使用一个或多个XSLT样式表转换XML响应。默认情况下未构建此模块。构建和运行此模块需要libxml2和libxslt库。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-http_image_filter_module
+							<br />
+							--with-http_image_filter_module=dynamic
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_image_filter_module module that transforms images in JPEG, GIF, PNG, and WebP formats. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_image_filter_module.html">ngx_http_image_filter_module</a> </code> 模块，该模块可以转换JPEG，GIF，PNG和WebP格式的图像。默认情况下未构建此模块。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-http_geoip_module
+							<br/>
+							--with-http_geoip_module=dynamic
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_geoip_module module that creates variables depending on the client IP address and the precompiled MaxMind databases. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_geoip_module.html">ngx_http_geoip_module</a></code> 模块，该模块根据客户端IP地址和预编译的MaxMind数据库创建变量 。默认情况下未构建此模块。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-http_sub_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_sub_module module that modifies a response by replacing one specified string by another. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_sub_module.html">ngx_http_sub_module</a></code> 模块，该模块通过将一个指定的字符串替换为另一个指定的字符串来修改响应。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_dav_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_dav_module module that provides file management automation via the WebDAV protocol. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_dav_module.html" >ngx_http_dav_module</a></code>模块，该模块通过WebDAV协议提供文件管理自动化。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_flv_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_flv_module module that provides pseudo-streaming server-side support for Flash Video (FLV) files. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_flv_module.html">ngx_http_flv_module</a></code>  模块，该模块为Flash Video（FLV）文件提供伪视频流服务器端支持。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_mp4_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_mp4_module module that provides pseudo-streaming server-side support for MP4 files. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_mp4_module.html">ngx_http_mp4_module</a></code> 模块，该模块为MP4文件提供伪视频流服务器端支持。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_gunzip_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_gunzip_module module that decompresses responses with “Content-Encoding: gzip” for clients that do not support “gzip” encoding method. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持为不支持“ gzip”编码方法的客户端构建<code><a href="http://nginx.org/en/docs/http/ngx_http_gunzip_module.html">ngx_http_gunzip_module</a></code>模块，该模块使用“ Content-Encoding: gzip” 解压缩响应。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_gzip_static_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_gzip_static_module module that enables sending precompressed files with the “.gz” filename extension instead of regular files. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_gzip_static_module.html">ngx_http_gzip_static_module</a></code>模块，该模块支持发送扩展名为“.gz”的预压缩文件，而不是常规文件。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_auth_request_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_auth_request_module module that implements client authorization based on the result of a subrequest. This module is not built by default.
+
+						</div>
+						<div class="cn">
+							允许构建<code><a href="http://nginx.org/en/docs/http/ngx_http_auth_request_module.html">ngx_http_auth_request_module</a></code> 模块，该 模块基于子请求的结果实现客户端授权。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_random_index_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_random_index_module module that processes requests ending with the slash character (‘/’) and picks a random file in a directory to serve as an index file. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_random_index_module.html">ngx_http_random_index_module</a></code>模块，该模块处理以斜杠（'/'）结尾的请求，并在目录中选择一个随机文件作为索引文件。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_secure_link_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_secure_link_module module. This module is not built by default.
+						</div>
+						<div class="cn">
+							启用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_secure_link_module.html">ngx_http_secure_link_module</a></code> 模块。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_degradation_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_degradation_module module. This module is not built by default.
+						</div>
+						<div class="cn">
+							启用构建 ngx_http_degradation_module模块。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_slice_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_slice_module module that splits a request into subrequests, each returning a certain range of response. The module provides more effective caching of big responses. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_http_slice_module.html">ngx_http_slice_module</a></code> 模块，该模块将请求拆分为子请求，每个子请求返回一定范围的响应。该模块可更有效地缓存大响应。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_stub_status_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_http_stub_status_module module that provides access to basic status information. This module is not built by default.
+						</div>
+						<div class="cn">
+							允许构建ngx_http_stub_status_module 模块，该 模块提供对基本状态信息的访问。默认情况下未构建此模块。
+						</div>
+					<div>
+						<code>
+							--without-http_charset_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_charset_module module that adds the specified charset to the “Content-Type” response header field and can additionally convert data from one charset to another.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_charset_module.html">ngx_http_charset_module</a></code>模块，该模块将指定的字符集添加到“ Content-Type”响应头字段中，并且可以将数据从一个字符集转换为另一个字符集。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_gzip_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that compresses responses of an HTTP server. The zlib library is required to build and run this module.
+						</div>
+						<div class="cn">
+							禁用构建<a href="http://nginx.org/en/docs/http/ngx_http_gzip_module.html">可压缩</a>HTTP服务器<a href="http://nginx.org/en/docs/http/ngx_http_gzip_module.html">响应</a>的模块。zlib库是构建和运行此模块所必需的。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_ssi_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_ssi_module module that processes SSI (Server Side Includes) commands in responses passing through it.
+						</div>
+						<div class="cn">
+							禁用构建 处理通过SSI（服务器端包含）命令的<code><a href="http://nginx.org/en/docs/http/ngx_http_ssi_module.html">ngx_http_ssi_module</a></code>模块的响应。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_userid_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_userid_module module that sets cookies suitable for client identification.
+
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_userid_module.html">ngx_http_userid_module</a></code>模块，该 模块设置适用于客户端标识的cookie。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_access_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_access_module module that allows limiting access to certain client addresses.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_access_module.html">ngx_http_access_module</a></code>模块，该 模块允许限制对某些客户端地址的访问。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_auth_basic_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_auth_basic_module module that allows limiting access to resources by validating the user name and password using the “HTTP Basic Authentication” protocol.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_auth_basic_module.html">ngx_http_auth_basic_module</a></code> 模块，该模块允许通过使用“ HTTP基本身份验证”协议验证用户名和密码来限制对资源的访问。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_mirror_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_mirror_module module that implements mirroring of an original request by creating background mirror subrequests.
+
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_mirror_module.html">ngx_http_mirror_module</a></code> 模块，该 模块通过创建后台镜像子请求来实现原始请求的镜像。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_autoindex_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_autoindex_module module that processes requests ending with the slash character (‘/’) and produces a directory listing in case the ngx_http_index_module module cannot find an index file.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_autoindex_module.html">ngx_http_autoindex_module</a></code> 模块，以处理以斜杠字符（'/'）结尾的请求，并在<code><a href="http://nginx.org/en/docs/http/ngx_http_index_module.html">ngx_http_index_module</a></code>模块找不到索引文件的情况下生成目录列表 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_geo_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_geo_module module that creates variables with values depending on the client IP address.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_geo_module.html">ngx_http_geo_module</a></code>模块，该 模块创建的变量的值取决于客户端IP地址。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_map_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_map_module module that creates variables with values depending on values of other variables.
+
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_map_module.html">ngx_http_map_module</a></code>模块，该模块创建的变量值取决于其他变量的值。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_split_clients_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_split_clients_module module that creates variables for A/B testing.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_split_clients_module.html">ngx_http_split_clients_module</a></code>模块，该 模块创建用于A / B测试的变量。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_referer_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_referer_module module that can block access to a site for requests with invalid values in the “Referer” header field.
+
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_referer_module.html">ngx_http_referer_module</a></code> 模块，该模块可以阻止对“ Referer”标头字段中具有无效值的请求的站点访问。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_rewrite_module
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that allows an HTTP server to redirect requests and change URI of requests. The PCRE library is required to build and run this module.
+
+						</div>
+						<div class="cn">
+							禁用构建允许HTTP服务器<a href="http://nginx.org/en/docs/http/ngx_http_rewrite_module.html">重定向请求并更改请求URI的模块</a>。需要PCRE库来构建和运行此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_proxy_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building an HTTP server proxying module.
+
+						</div>
+						<div class="cn">
+							禁用构建HTTP服务器<a href="http://nginx.org/en/docs/http/ngx_http_proxy_module.html">代理模块</a>。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_fastcgi_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_fastcgi_module module that passes requests to a FastCGI server.
+
+						</div>
+						<div class="cn">
+							禁用构建 将请求传递到FastCGI服务器的<code><a href="http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html">ngx_http_fastcgi_module</a></code>模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_uwsgi_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_uwsgi_module module that passes requests to a uwsgi server.
+						</div>
+						<div class="cn">
+							禁用构建 将请求传递到uwsgi服务器的<code><a href="http://nginx.org/en/docs/http/ngx_http_uwsgi_module.html">ngx_http_uwsgi_module</a></code>模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_scgi_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_scgi_module module that passes requests to an SCGI server.
+
+						</div>
+						<div class="cn">
+							禁用构建 将请求传递到SCGI服务器的<code><a href="http://nginx.org/en/docs/http/ngx_http_scgi_module.html">ngx_http_scgi_module</a> </code>模块
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_grpc_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_grpc_module module that passes requests to a gRPC server.
+
+						</div>
+						<div class="cn">
+							禁用构建 将请求传递到gRPC服务器的<code><a href="http://nginx.org/en/docs/http/ngx_http_grpc_module.html">ngx_http_grpc_module</a></code>模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_memcached_module
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_memcached_module module that obtains responses from a memcached server.
+
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_memcached_module.html">ngx_http_memcached_module</a></code> 模块，该模块从Memcached服务器获取响应。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_limit_conn_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_limit_conn_module module that limits the number of connections per key, for example, the number of connections from a single IP address.
+
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_limit_conn_module.html">ngx_http_limit_conn_module</a></code>模块，该 模块限制每个键的连接数，例如，单个IP地址的连接数。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_limit_req_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_limit_req_module module that limits the request processing rate per key, for example, the processing rate of requests coming from a single IP address.
+
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_limit_req_module.html">ngx_http_limit_req_module</a></code> 模块，该 模块限制每个密钥的请求处理速率，例如，来自单个IP地址的请求的处理速率。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_empty_gif_module
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that emits single-pixel transparent GIF.
+
+						</div>
+						<div class="cn">
+							禁用构建<a href="http://nginx.org/en/docs/http/ngx_http_empty_gif_module.html">发出单像素透明GIF</a>的模块
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_browser_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_http_browser_module module that creates variables whose values depend on the value of the “User-Agent” request header field.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/http/ngx_http_browser_module.html">ngx_http_browser_module</a></code>模块，该 模块创建的变量的值取决于“ User-Agent”请求标头字段的值
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_upstream_hash_module
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that implements the hash load balancing method.
+						</div>
+						<div class="cn">
+							禁用构建实现<a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html#hash">哈希</a>负载平衡方法的模块 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_upstream_ip_hash_module
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that implements the ip_hash load balancing method.
+						</div>
+						<div class="cn">
+							禁用构建实现<a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html#ip_hash">ip_hash</a> 负载平衡方法的模块 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_upstream_least_conn_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that implements the least_conn load balancing method.
+						</div>
+						<div class="cn">
+							禁用构建实现了<a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html#least_conn">minimum_conn</a>负载平衡方法的模块 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_upstream_keepalive_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that provides caching of connections to upstream servers.
+						</div>
+						<div class="cn">
+							禁用构建模块以提供 对上游服务器<a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html#keepalive">连接的缓存</a>。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http_upstream_zone_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that makes it possible to store run-time state of an upstream group in a shared memory zone.
+						</div>
+						<div class="cn">
+							禁用构建模块，该模块可以将上游组的运行时状态存储在共享内存<a href="http://nginx.org/en/docs/http/ngx_http_upstream_module.html#zone">区域中</a>。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-http_perl_module
+							<br/>
+							--with-http_perl_module=dynamic
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the embedded Perl module. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<a href="http://nginx.org/en/docs/http/ngx_http_perl_module.html">嵌入式Perl模块</a>。默认情况下未构建此模块。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-perl_modules_path=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							defines a directory that will keep Perl modules.
+
+						</div>
+						<div class="cn">
+							定义一个保留Perl模块的目录。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-perl=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of the Perl binary.
+						</div>
+						<div class="cn">
+							设置Perl二进制文件的名称。
+						</div>
+					</div>
+					<div>
+						<code>
+							--http-log-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of the primary request log file of the HTTP server. After installation, the file name can always be changed in the nginx.conf configuration file using the access_log directive. By default the file is named prefix/logs/access.log.
+						</div>
+						<div class="cn">
+							设置HTTP服务器的主请求日志文件的名称。安装后，可以在nginx.conf使用<code>access_log</code>指令在配置文件中更改 。默认情况下，文件名为 prefix/logs/access.log。
+						</div>
+					</div>
+					<div>
+						<code>
+							--http-client-body-temp-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							defines a directory for storing temporary files that hold client request bodies. After installation, the directory can always be changed in the nginx.conf configuration file using the client_body_temp_path directive. By default the directory is named prefix/client_body_temp.
+						</div>
+						<div class="cn">
+							定义用于存储包含客户端请求正文的临时文件的目录。安装后，可以在nginx.conf使用<code>client_body_temp_path</code>指令在配置文件中更改 。默认情况下，目录名为 prefix/client_body_temp。
+						</div>
+					</div>
+					<div>
+						<code>
+							--http-proxy-temp-path=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							defines a directory for storing temporary files with data received from proxied servers. After installation, the directory can always be changed in the nginx.conf configuration file using the proxy_temp_path directive. By default the directory is named prefix/proxy_temp.
+						</div>
+						<div class="cn">
+							定义一个目录，用于存储包含从代理服务器接收到的数据的临时文件。安装后，可以在nginx.conf使用<code>proxy_temp_path</code>指令在配置文件中更改目录 。默认情况下，目录名为 prefix/proxy_temp。
+						</div>
+					</div>
+					<div>
+						<code>
+							--http-fastcgi-temp-path=path
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							defines a directory for storing temporary files with data received from FastCGI servers. After installation, the directory can always be changed in the nginx.conf configuration file using the fastcgi_temp_path directive. By default the directory is named prefix/fastcgi_temp.
+						</div>
+						<div class="cn">
+							定义一个目录，用于存储包含从FastCGI服务器接收到的数据的临时文件。安装后，可以在nginx.conf使用<code>fastcgi_temp_path</code> 指令在配置文件中更改目录 。默认情况下，目录名为 prefix/fastcgi_temp。
+						</div>
+					</div>
+					<div>
+						<code>
+							--http-uwsgi-temp-path=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							defines a directory for storing temporary files with data received from uwsgi servers. After installation, the directory can always be changed in the nginx.conf configuration file using the uwsgi_temp_path directive. By default the directory is named prefix/uwsgi_temp.
+
+						</div>
+						<div class="cn">
+							定义一个目录，用于存储带有从uwsgi服务器接收到的数据的临时文件。安装后，可以在nginx.conf使用<code>uwsgi_temp_path</code>指令在配置文件中更改目录 。默认情况下，目录名为 prefix/uwsgi_temp。
+						</div>
+					</div>
+					<div>
+						<code>
+							--http-scgi-temp-path=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							defines a directory for storing temporary files with data received from SCGI servers. After installation, the directory can always be changed in the nginx.conf configuration file using the scgi_temp_path directive. By default the directory is named prefix/scgi_temp.
+
+						</div>
+						<div class="cn">
+							定义一个目录，用于存储包含从SCGI服务器接收到的数据的临时文件。安装后，可以在nginx.conf使用<code>scgi_temp_path</code>指令在配置文件中更改目录 。默认情况下，目录名为 prefix/scgi_temp。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables the HTTP server.
+						</div>
+						<div class="cn">
+							禁用HTTP服务器。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-http-cache
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables HTTP cache.
+						</div>
+						<div class="cn">
+							禁用HTTP缓存。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-mail
+							--with-mail=dynamic
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables POP3/IMAP4/SMTP mail proxy server.
+						</div>
+						<div class="cn">
+							启用POP3 / IMAP4 / SMTP 邮件代理服务器。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-mail_ssl_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building a module that adds the SSL/TLS protocol support to the mail proxy server. This module is not built by default. The OpenSSL library is required to build and run this module.
+						</div>
+						<div class="cn">
+							启用构建将<a href="http://nginx.org/en/docs/mail/ngx_mail_ssl_module.html">SS/TLS协议支持添加</a>到邮件代理服务器的模块的功能。默认情况下未构建此模块。需要OpenSSL库来构建和运行此模块。
+						</div>
+					</div>
+
+
+					<div>
+						<code>
+							--without-mail_pop3_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables the POP3 protocol in mail proxy server.
+						</div>
+						<div class="cn">
+							在邮件代理服务器中 禁用POP3协议。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-mail_imap_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables the IMAP protocol in mail proxy server.
+						</div>
+						<div class="cn">
+							在邮件代理服务器中 禁用IMAP协议。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-mail_smtp_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables the SMTP protocol in mail proxy server.
+						</div>
+						<div class="cn">
+							在邮件代理服务器中 禁用SMTP协议。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-stream
+							<br/>
+							--with-stream=dynamic
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the stream module for generic TCP/UDP proxying and load balancing. This module is not built by default.
+						</div>
+						</div>
+						<div class="cn">
+							支持构建用于通用TCP/UDP代理和负载平衡的<a href="http://nginx.org/en/docs/stream/ngx_stream_core_module.html">流模块</a>。默认情况下未构建此模块。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-stream_ssl_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building a module that adds the SSL/TLS protocol support to the stream module. This module is not built by default. The OpenSSL library is required to build and run this module.
+						</div>
+						<div class="cn">
+							支持构建一个模块，该模块向流模块添加<a href="http://nginx.org/en/docs/stream/ngx_stream_ssl_module.html">SSL/TLS协议支持</a>。默认情况下未构建此模块。需要OpenSSL库来构建和运行此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-stream_realip_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_stream_realip_module module that changes the client address to the address sent in the PROXY protocol header. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/http/ngx_stream_realip_module.html">ngx_stream_realip_module</a></code>模块，该模块将客户端地址更改为PROXY协议标头中发送的地址。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-stream_geoip_module
+							<br />
+							--with-stream_geoip_module=dynamic
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_stream_geoip_module module that creates variables depending on the client IP address and the precompiled MaxMind databases. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建ngx_stream_geoip_module 模块，该 模块根据客户端IP地址和预编译的MaxMind数据库创建变量 。默认情况下未构建此模块。
+						</div>
+					</div>
+
+					<div>
+						<code>
+							--with-stream_ssl_preread_module
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_stream_ssl_preread_module module that allows extracting information from the ClientHello message without terminating SSL/TLS. This module is not built by default.
+						</div>
+						<div class="cn">
+							支持构建<code><a href="http://nginx.org/en/docs/stream/ngx_stream_ssl_preread_module.html">ngx_stream_ssl_preread_module</a></code>模块，该模块允许从<a href="https://tools.ietf.org/html/rfc5246#section-7.4.1.2">ClientHello</a>消息中提取信息， 而无需终止SSL/TLS。默认情况下未构建此模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_limit_conn_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_stream_limit_conn_module module that limits the number of connections per key, for example, the number of connections from a single IP address.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/stream/ngx_stream_limit_conn_module.html">ngx_stream_limit_conn_module</a></code>模块，该模块限制每个键的连接数，例如，单个IP地址的连接数。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_access_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_stream_access_module module that allows limiting access to certain client addresses.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/stream/ngx_stream_access_module.html">ngx_stream_access_module</a></code>模块，该模块允许限制对某些客户端地址的访问。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_geo_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_stream_geo_module module that creates variables with values depending on the client IP address.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/stream/ngx_stream_geo_module.html">ngx_stream_geo_module</a></code>模块，该模块创建的变量的值取决于客户端IP地址。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_map_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_stream_map_module module that creates variables with values depending on values of other variables.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/stream/ngx_stream_map_module.html">ngx_stream_map_module</a></code> 模块，该模块创建的变量值取决于其他变量的值。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_split_clients_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_stream_split_clients_module module that creates variables for A/B testing.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/stream/ngx_stream_split_clients_module.html">ngx_stream_split_clients_module</a></code>模块，该模块创建用于A / B测试的变量。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_return_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building the ngx_stream_return_module module that sends some specified value to the client and then closes the connection.
+						</div>
+						<div class="cn">
+							禁用构建<code><a href="http://nginx.org/en/docs/stream/ngx_stream_return_module.html">ngx_stream_return_module</a></code>模块，该模块向客户端发送一些指定的值，然后关闭连接。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_upstream_hash_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that implements the hash load balancing method.
+
+						</div>
+						<div class="cn">
+							禁用构建实现<a href="http://nginx.org/en/docs/stream/ngx_stream_upstream_module.html#hash"哈希</a> 负载平衡方法的模块 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_upstream_least_conn_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that implements the least_conn load balancing method.
+						</div>
+						<div class="cn">
+							禁用构建实现了<a href="http://nginx.org/en/docs/stream/ngx_stream_upstream_module.html#least_conn">minimum_conn</a>负载平衡方法的模块 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-stream_upstream_zone_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables building a module that makes it possible to store run-time state of an upstream group in a shared memory zone.
+						</div>
+						<div class="cn">
+							禁用构建模块，该模块可以将上游组的运行时状态存储在共享内存<a href="http://nginx.org/en/docs/stream/ngx_stream_upstream_module.html#zone">区域中</a>。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-google_perftools_module
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_google_perftools_module module that enables profiling of nginx worker processes using Google Performance Tools. The module is intended for nginx developers and is not built by default.
+
+						</div>
+						<div class="cn">
+							允许构建<code><a href="http://nginx.org/en/docs/ngx_google_perftools_module.html">ngx_google_perftools_module</a></code>模块，以使用<a href="https://github.com/gperftools/gperftools">Google Performance Tools</a>对nginx工作进程进行<a href="https://github.com/gperftools/gperftools">性能分析</a>。该模块供nginx开发人员使用，默认情况下未构建。
+
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-cpp_test_module
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building the ngx_cpp_test_module module.
+						</div>
+						<div class="cn">
+							启用构建 ngx_cpp_test_module模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--add-module=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables an external module.
+
+						</div>
+						<div class="cn">
+							启用外部模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--add-dynamic-module=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables an external dynamic module.
+
+						</div>
+						<div class="cn">
+							启用外部动态模块。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-compat
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables dynamic modules compatibility.
+
+						</div>
+						<div class="cn">
+							启用动态模块兼容性。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-cc=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of the C compiler.
+
+						</div>
+						<div class="cn">
+							设置C编译器的名称。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-cpp=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the name of the C preprocessor.
+
+						</div>
+						<div class="cn">
+							设置C预处理器的名称。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-cc-opt=parameters
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets additional parameters that will be added to the CFLAGS variable. When using the system PCRE library under FreeBSD, --with-cc-opt="-I /usr/local/include" should be specified. If the number of files supported by select() needs to be increased it can also be specified here such as this: --with-cc-opt="-D FD_SETSIZE=2048".
+
+						</div>
+						<div class="cn">
+							设置将添加到CFLAGS变量的其他参数。在FreeBSD下使用系统PCRE库时， <code>--with-cc-opt="-I /usr/local/include"</code>应指定。如果select()需要增加支持的文件数量，也可以在此处指定，例如： <code>--with-cc-opt="-D FD_SETSIZE=2048"</code>。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-ld-opt=parameters
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets additional parameters that will be used during linking. When using the system PCRE library under FreeBSD, --with-ld-opt="-L /usr/local/lib" should be specified.
+
+						</div>
+						<div class="cn">
+							设置链接期间将使用的其他参数。在FreeBSD下使用系统PCRE库时,<code>--with-ld-opt="-L /usr/local/lib"</code> 应指定。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-cpu-opt=cpu
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables building per specified CPU: pentium, pentiumpro, pentium3, pentium4, athlon, opteron, sparc32, sparc64, ppc64.
+
+						</div>
+						<div class="cn">
+							指定每个特定的CPU： pentium，pentiumpro， pentium3，pentium4， athlon，opteron， sparc32，sparc64， ppc64。
+						</div>
+					</div>
+					<div>
+						<code>
+							--without-pcre
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							disables the usage of the PCRE library.
+						</div>
+						<div class="cn">
+							禁用PCRE库的使用。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-pcre
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							forces the usage of the PCRE library.
+
+						</div>
+						<div class="cn">
+							强制使用PCRE库。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-pcre=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the path to the sources of the PCRE library. The library distribution (version 4.4 — 8.43) needs to be downloaded from the PCRE site and extracted. The rest is done by nginx’s ./configure and make. The library is required for regular expressions support in the location directive and for the ngx_http_rewrite_module module.
+
+						</div>
+						<div class="cn">
+							设置PCRE库源的路径。需要从PCRE站点下载并分发库分发（版本4.4 — 8.43） 。其余的由nginx的<code>./configure</code>和<code>make</code>完成。该库对于<code><a href="http://nginx.org/en/docs/http/ngx_http_core_module.html#location">location</a></code>指令中的正则表达式支持和<code><a href="http://nginx.org/en/docs/http/ngx_http_rewrite_module.html">ngx_http_rewrite_module</a></code>模块是必需的 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-pcre-opt=parameters
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets additional build options for PCRE.
+
+						</div>
+						<div class="cn">
+							为PCRE设置其他构建选项。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-pcre-jit
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							builds the PCRE library with “just-in-time compilation” support (1.1.12, the pcre_jit directive).
+
+						</div>
+						<div class="cn">
+							使用“及时编译”支持（1.1.12，pcre_jit指令）构建PCRE库 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-zlib=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the path to the sources of the zlib library. The library distribution (version 1.1.3 — 1.2.11) needs to be downloaded from the zlib site and extracted. The rest is done by nginx’s ./configure and make. The library is required for the ngx_http_gzip_module module.
+
+						</div>
+						<div class="cn">
+							设置zlib库源的路径。需要从zlib站点下载库发行版（版本1.1.3-1.2.11） 并解压缩。其余的由nginx的<code>./configure</code>和<code>make</code>完成。<code><a href="http://nginx.org/en/docs/http/ngx_http_rewrite_module.html">ngx_http_gzip_module</a></code>模块需要该库 。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-zlib-opt=parameters
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets additional build options for zlib.
+
+						</div>
+						<div class="cn">
+							为zlib设置其他构建选项。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-zlib-asm=cpu
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables the use of the zlib assembler sources optimized for one of the specified CPUs: pentium, pentiumpro.
+
+						</div>
+						<div class="cn">
+							使得能够使用指定的CPU中的一个优化的zlib汇编源程序： pentium，pentiumpro。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-libatomic
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							forces the libatomic_ops library usage.
+
+						</div>
+						<div class="cn">
+							强制使用libatomic_ops库。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-libatomic=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the path to the libatomic_ops library sources.
+
+						</div>
+						<div class="cn">
+							设置libatomic_ops库源的路径。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-openssl=path
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets the path to the OpenSSL library sources.
+
+						</div>
+						<div class="cn">
+							设置OpenSSL库源的路径。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-openssl-opt=parameters
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							sets additional build options for OpenSSL.
+
+						</div>
+						<div class="cn">
+							为OpenSSL设置其他构建选项。
+						</div>
+					</div>
+					<div>
+						<code>
+							--with-debug
+
+						</code>
+					</div>
+					<div class="indent">
+						<div class="en">
+							enables the debugging log.
+
+						</div>
+						<div class="cn">
+							启用<a href="http://nginx.org/en/docs/debugging_log.html">调试日志</a>。
+						</div>
+					</div>
+
+					<div>
+						<div class="en">
+							Example of parameters usage (all of this needs to be typed in one line):
+						</div>
+						<div class="cn">
+							参数用法示例（所有这些都需要在一行中键入）：
+						</div>
+					</div>
+
+					<pre>
+						<code>
+./configure
+	--sbin-path=/usr/local/nginx/nginx
+	--conf-path=/usr/local/nginx/nginx.conf
+	--pid-path=/usr/local/nginx/nginx.pid
+	--with-http_ssl_module
+	--with-pcre=../pcre-8.44
+	--with-zlib=../zlib-1.2.11
+						</code>
+					</pre>
+					<div class="en">
+						After configuration, nginx is compiled and installed using make.
+					</div>
+					<div class="cn">
+						配置后，使用编译并安装nginx make。
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<div style="position: fixed;right: 20px;bottom: 100px">
+		<button type="primary" class="btn btn-success" onclick="toggleEn()">EN</button>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/highlight-9.18.0/highlight-pack.js"></script>
+	<script>
+		function toggleEn() {
+			$(".en").toggle()
+		}
+	</script>
+</body>
+</html>
