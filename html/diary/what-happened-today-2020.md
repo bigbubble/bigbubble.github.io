@@ -5,7 +5,7 @@
 
 READ:[从源代码构建Nginx](/html/read/building-nginx-from-sources-translate.html)
 
-##### 0320
+##### 03-20
 使用<code>marked.js</code>渲染markdown文件，[解决](https://github.com/bigbubble/marked.git)使用highlight.js渲染代码块时无背景色问题
 ```javascript 1.6
  function ajaxGet(url, fn) {
