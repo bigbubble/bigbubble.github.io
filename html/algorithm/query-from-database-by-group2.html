@@ -7,7 +7,6 @@
 	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/common.css">
 	<title>SQL:查询条件有两个in,分组拼接查询,分页-2</title>
 </head>
@@ -43,9 +42,11 @@
 					<p><a href="html/algorithm/query-from-database-by-group.html">Related articles</a></p>
 					<p>1. 判断是否需要分割,如果A.size > Threshold or B.size > Threshold or A.size * B.size > Threshold,则需要分割，否则按正常的查询进行计算总数和分页</p>
 					<section class="code-section">
-						<pre class="brush: sql">
-							select count(1) from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and other condition limit pageStart,pageSize;
-						</pre>
+						<pr>
+							<code class="sql">
+								select count(1) from table t where t.a in (a1,a2,...am,...) and t.b in (b1,b2,..bn...) and other condition limit pageStart,pageSize;
+							</code>
+						</pr>
 					</section>
 					<p>
 						2.需要分割<br/>
@@ -59,162 +60,164 @@
 						分页时，使用 ArrayList.subList(start,end)选取数据
 					</p>
 					<section class="code-section">
-						<pre class="brush: java">
-							/**
-							 * sql查询带有两个in的情况，如果in1 内数量 与 in2内数量的计算量 > 阈值 更改查询方式
-							 * 		1.先找到in1,in2中数量较小的那个列表
-							 * 		2.如果较小的列表的个数依然大于阈值，那么按阈值分组，合并查询结果
-							 * 		3.如果小于阈值，直接查结果
-							 * 		4.过滤结果中符合另一个字段在另一个in列表中对象，加入符合条件的结果列表
-							 * 		5.按分页条件选择结果列表值
-							 * 	如果计算量 < 小于阈值，按正常数据库分页查询
-							 * 	这种方法占用多内存
-							 * @param paramMap 查询参数
-							 * @param A 被关联主题
-							 * @param B 关联主题
-							 * @param Threshold 阈值
-							 * @param firstTooBigFlag A很大
-							 * @param secondTooBigFlag B很大
-							 * @param firstIsNull A为空 == null ? 0 :1
-							 * @param secondIsNull B为空== null ? 0 :1
-							 * @return 结果集
-							 */
-							private List&lt;Model> qeuryOptimization2(Map&lt;String,Object> paramMap, List<> A,
-																   List<> B,int Threshold, boolean firstTooBigFlag,
-																   boolean secondTooBigFlag, int firstIsNull, int secondIsNull){
-								//结果集
-								List&lt;Model> resultList = new ArrayList<>();
-								int allResult = 0; //结果总数
-								long totolCycleTimes = 0; //需要计算两个in中的次数
-								//计算totolCycleTimes
-								if(A != null && A.size() > 0 && B != null && B.size() > 0){
-									totolCycleTimes = Long.valueOf(A.size()) * Long.valueOf(B.size());
-								}else if((A != null && A.size() > 0) && (B == null || B.size() == 0)){
-									totolCycleTimes = Long.valueOf(A.size());
-								}else if((A == null || A.size() == 0) && (B != null || B.size() > 0)){
-									totolCycleTimes = Long.valueOf(B.size());
-								}
-								//符合条件的关联关系
-								List&lt;Model> matchedList = new ArrayList<>();
-								//计算量过多
-								if(totolCycleTimes > Threshold){
-									//复制查询参数对象不需要的参数
-									Set&lt;String> excludeKeySet = new HashSet<>();
-									excludeKeySet.add("a");
-									excludeKeySet.add("b");
-									excludeKeySet.add("pageStart");
-									excludeKeySet.add("pageSize");
-									//两个都有值
-									if(firstIsNull + secondIsNull == 2){
-										//新的查询参数
-										Map&lt;String, Object> queryMap = cloneQueryMap(paramMap, excludeKeySet);
-										List<> tempList = new ArrayList<>();
-										//两个列表个数最小值，用最小值去数据库中查询
-										int minListCount = 0;
-										Set&lt;Long> ids = new HashSet<>();
-										boolean firstIsLess = true; //A是不是数量比较小
-										if(A.size() < B.size()){
-											minListCount = A.size();
-											for(Model po : B){
-												ids.add(po.getId());
-											}
-										}else{
-											firstIsLess = false;
-											minListCount = B.size();
-											for(Model po : A){
-												ids.add(po.getId());
-											}
-										}
-										//最小值还是大于阈值，分段读取，并筛选出匹配的对象
-										if(minListCount > Threshold){
-											//分部进行
-											if(firstIsLess){ //A比较小
-												String[] firstArr = generaterQueryIds(A,Threshold);
-												for(String paramId : firstArr){
-													queryMap.put("a", paramId);
-													tempList = // select * from table t by(queryMap);
-													for(Model po : tempList){
-														if(ids.contains(po.getSecId())){
-															matchedList.add(po);
-														}
-													}
-												}
-											}else{ //in2
-												String[] secondArr = generaterQueryIds(B,Threshold);
-												for(String paramId : secondArr){
-													queryMap.put("b", paramId);
-													tempList = //select * from table t by(queryMap);
-													for(Model po : tempList){
-														if(ids.contains(po.getFirstId())){
-															matchedList.add(po);
-														}
-													}
-												}
-											}
-										}else{
-											//一次读取
-											if(firstIsLess){//A小 查A,否则查B
-												queryMap.put("a", generaterQueryIds(A,Threshold)[0]);
-
-											}else{
-												queryMap.put("b", generaterQueryIds(B,Threshold)[0]);
-											}
-											tempList = //select * from table t by(queryMap);
-											//筛选匹配的
-											for(Model po : tempList){
-												if(firstIsLess){
-													if(ids.contains(po.getSecId())){
-														matchedList.add(po);
-													}
-												}else{
-													if(ids.contains(po.getFirstId())){
-														matchedList.add(po);
-													}
-												}
-											}
-										}
-									}else{ //只有一个有值 且值超出了范围
-										Map&lt;String, Object> queryMap = cloneQueryMap(paramMap, excludeKeySet);
-										List&lt;Model> tempList = new ArrayList<>();
-										//A太大
-										if(firstTooBigFlag){
-											String[] firstArr = generaterQueryIds(A,Threshold);
-											for(String paramId : firstArr){
-												queryMap.put("a", paramId);
-												tempList =  //select * from table t by(queryMap);
-												matchedList.addAll(tempList);
-											}
-										}else { //in2太大
-											String[] secondArr = generaterQueryIds(B,Threshold);
-											for(String paramId : secondArr){
-												queryMap.put("b", paramId);
-												tempList =  //select * from table t by(queryMap);
-												matchedList.addAll(tempList);
-											}
-										}
-									}
-									allResult = matchedList.size();
-								}else{ //计算量不多
-									allResult = //select * from table t by(queryMap);
-								}
-								totalCount = allResult;
-								totalPage = allResult % pageSize == 0 ? (allResult / pageSize) : (allResult / pageSize + 1);
-
-
-								//计算量过多情况，从列表取数据
-								if(totolCycleTimes > Threshold){
-									int start = (pageCount - 1) * pageSize;
-									int end = pageCount * pageSize;
-									if (end > matchedList.size()){
-										end = matchedList.size();
-									}
-									resultList = matchedList.subList(start,end);
-								}else{ //从数据库取数据
-									resultList = //select * from table t by (paramMap);
-								}
-
-								return  resultList;
+						<pre>
+							<code class="java">
+/**
+ * sql查询带有两个in的情况，如果in1 内数量 与 in2内数量的计算量 > 阈值 更改查询方式
+ * 		1.先找到in1,in2中数量较小的那个列表
+ * 		2.如果较小的列表的个数依然大于阈值，那么按阈值分组，合并查询结果
+ * 		3.如果小于阈值，直接查结果
+ * 		4.过滤结果中符合另一个字段在另一个in列表中对象，加入符合条件的结果列表
+ * 		5.按分页条件选择结果列表值
+ * 	如果计算量 < 小于阈值，按正常数据库分页查询
+ * 	这种方法占用多内存
+ * @param paramMap 查询参数
+ * @param A 被关联主题
+ * @param B 关联主题
+ * @param Threshold 阈值
+ * @param firstTooBigFlag A很大
+ * @param secondTooBigFlag B很大
+ * @param firstIsNull A为空 == null ? 0 :1
+ * @param secondIsNull B为空== null ? 0 :1
+ * @return 结果集
+ */
+private List&lt;Model> qeuryOptimization2(Map&lt;String,Object> paramMap, List<> A,
+									   List<> B,int Threshold, boolean firstTooBigFlag,
+									   boolean secondTooBigFlag, int firstIsNull, int secondIsNull){
+	//结果集
+	List&lt;Model> resultList = new ArrayList<>();
+	int allResult = 0; //结果总数
+	long totolCycleTimes = 0; //需要计算两个in中的次数
+	//计算totolCycleTimes
+	if(A != null && A.size() > 0 && B != null && B.size() > 0){
+		totolCycleTimes = Long.valueOf(A.size()) * Long.valueOf(B.size());
+	}else if((A != null && A.size() > 0) && (B == null || B.size() == 0)){
+		totolCycleTimes = Long.valueOf(A.size());
+	}else if((A == null || A.size() == 0) && (B != null || B.size() > 0)){
+		totolCycleTimes = Long.valueOf(B.size());
+	}
+	//符合条件的关联关系
+	List&lt;Model> matchedList = new ArrayList<>();
+	//计算量过多
+	if(totolCycleTimes > Threshold){
+		//复制查询参数对象不需要的参数
+		Set&lt;String> excludeKeySet = new HashSet<>();
+		excludeKeySet.add("a");
+		excludeKeySet.add("b");
+		excludeKeySet.add("pageStart");
+		excludeKeySet.add("pageSize");
+		//两个都有值
+		if(firstIsNull + secondIsNull == 2){
+			//新的查询参数
+			Map&lt;String, Object> queryMap = cloneQueryMap(paramMap, excludeKeySet);
+			List<> tempList = new ArrayList<>();
+			//两个列表个数最小值，用最小值去数据库中查询
+			int minListCount = 0;
+			Set&lt;Long> ids = new HashSet<>();
+			boolean firstIsLess = true; //A是不是数量比较小
+			if(A.size() < B.size()){
+				minListCount = A.size();
+				for(Model po : B){
+					ids.add(po.getId());
+				}
+			}else{
+				firstIsLess = false;
+				minListCount = B.size();
+				for(Model po : A){
+					ids.add(po.getId());
+				}
+			}
+			//最小值还是大于阈值，分段读取，并筛选出匹配的对象
+			if(minListCount > Threshold){
+				//分部进行
+				if(firstIsLess){ //A比较小
+					String[] firstArr = generaterQueryIds(A,Threshold);
+					for(String paramId : firstArr){
+						queryMap.put("a", paramId);
+						tempList = // select * from table t by(queryMap);
+						for(Model po : tempList){
+							if(ids.contains(po.getSecId())){
+								matchedList.add(po);
 							}
+						}
+					}
+				}else{ //in2
+					String[] secondArr = generaterQueryIds(B,Threshold);
+					for(String paramId : secondArr){
+						queryMap.put("b", paramId);
+						tempList = //select * from table t by(queryMap);
+						for(Model po : tempList){
+							if(ids.contains(po.getFirstId())){
+								matchedList.add(po);
+							}
+						}
+					}
+				}
+			}else{
+				//一次读取
+				if(firstIsLess){//A小 查A,否则查B
+					queryMap.put("a", generaterQueryIds(A,Threshold)[0]);
+
+				}else{
+					queryMap.put("b", generaterQueryIds(B,Threshold)[0]);
+				}
+				tempList = //select * from table t by(queryMap);
+				//筛选匹配的
+				for(Model po : tempList){
+					if(firstIsLess){
+						if(ids.contains(po.getSecId())){
+							matchedList.add(po);
+						}
+					}else{
+						if(ids.contains(po.getFirstId())){
+							matchedList.add(po);
+						}
+					}
+				}
+			}
+		}else{ //只有一个有值 且值超出了范围
+			Map&lt;String, Object> queryMap = cloneQueryMap(paramMap, excludeKeySet);
+			List&lt;Model> tempList = new ArrayList<>();
+			//A太大
+			if(firstTooBigFlag){
+				String[] firstArr = generaterQueryIds(A,Threshold);
+				for(String paramId : firstArr){
+					queryMap.put("a", paramId);
+					tempList =  //select * from table t by(queryMap);
+					matchedList.addAll(tempList);
+				}
+			}else { //in2太大
+				String[] secondArr = generaterQueryIds(B,Threshold);
+				for(String paramId : secondArr){
+					queryMap.put("b", paramId);
+					tempList =  //select * from table t by(queryMap);
+					matchedList.addAll(tempList);
+				}
+			}
+		}
+		allResult = matchedList.size();
+	}else{ //计算量不多
+		allResult = //select * from table t by(queryMap);
+	}
+	totalCount = allResult;
+	totalPage = allResult % pageSize == 0 ? (allResult / pageSize) : (allResult / pageSize + 1);
+
+
+	//计算量过多情况，从列表取数据
+	if(totolCycleTimes > Threshold){
+		int start = (pageCount - 1) * pageSize;
+		int end = pageCount * pageSize;
+		if (end > matchedList.size()){
+			end = matchedList.size();
+		}
+		resultList = matchedList.subList(start,end);
+	}else{ //从数据库取数据
+		resultList = //select * from table t by (paramMap);
+	}
+
+	return  resultList;
+}
+							</code>
 						</pre>
 					</section>
 					
@@ -230,6 +233,8 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+	<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>

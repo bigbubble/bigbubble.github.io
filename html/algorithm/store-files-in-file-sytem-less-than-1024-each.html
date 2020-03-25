@@ -7,7 +7,6 @@
 	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/common.css">
 	<title>存储大量文件，让每个文件夹下的文件或文件夹数量不大于1024</title>
 </head>
@@ -42,8 +41,10 @@
 					<p>1024 正好为2^10次方，可以考虑将URL转成2进制的某种表示，进行不同目录的分布</p>
 					<p>JAVA中，hash code的值为32位，如果将32位二进制转成字符串，从后向前每9位（可表示0～1023）分一组 5/9/9/9，为：</p>
 					<section class="code-section">
-						<pre class="brush: js">
-							10101/010110110/010110011/010110101
+						<pre>
+							<code class="plaintext">
+10101/010110110/010110011/010110101
+							</code>
 						</pre>
 					</section>
 					<p>其中前三部分为目录，最后部分存储文件,文件名可以使用MD5值，如果新文件已经存在，则覆盖更新</p>
@@ -51,34 +52,38 @@
 					<p>这样可以保证目录中的文件或目录不超过1024</p>
 					<p>程序会对所有的URL做MD5，得到一个等长的MD5摘要</p>
 					<section class="code-section">
-						<pre class="brush: java">
-							String md5Code = MD5Tools.MD5(url); //md5 digest
+						<pre>
+							<code class="java">
+String md5Code = MD5Tools.MD5(url); //md5 digest
+							</code>
 						</pre>
 					</section>
 					<p>对MD5值，取hash code，计算目录位置</p>
 					<section class="code-section">
-						<pre class="brush: java">
-							/**
-							* 获取文件目录位置
-							* @param prefix
-							* @param md5Code
-							* @return
-							*/
-							public static String getDir(String prefix, String md5Code){
-								int hashCode = md5Code.hashCode();
-								String binaryStr = Integer.toBinaryString(hashCode);
-								StringBuilder sb = new StringBuilder();
-								int lenth  = binaryStr.length();
-								int re = 32-lenth;
-								for(int i = 0; i< re;i++){
-								    sb.append("0");
-								}
-								String dirstr = sb.append(binaryStr).toString();
-								sb = new StringBuilder(prefix);
-								sb.append(dirstr.substring(0,5)).append("/").append(dirstr.substring(5,14));
-								sb.append("/").append(dirstr.substring(14,23)).append("/").append(hashId).append(".html");
-								return sb.toString();
-							}
+						<pre>
+							<code class="java">
+/**
+* 获取文件目录位置
+* @param prefix
+* @param md5Code
+* @return
+*/
+public static String getDir(String prefix, String md5Code){
+	int hashCode = md5Code.hashCode();
+	String binaryStr = Integer.toBinaryString(hashCode);
+	StringBuilder sb = new StringBuilder();
+	int lenth  = binaryStr.length();
+	int re = 32-lenth;
+	for(int i = 0; i< re;i++){
+		sb.append("0");
+	}
+	String dirstr = sb.append(binaryStr).toString();
+	sb = new StringBuilder(prefix);
+	sb.append(dirstr.substring(0,5)).append("/").append(dirstr.substring(5,14));
+	sb.append("/").append(dirstr.substring(14,23)).append("/").append(hashId).append(".html");
+	return sb.toString();
+}
+							</code>
 						</pre>
 					</section>
 				</div>
@@ -93,6 +98,8 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+	<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>

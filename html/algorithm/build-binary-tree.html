@@ -7,7 +7,6 @@
 	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/common.css">
 	<title>构建二叉树</title>
 </head>
@@ -59,295 +58,299 @@
 				<div class="content">
 					<p>构建:</p>
 					<section class="code-section">
-						<pre class="brush: java">
-							import java.util.Stack;
-							public class Test {
+						<pre>
+							<code class="java">
+import java.util.Stack;
+public class Test {
 
-							    public static void main(String[] args) {
-							        Stack&lt;String> stack = new Stack&lt;String>();
+	public static void main(String[] args) {
+		Stack&lt;String> stack = new Stack&lt;String>();
 
-							        stack.push("node1");
-							        stack.push("r1");
-							        stack.push("node2");
-							        stack.push("r2?");
-							        stack.push("node3");
-							        stack.push("r3");
-							        stack.push("node4");
-							        stack.push("r4");
-							        stack.push("node5");
-							        stack.push("r5");
-							        stack.push("node6");
-							        stack.push("r6");
-							        stack.push("node7");
+		stack.push("node1");
+		stack.push("r1");
+		stack.push("node2");
+		stack.push("r2?");
+		stack.push("node3");
+		stack.push("r3");
+		stack.push("node4");
+		stack.push("r4");
+		stack.push("node5");
+		stack.push("r5");
+		stack.push("node6");
+		stack.push("r6");
+		stack.push("node7");
 
-							        Stack&lt;String> stack2 = new Stack&lt;String>();
-							        stack2.push("node1");
-							        stack2.push("r1");
-							        stack2.push("node2");
-							        stack2.push("r2");
-							        stack2.push("node3?");
-							        stack2.push("r3");
-							        stack2.push("node4");
-							        stack2.push("r4");
-							        stack2.push("node5");
-							        stack2.push("r5");
-							        stack2.push("node6");
-							        stack2.push("r6");
-							        stack2.push("node7");
+		Stack&lt;String> stack2 = new Stack&lt;String>();
+		stack2.push("node1");
+		stack2.push("r1");
+		stack2.push("node2");
+		stack2.push("r2");
+		stack2.push("node3?");
+		stack2.push("r3");
+		stack2.push("node4");
+		stack2.push("r4");
+		stack2.push("node5");
+		stack2.push("r5");
+		stack2.push("node6");
+		stack2.push("r6");
+		stack2.push("node7");
 
-							        Stack&lt;String> stack3 = new Stack&lt;String>();
-							        stack3.push("node1?");
-							        stack3.push("r1");
-							        stack3.push("node2");
-							        stack3.push("r2");
-							        stack3.push("node3");
-							        stack3.push("r3");
-							        stack3.push("node4");
-							        stack3.push("r4");
-							        stack3.push("node5");
-							        stack3.push("r5");
-							        stack3.push("node6");
-							        stack3.push("r6");
-							        stack3.push("node7");
+		Stack&lt;String> stack3 = new Stack&lt;String>();
+		stack3.push("node1?");
+		stack3.push("r1");
+		stack3.push("node2");
+		stack3.push("r2");
+		stack3.push("node3");
+		stack3.push("r3");
+		stack3.push("node4");
+		stack3.push("r4");
+		stack3.push("node5");
+		stack3.push("r5");
+		stack3.push("node6");
+		stack3.push("r6");
+		stack3.push("node7");
 
-							        Stack&lt;String> stack4 = new Stack&lt;String>();
-							        stack4.push("node1");
-							        stack4.push("r1");
-							        stack4.push("node2");
-							        stack4.push("r2");
-							        stack4.push("node3");
-							        stack4.push("r3");
-							        stack4.push("node4");
-							        stack4.push("r4");
-							        stack4.push("node5");
-							        stack4.push("r5");
-							        stack4.push("node6");
-							        stack4.push("r6");
-							        stack4.push("node7?");
+		Stack&lt;String> stack4 = new Stack&lt;String>();
+		stack4.push("node1");
+		stack4.push("r1");
+		stack4.push("node2");
+		stack4.push("r2");
+		stack4.push("node3");
+		stack4.push("r3");
+		stack4.push("node4");
+		stack4.push("r4");
+		stack4.push("node5");
+		stack4.push("r5");
+		stack4.push("node6");
+		stack4.push("r6");
+		stack4.push("node7?");
 
-							        //求r2: node1-r1-node2-r2?-node3-r3-node4-r4-node5-r5-node6-r6-node7
-							        System.out.println("求r2：");
-							        Node rootNode = buildTree(stack);
-							        //中序遍历二叉树
-							        traversalBinaryTree(rootNode);
-							        
-							        //求node3: node1-r1-node2-r2-node3?-r3-node4-r4-node5-r5-node6-r6-node7
-							        System.out.println("\n求node3：");
-							        Node rootNode2 = buildTree(stack2);
-							        //中序遍历二叉树
-							        traversalBinaryTree(rootNode2);
+		//求r2: node1-r1-node2-r2?-node3-r3-node4-r4-node5-r5-node6-r6-node7
+		System.out.println("求r2：");
+		Node rootNode = buildTree(stack);
+		//中序遍历二叉树
+		traversalBinaryTree(rootNode);
 
-							        //求node1: node1?-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7
-							        System.out.println("\n求node1：");
-							        Node rootNode3 = buildTree(stack3);
-							        //中序遍历二叉树
-							        traversalBinaryTree(rootNode3);
+		//求node3: node1-r1-node2-r2-node3?-r3-node4-r4-node5-r5-node6-r6-node7
+		System.out.println("\n求node3：");
+		Node rootNode2 = buildTree(stack2);
+		//中序遍历二叉树
+		traversalBinaryTree(rootNode2);
 
-							        //求node7: node1-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7?
-							         System.out.println("\n求node7：");
-							        Node rootNode4 = buildTree(stack4);
-							        //中序遍历二叉树
-							        traversalBinaryTree(rootNode4);
-							    }
+		//求node1: node1?-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7
+		System.out.println("\n求node1：");
+		Node rootNode3 = buildTree(stack3);
+		//中序遍历二叉树
+		traversalBinaryTree(rootNode3);
 
-							    /**
-							     * 构建二叉树
-							     * 先确定根节点位置，再分别创建左右子树
-							     * @param stack
-							     * @return
-							     */
-							    public static Node buildTree(Stack&lt;String> stack){
-							        //stack1
-							        int root = 0;
-							        for(int i = 0; i < stack.size(); i ++){
-							            String element = stack.get(i);
-							            if(element.indexOf("?") > -1){
-							                //如果是节点
-							                if(i % 2 == 0){
-							                    //如果是最后一个节点，将左边的关系作为根节点
-							                    if(i == stack.size() - 1){
-							                        root = i - 1;
-							                    }else{ //其他情况将右边的关系作为根结点
-							                        root = i + 1;
-							                    }
-							                }else{
-							                    //如果是关系，将当前关系作为根结点
-							                    root = i;
-							                }
-							            }
-							        }
-							        Node rootNode = new Node();
-							        rootNode.setValue(stack.get(root));
-							        //构建左子树
-							        int endIndex = root - 1;
-							        Node left = buildLeftTree(stack, 0, endIndex);
-							        //构建右子树
-							        int startIndex = root + 1;
-							        Node right = buildRigthTree(stack, startIndex, stack.size()-1);
+		//求node7: node1-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7?
+		 System.out.println("\n求node7：");
+		Node rootNode4 = buildTree(stack4);
+		//中序遍历二叉树
+		traversalBinaryTree(rootNode4);
+	}
 
-							        rootNode.setLeft(left);
-							        left.setParent(rootNode);
-							        rootNode.setRight(right);
-							        right.setParent(rootNode);
+	/**
+	 * 构建二叉树
+	 * 先确定根节点位置，再分别创建左右子树
+	 * @param stack
+	 * @return
+	 */
+	public static Node buildTree(Stack&lt;String> stack){
+		//stack1
+		int root = 0;
+		for(int i = 0; i < stack.size(); i ++){
+			String element = stack.get(i);
+			if(element.indexOf("?") > -1){
+				//如果是节点
+				if(i % 2 == 0){
+					//如果是最后一个节点，将左边的关系作为根节点
+					if(i == stack.size() - 1){
+						root = i - 1;
+					}else{ //其他情况将右边的关系作为根结点
+						root = i + 1;
+					}
+				}else{
+					//如果是关系，将当前关系作为根结点
+					root = i;
+				}
+			}
+		}
+		Node rootNode = new Node();
+		rootNode.setValue(stack.get(root));
+		//构建左子树
+		int endIndex = root - 1;
+		Node left = buildLeftTree(stack, 0, endIndex);
+		//构建右子树
+		int startIndex = root + 1;
+		Node right = buildRigthTree(stack, startIndex, stack.size()-1);
 
-							        return rootNode;
-							    }
+		rootNode.setLeft(left);
+		left.setParent(rootNode);
+		rootNode.setRight(right);
+		right.setParent(rootNode);
 
-							    /**
-							     * 构建左子树
-							     * @param stack
-							     * @param start
-							     * @param end
-							     *       O6
-							     *     O4  O7
-							     *   O2  O5
-							     * O1  O3
-							     * @return
-							     */
-							    public static Node buildLeftTree(Stack&lt;String> stack, int start, int end){
-							        if(start == end){
-							            Node node = new Node();
-							            node.setValue(stack.get(start));
-							            return node;
-							        }
+		return rootNode;
+	}
 
-							        Node left = null; //左节点不是第一个必定是非叶子节点
-							        Node root = null;
-							        Node right = null;
+	/**
+	 * 构建左子树
+	 * @param stack
+	 * @param start
+	 * @param end
+	 *       O6
+	 *     O4  O7
+	 *   O2  O5
+	 * O1  O3
+	 * @return
+	 */
+	public static Node buildLeftTree(Stack&lt;String> stack, int start, int end){
+		if(start == end){
+			Node node = new Node();
+			node.setValue(stack.get(start));
+			return node;
+		}
 
-							        while(start < end){
+		Node left = null; //左节点不是第一个必定是非叶子节点
+		Node root = null;
+		Node right = null;
 
-							            if(left == null){
-							                left = new Node();
-							                left.setValue(stack.get(start));
-							            }
-							            root = new Node();
-							            root.setValue(stack.get(++ start));
-							            right = new Node();
-							            right.setValue(stack.get(++ start));
+		while(start < end){
 
-							            root.setLeft(left);
-							            left.setParent(root);
-							            root.setRight(right);
-							            right.setParent(root);
+			if(left == null){
+				left = new Node();
+				left.setValue(stack.get(start));
+			}
+			root = new Node();
+			root.setValue(stack.get(++ start));
+			right = new Node();
+			right.setValue(stack.get(++ start));
 
-							            left = root;
-							        }
+			root.setLeft(left);
+			left.setParent(root);
+			root.setRight(right);
+			right.setParent(root);
 
-							        return left;
-							    }
+			left = root;
+		}
 
-							    /**
-							     * 构建右子树
-							     * @param stack
-							     * @param start
-							     * @param end
-							     *     O9
-							     *  O10  O11
-							     *    O12  O13
-							     *      O14  O15
-							     * @return
-							     */
-							    public static Node buildRigthTree(Stack&lt;String> stack, int start, int end){
-							        if(start == end){
-							            Node node = new Node();
-							            node.setValue(stack.get(start));
-							            return node;
-							        }
+		return left;
+	}
 
-							        Node left = null;
-							        Node root = null;
-							        Node right = null; //右节点不是最后一个就是非叶子节点
+	/**
+	 * 构建右子树
+	 * @param stack
+	 * @param start
+	 * @param end
+	 *     O9
+	 *  O10  O11
+	 *    O12  O13
+	 *      O14  O15
+	 * @return
+	 */
+	public static Node buildRigthTree(Stack&lt;String> stack, int start, int end){
+		if(start == end){
+			Node node = new Node();
+			node.setValue(stack.get(start));
+			return node;
+		}
 
-							        while(start < end){
+		Node left = null;
+		Node root = null;
+		Node right = null; //右节点不是最后一个就是非叶子节点
 
-							            if(right == null){
-							                right = new Node();
-							                right.setValue(stack.get(end));
-							            }
-							            root = new Node();
-							            root.setValue(stack.get(-- end));
-							            left = new Node();
-							            left.setValue(stack.get(-- end));
+		while(start < end){
 
-							            root.setLeft(left);
-							            left.setParent(root);
-							            root.setRight(right);
-							            right.setParent(root);
+			if(right == null){
+				right = new Node();
+				right.setValue(stack.get(end));
+			}
+			root = new Node();
+			root.setValue(stack.get(-- end));
+			left = new Node();
+			left.setValue(stack.get(-- end));
 
-							            right = root;
-							        }
-							        return right;
-							    }
+			root.setLeft(left);
+			left.setParent(root);
+			root.setRight(right);
+			right.setParent(root);
 
-							    /**
-							     * 中序遍历二叉树
-							     * @param node
-							     */
-							    public static void traversalBinaryTree(Node node){
-							        if(node.getLeft() != null){
-							            traversalBinaryTree(node.getLeft());
-							        }
+			right = root;
+		}
+		return right;
+	}
 
-							        System.out.print(node.getValue() + "-");
+	/**
+	 * 中序遍历二叉树
+	 * @param node
+	 */
+	public static void traversalBinaryTree(Node node){
+		if(node.getLeft() != null){
+			traversalBinaryTree(node.getLeft());
+		}
 
-							        if(node.getRight() != null){
-							            traversalBinaryTree(node.getRight());
-							        }
-							    }
-							}
-							//二叉树节点
-							class Node{
-							    private Node parent;
-							    private Node left;
-							    private Node right;
-							    private String value;
+		System.out.print(node.getValue() + "-");
 
-							    public Node getParent() {
-							        return parent;
-							    }
+		if(node.getRight() != null){
+			traversalBinaryTree(node.getRight());
+		}
+	}
+}
+//二叉树节点
+class Node{
+	private Node parent;
+	private Node left;
+	private Node right;
+	private String value;
 
-							    public void setParent(Node parent) {
-							        this.parent = parent;
-							    }
+	public Node getParent() {
+		return parent;
+	}
 
-							    public Node getLeft() {
-							        return left;
-							    }
+	public void setParent(Node parent) {
+		this.parent = parent;
+	}
 
-							    public void setLeft(Node left) {
-							        this.left = left;
-							    }
+	public Node getLeft() {
+		return left;
+	}
 
-							    public Node getRight() {
-							        return right;
-							    }
+	public void setLeft(Node left) {
+		this.left = left;
+	}
 
-							    public void setRight(Node right) {
-							        this.right = right;
-							    }
+	public Node getRight() {
+		return right;
+	}
 
-							    public String getValue() {
-							        return value;
-							    }
+	public void setRight(Node right) {
+		this.right = right;
+	}
 
-							    public void setValue(String value) {
-							        this.value = value;
-							    }
-							}
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+}
+							</code>
 						</pre>
 						<p>控制台:</p>
-						<pre class="brush: java">
-							/usr/local/java/jdk1.7.0_80/bin/java...
-							求r2：
-							node1-r1-node2-r2?-node3-r3-node4-r4-node5-r5-node6-r6-node7-
-							求node3：
-							node1-r1-node2-r2-node3?-r3-node4-r4-node5-r5-node6-r6-node7-
-							求node1：
-							node1?-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7-
-							求node7：
-							node1-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7?-
-							Process finished with exit code 0
+						<pre>
+							<code class="shell">
+/usr/local/java/jdk1.7.0_80/bin/java...
+求r2：
+node1-r1-node2-r2?-node3-r3-node4-r4-node5-r5-node6-r6-node7-
+求node3：
+node1-r1-node2-r2-node3?-r3-node4-r4-node5-r5-node6-r6-node7-
+求node1：
+node1?-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7-
+求node7：
+node1-r1-node2-r2-node3-r3-node4-r4-node5-r5-node6-r6-node7?-
+Process finished with exit code 0
+							</code>
 						</pre>
 					</section>	
 				</div>
@@ -362,6 +365,8 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+	<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>

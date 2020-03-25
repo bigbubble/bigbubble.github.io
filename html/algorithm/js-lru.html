@@ -7,7 +7,6 @@
 	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/common.css">
 	<title>JS LRU Cache</title>
 </head>
@@ -40,142 +39,144 @@
 				</div>
 				<div class="content">
 					<section>
-						<pre class="brush:javascript">
-							function _instanceof(left, right) {
-								if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
-									return right[Symbol.hasInstance](left);
-								} else {
-									return left instanceof right;
-								}
-							}
+						<pre>
+							<code class="javascript">
+function _instanceof(left, right) {
+	if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+		return right[Symbol.hasInstance](left);
+	} else {
+		return left instanceof right;
+	}
+}
 
-							function _classCallCheck(instance, Constructor) {
-								if (!_instanceof(instance, Constructor)) {
-									throw new TypeError("Cannot call a class as a function");
-								}
-							}
+function _classCallCheck(instance, Constructor) {
+	if (!_instanceof(instance, Constructor)) {
+		throw new TypeError("Cannot call a class as a function");
+	}
+}
 
-							function _defineProperties(target, props) {
-								for (var i = 0; i < props.length; i++) {
-									var descriptor = props[i];
-									descriptor.enumerable = descriptor.enumerable || false;
-									descriptor.configurable = true;
-									if ("value" in descriptor) descriptor.writable = true;
-									Object.defineProperty(target, descriptor.key, descriptor);
-								}
-							}
+function _defineProperties(target, props) {
+	for (var i = 0; i < props.length; i++) {
+		var descriptor = props[i];
+		descriptor.enumerable = descriptor.enumerable || false;
+		descriptor.configurable = true;
+		if ("value" in descriptor) descriptor.writable = true;
+		Object.defineProperty(target, descriptor.key, descriptor);
+	}
+}
 
-							function _createClass(Constructor, protoProps, staticProps) {
-								if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-								if (staticProps) _defineProperties(Constructor, staticProps);
-								return Constructor;
-							}
+function _createClass(Constructor, protoProps, staticProps) {
+	if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+	if (staticProps) _defineProperties(Constructor, staticProps);
+	return Constructor;
+}
 
-							var LruCache =
-								function () {
-									function LruCache(limit) {
-										_classCallCheck(this, LruCache);
+var LruCache =
+	function () {
+		function LruCache(limit) {
+			_classCallCheck(this, LruCache);
 
-										this.limit = limit || 10;
+			this.limit = limit || 10;
 
-										this.head = this.tail = undefined;
-										this.map = new Map();
-										this.size = 0;
-									}
+			this.head = this.tail = undefined;
+			this.map = new Map();
+			this.size = 0;
+		}
 
-									_createClass(LruCache, [{
-										key: "get",
-										value: function get(key, IfreturnNode) {
-											var node = this.map.get(key);
+		_createClass(LruCache, [{
+			key: "get",
+			value: function get(key, IfreturnNode) {
+				var node = this.map.get(key);
 
-											if (node === undefined) return;
-											// 如果是第一个节点直接返回
-											if (node === this.head) {
-												return IfreturnNode ? node : node.value;
-											}
+				if (node === undefined) return;
+				// 如果是第一个节点直接返回
+				if (node === this.head) {
+					return IfreturnNode ? node : node.value;
+				}
 
-											// 非尾节点
-											if (node.next) {
-												node.prev.next = node.next;
-												node.next.prev = node.prev;
-											} else {
-												// 尾节点
-												node.prev.next = undefined;
-												this.tail = node.prev;
-											}
+				// 非尾节点
+				if (node.next) {
+					node.prev.next = node.next;
+					node.next.prev = node.prev;
+				} else {
+					// 尾节点
+					node.prev.next = undefined;
+					this.tail = node.prev;
+				}
 
-											node.prev = undefined;
+				node.prev = undefined;
 
-											node.next = this.head;
+				node.next = this.head;
 
-											this.head.prev = node;
+				this.head.prev = node;
 
-											this.head = node;
+				this.head = node;
 
-											return IfreturnNode ? node : node.value;
-										}
-									}, {
-										key: "set",
-										value: function set(key, value) {
-											var node = this.get(key, true);
-											// map中没有值
-											if (!node) {
-												node = {key: key, value: value};
-												this.map.set(key, node);
-												// 已到最大容量
-												if (this.size === this.limit) {
-													//删除结尾,如果结尾有上一个元素，将结尾设成上一个元素
-													if (this.tail.prev) {
-														var lastOne = this.tail;
-														lastOne.prev.next = undefined;
-														this.tail = lastOne.prev;
+				return IfreturnNode ? node : node.value;
+			}
+		}, {
+			key: "set",
+			value: function set(key, value) {
+				var node = this.get(key, true);
+				// map中没有值
+				if (!node) {
+					node = {key: key, value: value};
+					this.map.set(key, node);
+					// 已到最大容量
+					if (this.size === this.limit) {
+						//删除结尾,如果结尾有上一个元素，将结尾设成上一个元素
+						if (this.tail.prev) {
+							var lastOne = this.tail;
+							lastOne.prev.next = undefined;
+							this.tail = lastOne.prev;
 
-														delete this.map.delete(lastOne.key);
+							delete this.map.delete(lastOne.key);
 
-														this.head.prev = node;
-														node.next = this.head;
-														this.head = node;
-													} else {
-														this.head = this.tail = node
-													}
-												} else {
-													if (this.head) {
-														//判断缓存里面是不是有节点
-														this.head.prev = node;
-														node.next = this.head;
-														this.head = node;
-													} else {
-														//缓存里没有值
-														this.head = this.tail = node;
-													}
-													this.size++;
-												}
-											} else {
-												node.value = value;
-											}
-										}
-									}, {
-										key: "getAll",
-										value: function () {
-											var node = this.head;
-											var r = "    head -> tail    ";
-											while (node) {
-												r += "[key:" + node.key + ",value:" + node.value + "]    ";
-												node = node.next;
-											}
-											r += "***** tail -> head    ";
-											node = this.tail;
-											while (node) {
-												r += "[key:" + node.key + ",value:" + node.value + "]    ";
-												node = node.prev;
-											}
-											r = "map_size:" + this.map.size + "->>>" + r;
-											console.log(r);
-										}
-									}]);
+							this.head.prev = node;
+							node.next = this.head;
+							this.head = node;
+						} else {
+							this.head = this.tail = node
+						}
+					} else {
+						if (this.head) {
+							//判断缓存里面是不是有节点
+							this.head.prev = node;
+							node.next = this.head;
+							this.head = node;
+						} else {
+							//缓存里没有值
+							this.head = this.tail = node;
+						}
+						this.size++;
+					}
+				} else {
+					node.value = value;
+				}
+			}
+		}, {
+			key: "getAll",
+			value: function () {
+				var node = this.head;
+				var r = "    head -> tail    ";
+				while (node) {
+					r += "[key:" + node.key + ",value:" + node.value + "]    ";
+					node = node.next;
+				}
+				r += "***** tail -> head    ";
+				node = this.tail;
+				while (node) {
+					r += "[key:" + node.key + ",value:" + node.value + "]    ";
+					node = node.prev;
+				}
+				r = "map_size:" + this.map.size + "->>>" + r;
+				console.log(r);
+			}
+		}]);
 
-									return LruCache;
-								}();
+		return LruCache;
+	}();
+							</code>
 						</pre>
 					</section>
 				</div>
@@ -190,7 +191,9 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+	<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 	<script>
         function _instanceof(left, right) {
             if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {

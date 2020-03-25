@@ -7,7 +7,6 @@
     <link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
     <link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <title>WHAT HAPPENED TODAY</title>
     <style>
@@ -85,12 +84,14 @@
                             <p>父线程与子线程共享变量：java.lang.InheritableThreadLocal</p>
                             <p>父线程与父线程在线程池中创建的子线程共享变量：TransmittableThreadLocal</p>
                             <section>
-                                <pre class="brush:java">
-                                    <dependency>
-                                        <groupId>com.alibaba</groupId>
-                                        <artifactId>transmittable-thread-local</artifactId>
-                                        <version>2.11.0</version>
-                                    </dependency>
+                                <pre>
+                                    <code class="java">
+&lt;dependency>
+    &lt;groupId>com.alibaba&lt;/groupId>
+    &lt;artifactId>transmittable-thread-local&lt;/artifactId>
+    &lt;version>2.11.0&lt;/version>
+&lt;/dependency>
+                                    </code>
                                 </pre>
                             </section>
                         </div>
@@ -118,18 +119,20 @@
                         <div>
                             媒体服务转码请求：
                             <section>
-                                <pre class="brush:java">
-                                    DefaultProfile profile = DefaultProfile.getProfile("cn-beijing", accesskey, secretKey);
-                                    // 如果时内网环境，设置代理服务器
-                                    if (needProxy) {
-                                        HttpClientConfig httpClientConfig = HttpClientConfig.getDefault();
-                                        httpClientConfig.setHttpProxy("http://pengbo:12345678@110.110.110.001:3128");
-                                        httpClientConfig.setHttpsProxy("https://pengbo:12345678@110.110.110.001:3128");
-                                        profile.setHttpClientConfig(httpClientConfig);
-                                    }
-                                    IAcsClient client = new DefaultAcsClient(profile);
-                                    SubmitJobsRequest request = new SubmitJobsRequest();
-                                    ...
+                                <pre>
+                                    <code class="java">
+DefaultProfile profile = DefaultProfile.getProfile("cn-beijing", accesskey, secretKey);
+// 如果时内网环境，设置代理服务器
+if (needProxy) {
+    HttpClientConfig httpClientConfig = HttpClientConfig.getDefault();
+    httpClientConfig.setHttpProxy("http://pengbo:12345678@110.110.110.001:3128");
+    httpClientConfig.setHttpsProxy("https://pengbo:12345678@110.110.110.001:3128");
+    profile.setHttpClientConfig(httpClientConfig);
+}
+IAcsClient client = new DefaultAcsClient(profile);
+SubmitJobsRequest request = new SubmitJobsRequest();
+...
+                                    </code>
                                 </pre>
                             </section>
                         </div>
@@ -173,60 +176,67 @@
                             导致后面使用时出现非预期现象，如使用Number类型JSEncrypt做RSA加密时，在后台得到的是空字符串
                             <br/>
                             <section>
-                                <pre class="brush:javascript">
-                                    function load(name, doNotParse) {
-                                      var cookies = (typeof document === 'undefined') ? _rawCookie : cookie.parse(document.cookie);
-                                      var cookieVal = cookies && cookies[name];
+                                <pre>
+                                    <code class="javascript">
+function load(name, doNotParse) {
+    var cookies = (typeof document === 'undefined') ? _rawCookie : cookie.parse(document.cookie);
+    var cookieVal = cookies && cookies[name];
 
-                                      if (!doNotParse) {
-                                        try {
-                                          cookieVal = JSON.parse(cookieVal);
-                                        } catch(e) {
-                                          // Not serialized object
-                                        }
-                                      }
-
-                                      return cookieVal;
-                                    }
+    if (!doNotParse) {
+        try {
+          cookieVal = JSON.parse(cookieVal);
+        } catch(e) {
+          // Not serialized object
+        }
+    }
+    return cookieVal;
+}
+                                    </code>
                                 </pre>
                             </section>
                             高版本 get(name, [options.doNotParse]) 已作了处理，猜测value是否是序列化后的值, 而不是全由doNotParse值确定
                             <sectioin>
-                                <pre class="brush:javascript">
-                                    export function readCookie(value: Cookie, options: CookieGetOptions = {}) {
-                                      const cleanValue = cleanupCookieValue(value);
-                                      if (isParsingCookie(cleanValue, options.doNotParse)) {
-                                        try {
-                                          return JSON.parse(cleanValue);
-                                        } catch (e) {
-                                          // At least we tried
-                                        }
-                                      }
+                                <pre>
+                                    <code class="javascript">
+export function readCookie(value: Cookie, options: CookieGetOptions = {}) {
+    const cleanValue = cleanupCookieValue(value);
+    if (isParsingCookie(cleanValue, options.doNotParse)) {
+    try {
+      return JSON.parse(cleanValue);
+    } catch (e) {
+      // At least we tried
+    }
+}
+                                    </code>
                                 </pre>
                             </sectioin>
                             <sectioin>
-                                <pre class="brush:javascript">
-                                    function cleanupCookieValue(value: Cookie): Cookie {
-                                      // express prepend j: before serializing a cookie
-                                      if (value && value[0] === 'j' && value[1] === ':') {
-                                        return value.substr(2);
-                                      }
+                                <pre>
+                                    <code class="javascript">
+function cleanupCookieValue(value: Cookie): Cookie {
+    // express prepend j: before serializing a cookie
+    if (value && value[0] === 'j' && value[1] === ':') {
+        return value.substr(2);
+    }
 
-                                      return value;
-                                    }
+    return value;
+}
+                                    </code>
                                 </pre>
                             </sectioin>
                             <sectioin>
-                                <pre class="brush:javascript">
-                                    export function isParsingCookie(value: Cookie, doNotParse?: boolean) {
-                                      if (typeof doNotParse === 'undefined') {
-                                        // We guess if the cookie start with { or [, it has been serialized
-                                        doNotParse =
-                                          !value || (value[0] !== '{' && value[0] !== '[' && value[0] !== '"');
-                                      }
+                                <pre>
+                                    <code class="javascript">
+export function isParsingCookie(value: Cookie, doNotParse?: boolean) {
+    if (typeof doNotParse === 'undefined') {
+    // We guess if the cookie start with { or [, it has been serialized
+    doNotParse =
+      !value || (value[0] !== '{' && value[0] !== '[' && value[0] !== '"');
+    }
 
-                                      return !doNotParse;
-                                    }
+    return !doNotParse;
+}
+                                    </code>
                                 </pre>
                             </sectioin>
                             <code>
@@ -313,11 +323,13 @@
                             注意透明的处理，否则会出现背景变黑的情况<br/>
                             需要在正常处理中加入：
                             <sectioin>
-                                <pre class="brush:java">
-                                    BufferedImage to = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
-                                    Graphics2D g2d = to.createGraphics();
-                                    to = g2d.getDeviceConfiguration().createCompatibleImage(newWidth, newHeight, Transparency.TRANSLUCENT);
-                                    g2d.dispose();
+                                <pre>
+                                    <code class="java">
+BufferedImage to = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+Graphics2D g2d = to.createGraphics();
+to = g2d.getDeviceConfiguration().createCompatibleImage(newWidth, newHeight, Transparency.TRANSLUCENT);
+g2d.dispose();
+                                    </code>
                                 </pre>
                             </sectioin>
                         </code>
@@ -365,25 +377,33 @@
                             <br/>
                             在react中
                             <section>
-                                <pre class="brush: javascript">
-                                    <iframe id="mainIframe" src={this.state.currentSrc} width="100%" className="iframe_body"
-                                            allow="geolocation; microphone; camera; midi; encrypted-media;"></Iframe>
+                                <pre>
+                                    <code class="javascript">
+&lt;iframe id="mainIframe" src={this.state.currentSrc} width="100%" className="iframe_body"
+        allow="geolocation; microphone; camera; midi; encrypted-media;"></Iframe>
+                                    </code>
+
                                 </pre>
                                 或者使用react组件react-iframe
-                                <pre class="brush: javascript">
-                                    import Iframe from 'react-iframe'
-                                    <Iframe id="mainIframe" src={this.state.currentSrc} width="100%" className="iframe_body"
-                                        allow="geolocation; microphone; camera; midi; encrypted-media;"></Iframe>
+                                <pre>
+                                    <code class="javascript">
+import Iframe from 'react-iframe'
+&lt;Iframe id="mainIframe" src={this.state.currentSrc} width="100%" className="iframe_body"
+    allow="geolocation; microphone; camera; midi; encrypted-media;"></Iframe>
+                                    </code>
+
                                 </pre>
                             </section>
                             但是在一些低版本react中，不支持allow属性，代码中加了打包之后allow属性会消失
                             需要其他方式设置
                             <section>
-                                <pre class="brush: javascript">
-                                    componentDidMount() {
-                                        let iframe = window.document.getElementById("mainIframe");
-                                        iframe.allow="microphone;camera;midi;encrypted-media;";
-                                    }
+                                <pre>
+                                    <code class="javascript">
+componentDidMount() {
+    let iframe = window.document.getElementById("mainIframe");
+    iframe.allow="microphone;camera;midi;encrypted-media;";
+}
+                                    </code>
                                 </pre>
                             </section>
                         </p>
@@ -420,33 +440,38 @@
                             所以注释掉了NettyClient里的doClose方法里的逻辑,而采用注册shutdownhook的方式进行资源的释放,但这个方案其实并不能释放Netty的资源，
                             正常关闭java进程时，因为有非daemon线程存在，所以shutdownhook并不会执行.
                             <section>
-                                <pre class="brush: java">
-                                    @Override
-                                    protected void doClose() throws Throwable {
-                                        /*try {
-                                            bootstrap.releaseExternalResources();
-                                        } catch (Throwable t) {
-                                            logger.warn(t.getMessage());
-                                        }*/
-                                    }
+                                <pre>
+                                    <code class="java">
+@Override
+protected void doClose() throws Throwable {
+    /*try {
+        bootstrap.releaseExternalResources();
+    } catch (Throwable t) {
+        logger.warn(t.getMessage());
+    }*/
+}
+                                    </code>
                                 </pre>
                             </section>
                             <section>
                                 <pre class="brush: java">
-                                    static {
-                                        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                                            public void run() {
-                                                if (logger.isInfoEnabled()) {
-                                                    logger.info("Run shutdown hook of netty client now.");
-                                                }
-                                                try {
-                                                    channelFactory.releaseExternalResources();
-                                                } catch (Throwable t) {
-                                                    logger.warn(t.getMessage());
-                                                }
-                                            }
-                                        }, "DubboShutdownHook-NettyClient"));
-                                    }
+                                    <code class="java">
+static {
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+        public void run() {
+            if (logger.isInfoEnabled()) {
+                logger.info("Run shutdown hook of netty client now.");
+            }
+            try {
+                channelFactory.releaseExternalResources();
+            } catch (Throwable t) {
+                logger.warn(t.getMessage());
+            }
+        }
+    }, "DubboShutdownHook-NettyClient"));
+}
+                                    </code>
+
                                 </pre>
                             </section>
                         </p>
@@ -455,21 +480,25 @@
                             1.tomcat启动时，代码<code>await()</code>方法根据<code>server.xml</code>中的配置，阻塞监听关闭端口，直到有关闭消息进来；
                             <section>
                                 org.apache.catalina.startup.Catalina.java
-                                <pre class="brush:java">
-                                    if (await) {
-                                        await();
-                                        stop();
-                                    }
+                                <pre>
+                                    <code class="java">
+if (await) {
+    await();
+    stop();
+}
+                                    </code>
                                 </pre>
                             </section>
                             2.shutdown.sh 调用<code>org.apache.catalina.startup.Bootstrap</code><code>main</code>方法，
                             反射调用<code>org.apache.catalina.startup.Catalina</code>的<code>stopServer</code>方法,
                             <code>stopServer</code>方法根据<code>server.xml</code>中的配置，
                             <section>
-                                <pre class="brush:xml">
-                                    <Server port="8005" shutdown="SHUTDOWN">
-                                        ...
-                                    </Server>
+                                <pre>
+                                    <code class="xml">
+&lt;Server port="8005" shutdown="SHUTDOWN">
+    ...
+&lt;/Server>
+                                    </code>
                                 </pre>
                             </section>
                             找到配置的端口<code>8005</code>，向这个端口发送配置的字符串<code>SHUTDOWN</code>"
@@ -479,17 +508,19 @@
                             <br/><br/>
                             4.tomcat自己创建的线程都是守护线程<code>pollerThread.setDaemon(true);</code>
                             <section>
-                                <pre class="brush:java">
-                                    // Start poller threads
-                                    pollers = new Poller[pollerThreadCount];
-                                    for (int i = 0; i < pollerThreadCount; i++) {
-                                        pollers[i] = new Poller(false);
-                                        pollers[i].init();
-                                        Thread pollerThread = new Thread(pollers[i], getName() + "-Poller-" + i);
-                                        pollerThread.setPriority(threadPriority);
-                                        pollerThread.setDaemon(true);
-                                        pollerThread.start();
-                                    }
+                                <pre>
+                                    <code class="java">
+// Start poller threads
+pollers = new Poller[pollerThreadCount];
+for (int i = 0; i < pollerThreadCount; i++) {
+    pollers[i] = new Poller(false);
+    pollers[i].init();
+    Thread pollerThread = new Thread(pollers[i], getName() + "-Poller-" + i);
+    pollerThread.setPriority(threadPriority);
+    pollerThread.setDaemon(true);
+    pollerThread.start();
+}
+                                    </code>
                                 </pre>
                             </section>
                         </p>
@@ -497,10 +528,12 @@
                         <br/>
                         <h5>关于<code>server.xml</code>中的AJP协议的端口监听</h5>
                         <section>
-                            <pre class="brush: xml">
-                                <Connector port="8009" protocol="AJP/1.3" redirectPort="8443">
-                                    ....
-                                </Connector>
+                            <pre>
+                                <code class="xml">
+&lt;Connector port="8009" protocol="AJP/1.3" redirectPort="8443">
+....
+&lt;/Connector>
+                                </code>
                             </pre>
                         </section>
                         <p>
@@ -530,29 +563,31 @@
                             <br/>
                             <code>slf4j-api.1.7.21.jar</code> 中的<code>LoggerFactory.java</code>
                             <section>
-                                <pre class="brush: java">
-                                    import org.slf4j.helpers.SubstituteLoggerFactory;
-                                    import org.slf4j.helpers.Util;
-                                    import org.slf4j.impl.StaticLoggerBinder; // 此行 import的是桥接包中的类，由JVM选择
-                                    ...
-                                    // 绑定方法
-                                    private final static void bind() {
-                                        try {
-                                            Set&gt;URL> staticLoggerBinderPathSet = null;
-                                            // skip check under android, see also
-                                            // http://jira.qos.ch/browse/SLF4J-328
-                                            if (!isAndroid()) {
-                                                staticLoggerBinderPathSet = findPossibleStaticLoggerBinderPathSet();
-                                                reportMultipleBindingAmbiguity(staticLoggerBinderPathSet);
-                                            }
-                                            // the next line does the binding
-                                            StaticLoggerBinder.getSingleton(); // 桥接包的类在此使用
-                                            INITIALIZATION_STATE = SUCCESSFUL_INITIALIZATION;
-                                            reportActualBinding(staticLoggerBinderPathSet);
-                                            fixSubstituteLoggers();
-                                            replayEvents();
-                                            // release all resources in SUBST_FACTORY
-                                            SUBST_FACTORY.clear();
+                                <pre>
+                                    <code class="java">
+import org.slf4j.helpers.SubstituteLoggerFactory;
+import org.slf4j.helpers.Util;
+import org.slf4j.impl.StaticLoggerBinder; // 此行 import的是桥接包中的类，由JVM选择
+...
+// 绑定方法
+private final static void bind() {
+    try {
+        Set&gt;URL> staticLoggerBinderPathSet = null;
+        // skip check under android, see also
+        // http://jira.qos.ch/browse/SLF4J-328
+        if (!isAndroid()) {
+            staticLoggerBinderPathSet = findPossibleStaticLoggerBinderPathSet();
+            reportMultipleBindingAmbiguity(staticLoggerBinderPathSet);
+        }
+        // the next line does the binding
+        StaticLoggerBinder.getSingleton(); // 桥接包的类在此使用
+        INITIALIZATION_STATE = SUCCESSFUL_INITIALIZATION;
+        reportActualBinding(staticLoggerBinderPathSet);
+        fixSubstituteLoggers();
+        replayEvents();
+        // release all resources in SUBST_FACTORY
+        SUBST_FACTORY.clear();
+                                    </code>
                                 </pre>
                             </section>
                             3.所以可能开发时，JVM选择了<code>log4j-slf4j-impl</code>， 服务器上选择了<code>slf4j-log4j12</code>，导致没有日志输出和报错
@@ -574,14 +609,18 @@
                             </p>
                             <p>2.linux:
                                 <section>
-                                <pre class="brush: shell">
-                                    =$LD_LIBRARY_PATH:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+                                <pre>
+                                    <code class="shell">
+=$LD_LIBRARY_PATH:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+                                    </code>
                                 </pre>
                                 </section>
                             <p>3.mac 10.14
                                 <section>
-                                <pre class="brush: shell">
-                                     =$JAVA_LIBRARY_PATH:~/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.
+                                <pre>
+                                    <code class="shell">
+=$JAVA_LIBRARY_PATH:~/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:.
+                                    </code>
                                 </pre>
                                 </section>
                                 <br>
@@ -683,6 +722,8 @@
 </div>
 <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>

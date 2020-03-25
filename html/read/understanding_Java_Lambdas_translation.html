@@ -7,7 +7,6 @@
 	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/common.css">
 	<title>理解JAVA Lambda表达式</title>
 	<style>
@@ -103,12 +102,15 @@
 					<div class="en">Methods are typed via interfaces. They do not implicitely implement certain interfaces, but, when necessary, the Java compiler implicitely checks during compile time if a method conforms to an interface. An example should illustrate this:</div>
 					<div class="cn">方法通过接口定义为一种类型。它们并不隐式地实现某些接口，但如有必要，JAVA 编译器会编译期隐式的检查方法是否符合一个接口，一个例子应该说明这一点：</div>
 					<section class="code-section">
-						<pre class="brush: java">
-							class LambdaMap {
-							    static void oneStringArgumentMethod(String arg) {
-							        System.out.println(arg);
-							    }
-							}
+						<pre>
+							<code class="java">
+class LambdaMap {
+	static void oneStringArgumentMethod(String arg) {
+		System.out.println(arg);
+	}
+}
+							</code>
+
 						</pre>
 					</section>
 					<div class="en">
@@ -128,17 +130,21 @@
 					<div class="en">Amongst the interfaces conforming to this criteria, the following one might be the most obvious:</div>
 					<div class="cn">在符合此标准的接口中，以下一个可能是最明显的：</div>
 					<section class="code-section">
-						<pre class="brush:java">
-							interface OneStringArgumentInterface {
-							    void apply(String arg);
-							}
+						<pre>
+							<code class="java">
+interface OneStringArgumentInterface {
+	void apply(String arg);
+}
+							</code>
 						</pre>
 					</section>
 					<div class="en">With the help of this interface the method can assigned to a variable:</div>
 					<div class="cn">借助此接口，该方法可以分配给一个变量：</div>
 					<section class="code-section">
-						<pre class="brush:java">
-							OneStringArgumentInterface meth = LambdaMap::oneStringArgumentMethod;
+						<pre>
+							<code class="java">
+OneStringArgumentInterface meth = LambdaMap::oneStringArgumentMethod;
+							</code>
 						</pre>
 					</section>
 					<div class="en">
@@ -146,14 +152,16 @@
 					</div>
 					<div class="cn">以这种方式使用接口作为类型，可以将方法分配给变量，作为参数传递并从方法返回：</div>
 					<section class="code-section">
-						<pre class="brush: java">
-							static OneStringArgumentInterface getWriter() {
-							    return LambdaMap::oneStringArgumentMethod;
-							}
-							
-							static void write(OneStringArgumentInterface writer, String msg) {
-							    writer.apply(msg);
-							}
+						<pre>
+							<code class="java">
+static OneStringArgumentInterface getWriter() {
+	return LambdaMap::oneStringArgumentMethod;
+}
+
+static void write(OneStringArgumentInterface writer, String msg) {
+	writer.apply(msg);
+}
+							</code>
 						</pre>
 					</section>
 					<div class="en">Finally methods are first-class citizens in Java!</div>
@@ -166,17 +174,21 @@
 					<div class="en">A generic version of the OneStringArgumentInterface is provided here:</div>
 					<div class="cn">这里提供了OneStringArgumentInterface的泛型版本：</div>
 					<section class="code-section">
-						<pre class="brush: java">
-							interface OneArgumentInterface&lt;T> {
-							    void apply(T arg);
-							}
+						<pre>
+							<code class="java">
+interface OneArgumentInterface&lt;T> {
+	void apply(T arg);
+}
+							</code>
 						</pre>
 					</section>
 					<div class="en">The method oneStringArgumentMethod can be assigned to it:</div>
 					<div class="cn">oneStringArgumentMethod方法可以赋值给它：</div>
 					<section class="code-section">
-						<pre class="brush: java">
-							OneArgumentInterface&lt;String> meth = LambdaMap::oneStringArgumentMethod;
+						<pre>
+							<code class="java">
+OneArgumentInterface&lt;String> meth = LambdaMap::oneStringArgumentMethod;
+							</code>
 						</pre>
 					</section>
 					<div class="en">
@@ -184,17 +196,21 @@
 					</div>
 					<div class="cn">使用泛型类型，现在可以以通用方式（不考虑类型的方式）实现算法，正如集合中使用的那样：</div>
 					<section class="code-section">
-						<pre class="brush: java">
-							static &lt;T> void applyArgument(OneArgumentInterface&lt;T> meth, T arg) {
-							    meth.apply(arg);
-							}
+						<pre>
+							<code class="java">
+static &lt;T> void applyArgument(OneArgumentInterface&lt;T> meth, T arg) {
+	meth.apply(arg);
+}
+							</code>
 						</pre>
 					</section>
 					<div class="en">The method above does not do anything useful, however it can at least give a first idea how support for methods as first-class citizens can lead to very concise and flexible code:</div>
 					<div class="cn">上面的方法没有任何用处，但它至少可以给出一个想法，即如何使方法作为“一等公民”使得代码非常简洁和灵活：</div>
 					<section class="code-section">
-						<pre class="brush:java">
-							applyArgument(Lambda::oneStringArgumentMethod, "X");
+						<pre>
+							<code class="java">
+applyArgument(Lambda::oneStringArgumentMethod, "X");
+							</code>
 						</pre>
 					</section>
 					<hr>
@@ -204,8 +220,10 @@
 					<div class="cn">在高阶函数中，map是经典的。映射的第一个参数 是一个函数，它接受一个参数并返回一个值; 第二个参数是一个值列表。map将传递的函数应用于传递的列表的每个项目，并返回包含结果值的新列表。以下Python片段非常好地说明了它的用法：</div>
 					<section class="code-section">
 						<pre>
+							<code class="shell">
 >>> map(math.sqrt, [1, 4, 9, 16])
 [1.0, 2.0, 3.0, 4.0]
+							</code>
 						</pre>
 					</section>
 					<div class="en">In the remaining part of this section a Java implementation of this function will be given. Java 8 already offers this functionality via streams. As it mainly serves educational purposes, the implementation given in this section is kept deliberately simple and will be restricted to work on List objects only.</div>
@@ -214,10 +232,12 @@
 					<div class="cn">在Java中，与Python相反，首先必须考虑要映射的第一个参数的类型：一个接受一个参数并有返回值的方法。参数类型和返回类型可以不同。下面的接口符合目的，显然，I表示参数的类型（输入），O表示返回值（输出）的类型：</div>
 					
 					<section class="code-section">
-						<pre class="brush: java">
-							interface MapFunction&lt;I, O> {
-							    O apply(I in);
-							}
+						<pre>
+							<code class="java">
+interface MapFunction&lt;I, O> {
+	O apply(I in);
+}
+							</code>
 						</pre>
 					</section>
 					
@@ -225,16 +245,18 @@
 					<div class="cn">通用map方法本身的实现变得非常简单明了：</div>
 					
 					<section class="code-section">
-						<pre class="brush: java">
-							static &lt;I, O> List&lt;O> map(MapFunction&lt;I, O> func, List&lt;I> input) {
-							    List&lt;O> out = new ArrayList&lt;>();
-							
-							    for (I in : input) {
-							        out.add(func.apply(in));
-							    }
-							
-							    return out;
-							}
+						<pre>
+							<code class="java">
+static &lt;I, O> List&lt;O> map(MapFunction&lt;I, O> func, List&lt;I> input) {
+	List&lt;O> out = new ArrayList&lt;>();
+
+	for (I in : input) {
+		out.add(func.apply(in));
+	}
+
+	return out;
+}
+							</code>
 						</pre>
 					</section>
 					
@@ -253,11 +275,13 @@
 					<div class="cn">这里是一个map方法的例子：</div>
 					
 					<section class="code-section">
-						<pre class="brush: java">
-							MapFunction&lt;Integer, Double> func = Math::sqrt;
+						<pre>
+							<code class="java">
+MapFunction&lt;Integer, Double> func = Math::sqrt;
+List&lt;Double> output = map(func, Arrays.asList(1., 4., 9., 16.));
+System.out.println(output);
+							</code>
 
-							List&lt;Double> output = map(func, Arrays.asList(1., 4., 9., 16.));
-							System.out.println(output);
 						</pre>
 					</section>
 					
@@ -265,8 +289,10 @@
 					<div class="cn">受到Python one-liner的启发，这当然可以用更简洁的方式表达：</div>
 					
 					<section class="code-section">
-						<pre class="brush: java">
-							System.out.println(map(Math::sqrt, Arrays.asList(1., 4., 9., 16.)));
+						<pre>
+							<code class="java">
+System.out.println(map(Math::sqrt, Arrays.asList(1., 4., 9., 16.)));
+							</code>
 						</pre>
 					</section>
 					
@@ -286,10 +312,12 @@
 					<div class="cn">这个公式的方法很容易实现：</div>
 					
 					<section class="code-section">
-						<pre class="brush: java">
-							static Double circleArea(Double radius) {
-							    return Math.pow(radius, 2) * Math.PI;
-							}
+						<pre>
+							<code class="java">
+static Double circleArea(Double radius) {
+	return Math.pow(radius, 2) * Math.PI;
+}
+							</code>
 						</pre>
 					</section>
 					
@@ -297,10 +325,12 @@
 					<div class="cn">现在可以将此方法用作map方法的第一个参数：</div>
 					
 					<section class="code-section">
-						<pre class="brush: java">
-							System.out.println(
-						        map(LambdaMap::circleArea,
-						            Arrays.asList(1., 4., 9., 16.)));
+						<pre>
+							<code class="java">
+System.out.println(
+	map(LambdaMap::circleArea,
+		Arrays.asList(1., 4., 9., 16.)));
+							</code>
 						</pre>
 					</section>
 					
@@ -308,14 +338,16 @@
 					<div class="cn">假设circleArea方法只需要一次，那么混淆类接口并将它的实现与实际使用的实现分开是没有意义的。Java最佳实践是在这种情况下使用匿名类。正如人们所看到的，通过实例化一个实现MapFunction接口的匿名类可以很好地解决这个 问题：</div>
 					
 					<section class="code-section">
-						<pre class="brush: java">
-							System.out.println(
-						        map(new MapFunction&lt;Double, Double>() {
-						                public Double apply(Double radius) {
-						                    return Math.sqrt(radius) * Math.PI;
-						                }
-						            },
-						            Arrays.asList(1., 2., 3., 4.)));
+						<pre>
+							<code class="java">
+System.out.println(
+map(new MapFunction&lt;Double, Double>() {
+		public Double apply(Double radius) {
+			return Math.sqrt(radius) * Math.PI;
+		}
+	},
+	Arrays.asList(1., 2., 3., 4.)));
+							</code>
 						</pre>
 					</section>
 					
@@ -323,12 +355,14 @@
 					<div class="cn">这看起来很漂亮，但是很多人会认为下面的方式，功能相当，但解决方案更清晰和更具可读性：</div>
 					
 					<section>
-						<pre class="brush: java">
-							List&lt;Double> out = new ArrayList&lt;>();
-							for (Double radius : Arrays.asList(1., 2., 3., 4.)) {
-							    out.add(Math.sqrt(radius) * Math.PI);
-							}
-							System.out.println(out);
+						<pre>
+							<code class="java">
+List&lt;Double> out = new ArrayList&lt;>();
+for (Double radius : Arrays.asList(1., 2., 3., 4.)) {
+	out.add(Math.sqrt(radius) * Math.PI);
+}
+System.out.println(out);
+							</code>
 						</pre>
 					</section>
 					
@@ -336,10 +370,12 @@
 					<div class="cn">到此，最后是使用Lambda表达式。读者应该注意如何使用Lambda取代上面提到的匿名类：</div>
 					
 					<section>
-						<pre class="brush: java">
-							System.out.println(
-						        map(radius -> { return Math.sqrt(radius) * Math.PI; },
-						            Arrays.asList(1., 2., 3., 4.)));
+						<pre>
+							<code class="java">
+System.out.println(
+	map(radius -> { return Math.sqrt(radius) * Math.PI; },
+	Arrays.asList(1., 2., 3., 4.)));
+							</code>
 						</pre>
 					</section>
 					
@@ -353,16 +389,18 @@
 					<div class="cn">Lambda表达式的用途与匿名类完全相同，但是它减少了许多通过编译器自动推断可以省略的样板代码。让我们再次比较这两种方法，然后分析一下编译器帮开发者做了什么。</div>
 					
 					<section>
-						<pre class="brush: java">
-							MapFunction&lt;Double, Double> functionLambda =
-							        radius -> Math.sqrt(radius) * Math.PI;
-							
-							MapFunction&lt;Double, Double> functionClass =
-							        new MapFunction&lt;Double, Double>() {
-							            public Double apply(Double radius) {
-							                return Math.sqrt(radius) * Math.PI;
-							            }
-							        };
+						<pre>
+							<code class="java">
+MapFunction&lt;Double, Double> functionLambda =
+		radius -> Math.sqrt(radius) * Math.PI;
+
+MapFunction&lt;Double, Double> functionClass =
+		new MapFunction&lt;Double, Double>() {
+			public Double apply(Double radius) {
+				return Math.sqrt(radius) * Math.PI;
+			}
+		};
+							</code>
 						</pre>
 					</section>
 					
@@ -415,6 +453,8 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+	<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>

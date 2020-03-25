@@ -7,7 +7,6 @@
 	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/common.css">
 	<title>二个数组分别分成小数组,使A中小数组大小与B中小数组大小的乘积小于一个值</title>
 </head>
@@ -44,86 +43,90 @@
 					<p></p>
 					<p></p>
 					<section class="code-section">
-						<pre class="brush:java">
-							/**
-						     * 获取分组
-						     * @param sizeA //A.size
-						     * @param sizeB //B.size
-						     * @param threshold //限制值
-						     * @return
-						     */
-						    public static long[] getBestGroupAndMatch(long sizeA, long sizeB, int threshold) {
-						        //乘积
-						        long productOf = sizeA * sizeA;
-						        //按threshold条件需要最少组合数
-						        long leastGroup = productOf % threshold == 0 ? productOf / threshold : productOf / threshold + 1;
+						<pre>
+							<code class="java">
+/**
+ * 获取分组
+ * @param sizeA //A.size
+ * @param sizeB //B.size
+ * @param threshold //限制值
+ * @return
+ */
+public static long[] getBestGroupAndMatch(long sizeA, long sizeB, int threshold) {
+	//乘积
+	long productOf = sizeA * sizeA;
+	//按threshold条件需要最少组合数
+	long leastGroup = productOf % threshold == 0 ? productOf / threshold : productOf / threshold + 1;
 
-						        long[] result = new long[]{0,0,-1,-1,Long.MAX_VALUE,leastGroup}; //返回结果
-						        //如果最少组合数无法找到合适的分组策略，将分组数增加直到找到合适的分组策略为止
-						        while(result[4] > threshold){
-						            result = groupAndMatch(sizeA,sizeB,leastGroup, threshold);
-						            leastGroup ++;
-						        }
-						        System.out.println("Am长度："+result[0] +"\nBn长度："+result[1] +"\nA分组数：" +result[2]+"\nB分组数："+result[3]+"\nAm*Bn长度:"+result[4]+"\n最少组合数:"+r[5]);
-						        return result;
-						    }
+	long[] result = new long[]{0,0,-1,-1,Long.MAX_VALUE,leastGroup}; //返回结果
+	//如果最少组合数无法找到合适的分组策略，将分组数增加直到找到合适的分组策略为止
+	while(result[4] > threshold){
+		result = groupAndMatch(sizeA,sizeB,leastGroup, threshold);
+		leastGroup ++;
+	}
+	System.out.println("Am长度："+result[0] +"\nBn长度："+result[1] +"\nA分组数：" +result[2]+"\nB分组数："+result[3]+"\nAm*Bn长度:"+result[4]+"\n最少组合数:"+r[5]);
+	return result;
+}
+							</code>
 						</pre>
 					</section>
 					<section class="code-section">
-						<pre class="brush: java">
-							/**
-							* 求leastGroup的约数对，判断A,B分组是否能按leastGroup的约数对分组,返回按某一约数对分组，A、B每组的个数，和对应约数对的值
-						     * @param sizeA A.size
-						     * @param sizeB B.size
-						     * @param leastGroup 按threshold条件需要最少组合数 
-						     * @return 0 A组内个数， 1 B组内个数， 2 A分组数， 3 B分组数， 4 A组内个数*B组内个数，5 leastGroup，
-						     */
-						    public static long[] groupAndMatch(long sizeA, long sizeB, long leastGroup, int threshold){
-						        //返回值
-						        long min = Long.MAX_VALUE;  //乘积值
-						        long m= 0; // a组内个数
-						        long n=0;  // b组内个数
-						        long x = -1,y=-1; //x - a分组数 y - b分组数
+						<pre>
+							<code class="java">
+/**
+* 求leastGroup的约数对，判断A,B分组是否能按leastGroup的约数对分组,返回按某一约数对分组，A、B每组的个数，和对应约数对的值
+ * @param sizeA A.size
+ * @param sizeB B.size
+ * @param leastGroup 按threshold条件需要最少组合数
+ * @return 0 A组内个数， 1 B组内个数， 2 A分组数， 3 B分组数， 4 A组内个数*B组内个数，5 leastGroup，
+ */
+public static long[] groupAndMatch(long sizeA, long sizeB, long leastGroup, int threshold){
+	//返回值
+	long min = Long.MAX_VALUE;  //乘积值
+	long m= 0; // a组内个数
+	long n=0;  // b组内个数
+	long x = -1,y=-1; //x - a分组数 y - b分组数
 
-						        double sqrtVal =Math.sqrt(d); //求leastGroup的约数对，约数不会大于leastGroup的开平方
-						        List&lt;long[]> divisorArrList = new ArrayList<>(); //约数对列表,A，B分组的可能情况就在这些约数对中
-						        for(int i = 1; i <= sqrtVal; i ++){
-						            if(leastGroup % i == 0){
-						                long divisorB = leastGroup / i; //i divisorB是约数对 i*divisorB=leastGroup
-						                if( (sizeA >= i && sizeB >= divisorB) || (sizeB >= i && sizeA >= divisorB)){
-						                    divisorArrList.add(new long[]{i, divisorB});
-						                }
-						            }
-						        }
-						        //是否调换了每个约数对中前后位置 eg:[1,5] - >[5,1] A-1,B-5 -> A-5,B-1
-						        boolean flag = false;
-						        for(long[] divisorArr : divisorArrList){
-						            long m1 = 0;long n1=0;
-						            if(a >= arr[0]  && b >= arr[1]){
-						                m1 = a % arr[0] == 0 ? a / arr[0] : a /arr[0] + 1; //如果不能整除，每组数量加1
-						                n1 = b % arr[1] == 0 ? b /arr[1] : b / arr[1] + 1;
-						            }else{
-						                m1 = a % arr[1] == 0 ? a / arr[1] : a /arr[1] + 1;
-						                n1 = b % arr[0] == 0 ? b /arr[0] : b / arr[0] + 1;
-						                flag = true;
-						            }
+	double sqrtVal =Math.sqrt(d); //求leastGroup的约数对，约数不会大于leastGroup的开平方
+	List&lt;long[]> divisorArrList = new ArrayList<>(); //约数对列表,A，B分组的可能情况就在这些约数对中
+	for(int i = 1; i <= sqrtVal; i ++){
+		if(leastGroup % i == 0){
+			long divisorB = leastGroup / i; //i divisorB是约数对 i*divisorB=leastGroup
+			if( (sizeA >= i && sizeB >= divisorB) || (sizeB >= i && sizeA >= divisorB)){
+				divisorArrList.add(new long[]{i, divisorB});
+			}
+		}
+	}
+	//是否调换了每个约数对中前后位置 eg:[1,5] - >[5,1] A-1,B-5 -> A-5,B-1
+	boolean flag = false;
+	for(long[] divisorArr : divisorArrList){
+		long m1 = 0;long n1=0;
+		if(a >= arr[0]  && b >= arr[1]){
+			m1 = a % arr[0] == 0 ? a / arr[0] : a /arr[0] + 1; //如果不能整除，每组数量加1
+			n1 = b % arr[1] == 0 ? b /arr[1] : b / arr[1] + 1;
+		}else{
+			m1 = a % arr[1] == 0 ? a / arr[1] : a /arr[1] + 1;
+			n1 = b % arr[0] == 0 ? b /arr[0] : b / arr[0] + 1;
+			flag = true;
+		}
 
-						            long p = m1*n1;
-						            //1.因为如果不能整除，每组数量加1,可能导致相乘后数量大于阈值，如果大于,不要这组约数对;
-						            //2.取所有约数对中，乘积最小的那组
-						            if(p < min && p <= threshold){
-						                min = p;
-						                m = m1;n = n1;
-						                if(flag){
-						                    x=arr[1];y=arr[0];
-						                }else{
-						                    x=arr[0];y=arr[1];
-						                }
-						            }
-						        }
+		long p = m1*n1;
+		//1.因为如果不能整除，每组数量加1,可能导致相乘后数量大于阈值，如果大于,不要这组约数对;
+		//2.取所有约数对中，乘积最小的那组
+		if(p < min && p <= threshold){
+			min = p;
+			m = m1;n = n1;
+			if(flag){
+				x=arr[1];y=arr[0];
+			}else{
+				x=arr[0];y=arr[1];
+			}
+		}
+	}
 
-						        return new long[]{m,n,x,y,min,d};
-						    }
+	return new long[]{m,n,x,y,min,d};
+}
+							</code>
 						</pre>
 					</section>
 				</div>
@@ -138,6 +141,8 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+	<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>
