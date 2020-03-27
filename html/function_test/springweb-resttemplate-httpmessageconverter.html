@@ -102,7 +102,7 @@ public void doWithRequest(ClientHttpRequest httpRequest) throws IOException {
                 <p>
                     首先检查ES服务方提供的客户端代码，发现在初始化RestTemplate时，在默认的HttpMessageConverter配置后面，增加了一个FastJSON的配置
                 </p>
-                <section>
+                <section class="code-section">
                     <pre>
                         <code class="java">
 @PostConstruct
@@ -124,7 +124,7 @@ public void initRestTemplate() {
                     不会使用<code>FastJsonHttpMessageConverter</code>，客户端代码中并没有处理默认的转换器， 所以客户端的<code>FastJsonHttpMessageConverter</code>的配置没有作用，
                     要使FastJSON生效，有两种做法，一是把<code>FastJsonHttpMessageConverter</code>排在最前面，二是去掉同类型的其他转换器，明显前者更方便处理：
                 </p>
-                <section>
+                <section class="code-section">
                     <pre>
                         <code class="java">
 @PostConstruct
@@ -142,7 +142,7 @@ public void initRestTemplate() {
                 <p>
                     那有什么变动导致转换器变成了<code>GsonHttpMessageConverter</code>,而原来的又是什么呢， 通过查看<code>this.restTemplate = new RestTemplate(factory);</code>，
                 </p>
-                <section>
+                <section class="code-section">
                     <pre>
                         <code class="java">
 public RestTemplate(ClientHttpRequestFactory requestFactory) {
@@ -182,7 +182,7 @@ public RestTemplate() {
                 <p>
                     <code>jackson2Present, gsonPresent</code>是两个静态变量，表示jackson2和GSON的包是否存在。
                 </p>
-                <section>
+                <section class="code-section">
                     <pre>
                         <code class="java">
 private static final boolean jackson2Present =

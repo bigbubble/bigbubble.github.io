@@ -7,7 +7,6 @@
 	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
-	<link rel="stylesheet" type="text/css" href="js/syntaxhighlighter/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/common.css">
 	<title>java 8泛型问题</title>
 </head>
@@ -42,58 +41,59 @@
 				</div>
 				<div class="content">
 					<section class="code-section">
-						<pre class="brush: java">
-							import java.util.ArrayList;
-							import java.util.HashMap;
-							import java.util.List;
-							import java.util.Map;
+						<pre>
+							<code class="java">
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-							/**
-							 * java 8 范型 test
-							 * Created by pengbo on 18-1-10.
-							 */
-							public class JavaGenerics {
+/**
+ * java 8 范型 test
+ * Created by pengbo on 18-1-10.
+ */
+public class JavaGenerics {
 
-							    /**
-							     * 方法有范型约束
-							     * @param params
-							     * @return
-							     */
-							    public static List&lt;String&gt; test(Map&lt;String, String&gt; params){
-									return null;
-							    }
+	/**
+	 * 方法有范型约束
+	 * @param params
+	 * @return
+	 */
+	public static List&lt;String&gt; test(Map&lt;String, String&gt; params){
+		return null;
+	}
 
-							    /**
-							     * 参数没有范型约束
-							     * @param params
-							     * @return
-							     */
-							    public static List&lt;String&gt; test(List params){
-									return null;
-							    }
+	/**
+	 * 参数没有范型约束
+	 * @param params
+	 * @return
+	 */
+	public static List&lt;String&gt; test(List params){
+		return null;
+	}
 
-							    public static void main(String[] args) {
-									//不带范型的参数
-									Map pamraMap = new HashMap();
-									//获取列表没有问题
-									List&lt;String&gt; strs = test(pamraMap);
-									//通过上步列表获取内容没问题
-									String item = strs.get(0);
-									//直接获取返回值列表中的元素，编译错误
-									item = test(pamraMap).get(0);
+	public static void main(String[] args) {
+		//不带范型的参数
+		Map pamraMap = new HashMap();
+		//获取列表没有问题
+		List&lt;String&gt; strs = test(pamraMap);
+		//通过上步列表获取内容没问题
+		String item = strs.get(0);
+		//直接获取返回值列表中的元素，编译错误
+		item = test(pamraMap).get(0);
 
-									//带范型的参数
-									Map&lt;String,String&gt; paramMap2 = new HashMap&lt;&gt;();
-									List&lt;String&gt; strs2 = test(paramMap2);
-									//可以直接通过返回的列表获取某项元素
-									String item2 = test(paramMap2).get(0);
+		//带范型的参数
+		Map&lt;String,String&gt; paramMap2 = new HashMap&lt;&gt;();
+		List&lt;String&gt; strs2 = test(paramMap2);
+		//可以直接通过返回的列表获取某项元素
+		String item2 = test(paramMap2).get(0);
 
-									//调用没有范型约束的方法，编译没有问题
-									List paramList = new ArrayList();
-									item = test(paramList).get(0);
-							    }
-							}
-
+		//调用没有范型约束的方法，编译没有问题
+		List paramList = new ArrayList();
+		item = test(paramList).get(0);
+	}
+}
+							</code>
 						</pre>
 					</section>
 					<div>38行会报编译错误:<span style="color:red">Error:(38, 34) java: 不兼容的类型: java.lang.Object无法转换为java.lang.String</span><br>为什么参数范型问题，会影响返回值的类型推断?</div>
@@ -109,6 +109,8 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/syntaxhighlighter/syntaxhighlighter.js"></script>
+	<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+	<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>

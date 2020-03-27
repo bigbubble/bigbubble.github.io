@@ -2,7 +2,8 @@
 ::-moz-selection{color:#fff;background:#48abb5;}
 ::-webkit-selection{color:#fff;background:#48abb5;}
 body{
-	font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "WenQuanYi Micro Hei", "Microsoft Yahei", sans-serif
+	font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "WenQuanYi Micro Hei", "Microsoft Yahei", sans-serif;
+	line-height: 2;
 }
 .bg-gray{
 	background-color: #DDDDDD;
