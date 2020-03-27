@@ -40,12 +40,171 @@
                 </em></p>
             </div>
             <div class="content">
+                <p>
+                    最近开发新的功能时，发现使用SpringWeb RestTemplate的<code>postForObject(...)方法</code>调用ES服务一直报错，带有时间属性的对象在服务端无法正常反序列化为对象，查看日志发现是
+                    由于时间属性的序列化由<code>1585191672039</code>变成了<code>Thu Mar 26 2020 11:01:36 GMT+0800</code>形式。
+                    通过跟踪<code>postForObject(...)</code>方法发现，在<code>HttpEntityRequestCallback.doWithRequest</code>中，
+                    代码逻辑是遍历RestTemplate中的HttpMessageConverter<strong>列表（ArrayList)</strong>，找到一个符合转换条件的就进行转换并返回，
+                    而本次使用的是<code>GsonHttpMessageConverter</code>，项目中所有的JSON相关的配置都是FastJSON，为什么变成了Gson呢；
+                </p>
                 <section class="code-section">
 						<pre>
 							<code class="java">
+public void doWithRequest(ClientHttpRequest httpRequest) throws IOException {
+    super.doWithRequest(httpRequest);
+    if (!this.requestEntity.hasBody()) {
+        ...
+    }
+    else {
+        Object requestBody = this.requestEntity.getBody();
+        Class&lt;?> requestBodyClass = requestBody.getClass();
+        Type requestBodyType = (this.requestEntity instanceof RequestEntity ?
+                ((RequestEntitys&lt;?>)this.requestEntity).getType() : requestBodyClass);
+        HttpHeaders requestHeaders = this.requestEntity.getHeaders();
+        MediaType requestContentType = requestHeaders.getContentType();
+        for (HttpMessageConverters&lt;?> messageConverter : getMessageConverters()) {
+            if (messageConverter instanceof GenericHttpMessageConverter) {
+                GenericHttpMessageConverters&lt;Object> genericMessageConverter = (GenericHttpMessageConverters&lt;Object>) messageConverter;
+                if (genericMessageConverter.canWrite(requestBodyType, requestBodyClass, requestContentType)) {
+                    if (!requestHeaders.isEmpty()) {
+                        httpRequest.getHeaders().putAll(requestHeaders);
+                    }
+                    if (logger.isDebugEnabled()) {
+                        if (requestContentType != null) {
+                            logger.debug("Writing [" + requestBody + "] as \"" + requestContentType +
+                                    "\" using [" + messageConverter + "]");
+                        }
+                        else {
+                            logger.debug("Writing [" + requestBody + "] using [" + messageConverter + "]");
+                        }
+
+                    }
+                    genericMessageConverter.write(
+                            requestBody, requestBodyType, requestContentType, httpRequest);
+                    return;
+                }
+            }
+            else if (messageConverter.canWrite(requestBodyClass, requestContentType)) {
+                ...
+            }
+        }
+        String message = "Could not write request: no suitable HttpMessageConverter found for request type [" +
+                requestBodyClass.getName() + "]";
+        if (requestContentType != null) {
+            message += " and content type [" + requestContentType + "]";
+        }
+        throw new RestClientException(message);
+    }
+}
 							</code>
 						</pre>
                 </section>
+                <p>
+                    首先检查ES服务方提供的客户端代码，发现在初始化RestTemplate时，在默认的HttpMessageConverter配置后面，增加了一个FastJSON的配置
+                </p>
+                <section>
+                    <pre>
+                        <code class="java">
+@PostConstruct
+public void initRestTemplate() {
+    ...
+    List&gt;HttpMessageConverter&gt;?>> converters = this.restTemplate.getMessageConverters();
+    converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+    FastJsonConfig fastJsonConfig = new FastJsonConfig();
+    fastJsonConfig.setSerializerFeatures(new SerializerFeature[]{SerializerFeature.WriteMapNullValue});
+    FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
+    fastConverter.setFastJsonConfig(fastJsonConfig);
+    converters.add(fastConverter);
+}
+                        </code>
+                    </pre>
+                </section>
+                <p>
+                    这里的问题是:<code>FastJsonHttpMessageConverter</code>加载到了列表的最后，如果<code>RestTemplate</code>默认的<code>converter</code>列表中有可以处理这个请求的其他<code>converter</code>, 那么将会使用默认里的<code>converter</code>,
+                    不会使用<code>FastJsonHttpMessageConverter</code>，客户端代码中并没有处理默认的转换器， 所以客户端的<code>FastJsonHttpMessageConverter</code>的配置没有作用，
+                    要使FastJSON生效，有两种做法，一是把<code>FastJsonHttpMessageConverter</code>排在最前面，二是去掉同类型的其他转换器，明显前者更方便处理：
+                </p>
+                <section>
+                    <pre>
+                        <code class="java">
+@PostConstruct
+public void initRestTemplate() {
+    ...
+    List&gt;HttpMessageConverter&gt;?>> converters = this.restTemplate.getMessageConverters();
+    ...
+    FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
+    fastConverter.setFastJsonConfig(fastJsonConfig);
+    converters.add(0, fastConverter);
+}
+                        </code>
+                    </pre>
+                </section>
+                <p>
+                    那有什么变动导致转换器变成了<code>GsonHttpMessageConverter</code>,而原来的又是什么呢， 通过查看<code>this.restTemplate = new RestTemplate(factory);</code>，
+                </p>
+                <section>
+                    <pre>
+                        <code class="java">
+public RestTemplate(ClientHttpRequestFactory requestFactory) {
+    this();
+    setRequestFactory(requestFactory);
+}
+...
+public RestTemplate() {
+    this.messageConverters.add(new ByteArrayHttpMessageConverter());
+    this.messageConverters.add(new StringHttpMessageConverter());
+    this.messageConverters.add(new ResourceHttpMessageConverter());
+    this.messageConverters.add(new SourceHttpMessageConverter<Source>());
+    this.messageConverters.add(new AllEncompassingFormHttpMessageConverter());
+
+    if (romePresent) {
+        this.messageConverters.add(new AtomFeedHttpMessageConverter());
+        this.messageConverters.add(new RssChannelHttpMessageConverter());
+    }
+
+    if (jackson2XmlPresent) {
+        this.messageConverters.add(new MappingJackson2XmlHttpMessageConverter());
+    }
+    else if (jaxb2Present) {
+        this.messageConverters.add(new Jaxb2RootElementHttpMessageConverter());
+    }
+
+    if (jackson2Present) {
+        this.messageConverters.add(new MappingJackson2HttpMessageConverter());
+    }
+    else if (gsonPresent) {
+        this.messageConverters.add(new GsonHttpMessageConverter());
+    }
+}
+                        </code>
+                    </pre>
+                </section>
+                <p>
+                    <code>jackson2Present, gsonPresent</code>是两个静态变量，表示jackson2和GSON的包是否存在。
+                </p>
+                <section>
+                    <pre>
+                        <code class="java">
+private static final boolean jackson2Present =
+			ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", RestTemplate.class.getClassLoader()) &&
+					ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", RestTemplate.class.getClassLoader());
+private static final boolean gsonPresent =
+			ClassUtils.isPresent("com.google.gson.Gson", RestTemplate.class.getClassLoader());
+                        </code>
+                    </pre>
+                </section>
+                <p>
+                    如果<code>jackson2Present == true</code>,就增加<code>MappingJackson2HttpMessageConverter</code>，不加载<code>GsonHttpMessageConverter</code>，
+                    如果<code>gsonPresent == true</code>, 增加<code>GsonHttpMessageConverter</code>， 所以这两个是互斥的。
+                    由此可知原来系统使用的是<code>MappingJackson2HttpMessageConverter</code>, 那么现在使用的是<code>GsonHttpMessageConverter</code>, 说明系统中无法加载jackson2的jar包，
+                    查看提交记录，发现几天前删除过pom.xml中的依赖，删除的包名没有jackson2, 但可能删除包的依赖中有jackson2，通过手动添加jackson2相关依赖，重试，请求和原来一致。
+                </p>
+
+                <p>
+                    其实<code>MappingJackson2HttpMessageConverter, GsonHttpMessageConverter, FastJsonHttpMessageConverter</code>都可以处理同类型的消息转换，但Spring只默认处理了前两者的优先级，
+                    如果<code>FastJsonHttpMessageConverter</code>要加进来，就需要处理它在列表中的位置，因为先遍历到谁就先用谁，且你无法保证客户端系统中一定没有jackson2，
+                    gson相关的包，这两个包多数时候不是显示的通过<code>dependency</code>标签依赖进来的，而是其他包依赖进来的，而且是必须的。ES客户端需要兼容各式各样的客户端环境
+                </p>
                 <div></div>
             </div>
         </div>
