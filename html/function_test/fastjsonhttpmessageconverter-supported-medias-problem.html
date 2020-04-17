@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <base href="../../">
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+    <link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <title>SpringWeb FastJsonHttpMessageConverter supportedMediaTypes 配置问题</title>
+</head>
+<body>
+<!-- navitor -->
+<div class="">
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+        </div>
+    </nav>
+</div>
+<div class="container-fluid">
+    <div id="catalog" class="col-lg-2"></div>
+    <div class="col-lg-8">
+        <div class="container-fluid">
+            <ol class="breadcrumb">
+                <li><a href="mainpage.html">Home</a></li>
+                <li><a href="#">JAVA</a></li>
+                <li class="active"></li>
+            </ol>
+        </div>
+        <div class="container">
+            <div class="page-header">
+                <h3>SpringWeb FastJsonHttpMessageConverter supportedMediaTypes 配置问题</h3>
+                <small>2019-03-25</small>
+            </div>
+            <div class="bg-gray">
+                <p><em>
+                    正确的配置HttpMessageConverter
+                </em></p>
+            </div>
+            <div class="content">
+                <p>
+                    由于以前系统使用默认的<code>MappingJackson2HttpMessageConverter</code>对<code>@ResponseBody</code>注解进行转换，当前端ajax请求不明确
+                    写出<code>dataType</code>时（请求的<code>Accept</code>值为<code>*/*</code>），由于<code>MappingJackson2HttpMessageConverter</code>默认只有一种<code>supportedMediaTypes</code>,就是<code>application/json</code>,
+                    ajax请求没有问题。前端代码中存在大量这种请求。
+                </p>
+                <section>
+                    <pre>
+                        <code class="javascript">
+$.ajax({
+    url: url,
+    method: 'POST',
+//  dataType: 'json',
+    success: function (res) {
+        console.log(res.success);
+    }
+})
+                        </code>
+                    </pre>
+                </section>
+                <p>之后，我们配置了多视图协商解析器，使用<code>FastJsonHttpMessageConverter</code>对请求返回值进行转换</p>
+                <p>配置为：</p>
+                <section>
+                    <pre>
+                        <code class="xml">
+&lt;property name="supportedMediaTypes">
+    &lt;list>
+        &lt;value>text/plain;charset=UTF-8&lt;/value>
+        &lt;value>text/html;charset=UTF-8&lt;/value>
+        &lt;value>application/json;charset=UTF-8&lt;/value>
+    &lt;/list>
+&lt;/property>
+                        </code>
+                    </pre>
+                </section>
+
+                <p>之后，前端大量ajax请求报错，<code>success</code>函数中返回参数不再是JSON对象，而是JSON字符串。</p>
+
+                <p>通过跟踪代码<code>org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodProcessor#writeWithMessageConverters()</code>方法，
+                此处理器会通过请求头，得到系统中Converters支持的返回类型，因为请求头是<code>*/*</code>，通过配置多视图协商解析器<code>FastJSONMessageConverter</code>会位于所有转换器列表的第一个位置，
+                    所以系统中支持返回值类型有在<code>FastJSONMessageConverter supportedMediaTypes</code>
+                中配置的所有值，然后选择一个<code>mediaType</code>作为最终的返回类型，以下是关键代码：</p>
+                <section>
+                    <pre>
+                        <code class="java">
+MediaType selectedMediaType = null;
+for (MediaType mediaType : mediaTypes) {
+    if (mediaType.isConcrete()) {
+        selectedMediaType = mediaType;
+        break;
+    }
+    else if (mediaType.equals(MediaType.ALL) || mediaType.equals(MEDIA_TYPE_APPLICATION)) {
+        selectedMediaType = MediaType.APPLICATION_OCTET_STREAM;
+        break;
+    }
+}
+                        </code>
+                    </pre>
+                </section>
+                <p><code>mediaTypes</code>是一个<code>ArrayList</code>, 只要找到一个，适配的返回类型，就<code>break;</code>了</p>
+                <p>由于我们在<code>FastJSONMessageConverter</code>中把<code>application/json;charset=UTF-8</code>放到了最后，系统选择了位于列表第一个的
+                <code>text/plain;charset=UTF-8</code>,导致浏览器收到的响应是<code>text/plain</code></p>
+
+                <p>解决办法是：1.在ajax请求时，明确写明需要什么类型的数据，增加dataType;2.把<code>application/json;charset=UTF-8</code>放在
+                <code>supportedMediaTypes</code>的第一位</p>
+                <div></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="footer text-center">
+        <hr style="height:1px;border:none;border-top:1px solid #555555;" />
+        <em>The world is so interesting</em>
+    </div>
+</div>
+<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="js/highlight-9.18.0/styles/solarized-dark.css">
+<script src="js/highlight-9.18.0/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
