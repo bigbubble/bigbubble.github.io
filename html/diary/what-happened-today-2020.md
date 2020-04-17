@@ -1,6 +1,11 @@
 
 # 2020
 
+
+##### 0417
+
+遇到点问题: [SpringWeb FastJsonHttpMessageConverter supportedMediaTypes 配置问题](/html/function_test/fastjsonhttpmessageconverter-supported-medias-problem.html)
+
 ##### 0327
 
 好文我读：[微服务失败的 11 个原因](https://www.infoq.cn/article/ayMg1xljifQerOTNADfY)
