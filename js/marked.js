@@ -106,7 +106,7 @@
 
   var unescapeTest = /&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig;
 
-  function unescape(html) {
+  function unescape$1(html) {
     // explicitly match decimal, hex, and named HTML entities
     return html.replace(unescapeTest, function (_, n) {
       n = n.toLowerCase();
@@ -147,7 +147,7 @@
       var prot;
 
       try {
-        prot = decodeURIComponent(unescape(href)).replace(nonWordAndColonTest, '').toLowerCase();
+        prot = decodeURIComponent(unescape$1(href)).replace(nonWordAndColonTest, '').toLowerCase();
       } catch (e) {
         return null;
       }
@@ -330,7 +330,7 @@
 
   var helpers = {
     escape: escape,
-    unescape: unescape,
+    unescape: unescape$1,
     edit: edit,
     cleanUrl: cleanUrl,
     resolveUrl: resolveUrl,
@@ -892,7 +892,11 @@
   /*#__PURE__*/
   function () {
     function Renderer(options) {
-      this.options = options || defaults$2;
+      this.options = options || defaults$2; // extract "width=127px" from href attribute
+
+      this.imageWidthHrefReg = new RegExp("(^|&)width=([^&]*)(&|$)"); // extract "height=128px" from href attribute
+
+      this.imageHeightHrefReg = new RegExp("(^|&)height=([^&]*)(&|$)");
     }
 
     var _proto = Renderer.prototype;
@@ -1021,6 +1025,34 @@
 
       if (title) {
         out += ' title="' + title + '"';
+      } // deal with iamge width and height attributes
+
+
+      var questionMarkIndex = href.indexOf("?");
+
+      if (questionMarkIndex > 0) {
+        var width = null,
+            height = null;
+        var paramsString = href.substr(questionMarkIndex + 1);
+        var widthR = paramsString.match(this.imageWidthHrefReg);
+
+        if (widthR != null) {
+          width = unescape(widthR[2]);
+        }
+
+        var heightR = paramsString.match(this.imageHeightHrefReg);
+
+        if (heightR != null) {
+          height = unescape(heightR[2]);
+        }
+
+        if (width) {
+          out += ' width="' + width + '"';
+        }
+
+        if (height) {
+          out += ' height="' + height + '"';
+        }
       }
 
       out += this.options.xhtml ? '/>' : '>';
@@ -1424,7 +1456,7 @@
 
   var defaults$4 = defaults.defaults;
   var merge$2 = helpers.merge,
-      unescape$1 = helpers.unescape;
+      unescape$2 = helpers.unescape;
   /**
    * Parsing & Compiling
    */
@@ -1519,7 +1551,7 @@
 
         case 'heading':
           {
-            return this.renderer.heading(this.inline.output(this.token.text), this.token.depth, unescape$1(this.inlineText.output(this.token.text)), this.slugger);
+            return this.renderer.heading(this.inline.output(this.token.text), this.token.depth, unescape$2(this.inlineText.output(this.token.text)), this.slugger);
           }
 
         case 'code':
