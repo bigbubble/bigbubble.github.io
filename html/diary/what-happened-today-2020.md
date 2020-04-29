@@ -3,6 +3,10 @@
 
 ##### 0429
 
+看到一张图不错，很好的阐明了ThreadLocal的工作原理，来自[ThreadLocal 是什么鬼？用法、源码一锅端](https://mp.weixin.qq.com/s/sy_OYD_QeCvSfPfuG3NU6w)  
+
+![avatar](/img/diary/threadLocal.png)
+
 JAVA 线程池  
 
 [1.Java线程池实现原理及其在美团业务中的实践](https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html)  
