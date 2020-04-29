@@ -3,6 +3,8 @@
 
 ##### 0429
 
+修改<code>marked.js</code>，增加[自定义图片大小](https://github.com/bigbubble/marked/commit/ee78bfcadf35af3d3d64ba4b0922bc66e123d229)功能
+
 看到一张图不错，很好的阐明了ThreadLocal的工作原理，来自[ThreadLocal 是什么鬼？用法、源码一锅端](https://mp.weixin.qq.com/s/sy_OYD_QeCvSfPfuG3NU6w)  
 
 ![threadLocal](/img/diary/threadLocal.png?width=600px)
