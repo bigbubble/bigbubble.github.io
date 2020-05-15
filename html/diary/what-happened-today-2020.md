@@ -1,6 +1,10 @@
 
 # 2020
 
+##### 0515
+
+常态偏差指的是，人们倾向于相信事物将会以正常的方式运行，不太可能出现不正常的情况，从而低估了灾难的可能性和影响程度。
+
 ##### 0429
 
 修改<code>marked.js</code>，增加[自定义图片大小](https://github.com/bigbubble/marked/commit/ee78bfcadf35af3d3d64ba4b0922bc66e123d229)功能
