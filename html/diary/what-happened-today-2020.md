@@ -1,6 +1,18 @@
 
 # 2020
 
+##### 0521
+
+一行tail -f 脚本引发的事故，以后别把tail -f 写到启动脚本里。。。
+```shell script
+cd ~/software/tomcat-server
+echo '启动tomcat...'
+set -m
+./bin/startup.sh
+tail -f ./logs/catalina.out
+```
+[Tomcat进程意外退出的问题分析](http://ifeve.com/why-kill-2-cannot-stop-tomcat/)
+
 ##### 0515
 
 常态偏差指的是，人们倾向于相信事物将会以正常的方式运行，不太可能出现不正常的情况，从而低估了灾难的可能性和影响程度。
