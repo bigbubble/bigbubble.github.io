@@ -1,6 +1,25 @@
 
 # 2020
 
+##### 0613
+代码安全 - Timing Attack
+[这 10 行比较字符串相等的代码给我整懵了，不信你也来看看](https://mp.weixin.qq.com/s/CVNi8pSQW3M-BKztNwgyuQ?a)
+
+```java
+boolean safeEqual(String a, String b) {
+   if (a.length() != b.length()) {
+       return false;
+   }
+   int equal = 0;
+   for (int i = 0; i < a.length(); i++) {
+       equal |= a.charAt(i) ^ b.charAt(i);
+   }
+   return equal == 0;
+}
+```
+
+"这种手段可以让调用 safeEquals("abcdefghijklmn", "xbcdefghijklmn") （只有首位不相同）和调用 safeEquals("abcdefghijklmn", "abcdefghijklmn") （两个完全相同的字符串）的所耗费的时间一样。防止通过大量的改变输入并通过统计运行时间来暴力破解出要比较的字符串。"
+
 ##### 0521
 
 一行tail -f 脚本引发的事故，以后别把tail -f 写到启动脚本里。。。
