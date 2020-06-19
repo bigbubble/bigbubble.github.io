@@ -12,6 +12,23 @@
 <body style="background-image:url(img/1.jpg);height: 150px;">
 	<div class="main-center">
 		<div class="container-fluid">
+			<div style="text-align: center">
+				<div style="display: inline-block;
+    margin-top: 20%;
+    width: 100px;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    background: #f0ad4e;
+    line-height: 50px;
+    cursor: pointer;
+    color: #FFFFFF;" onclick="getAnswer()">
+					ROLL
+				</div>
+				<div id="myAnswer" style="margin-top: 20px; font-size: 30px;color: #00a000">
+
+				</div>
+			</div>
 		</div>
 		<div class="container" style="position: absolute;bottom: 30px;width: 100%">
 			<div class="text-center">
@@ -23,8 +40,15 @@
 	</div>
 	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/the-book-of-answer.js"></script>
 	<script type="text/javascript">
-
+		const colors = ["#d9534f", "#a94442", "#2e6da4", "#337ab7", "#286090", "#5bc0de", "#3c763d", "#5cb85c", "#8a6d3b", "#f0ad4e"];
+		function getAnswer() {
+			let answer = getMyAnswer();
+			let dom = document.getElementById("myAnswer");
+			dom.innerText = answer;
+			dom.style.color = colors[Math.floor(Math.random() * colors.length)];
+		}
 	</script>
 </body>
 </html>
