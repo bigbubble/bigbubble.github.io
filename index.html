@@ -8,8 +8,14 @@
 	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" type="text/css" href="css/index.css">
 	<title>B_Pt</title>
+	<style>
+		body{
+			background:url(img/YHdztOlV9bc.jpg) no-repeat;
+			background-size:100% 100%;
+		}
+	</style>
 </head>
-<body style="background-image:url(img/1.jpg);height: 150px;">
+<body>
 	<div class="main-center">
 		<div class="container-fluid">
 			<div style="text-align: center">
@@ -22,11 +28,14 @@
     background: #f0ad4e;
     line-height: 50px;
     cursor: pointer;
+    border-radius: 10px;
     color: #FFFFFF;" onclick="getAnswer()">
 					ROLL
 				</div>
-				<div id="myAnswer" style="margin-top: 20px; font-size: 30px;color: #00a000">
 
+			</div>
+			<div style="text-align: center">
+				<div id="myAnswer" style="display:inline-block;background-color:#fff;margin-top: 20px; padding: 5px;border-radius: 5px; font-size: 30px;color: #00a000">
 				</div>
 			</div>
 		</div>
@@ -42,6 +51,7 @@
 	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/the-book-of-answer.js"></script>
 	<script type="text/javascript">
+		$("body").height($(window).height());
 		const colors = ["#d9534f", "#a94442", "#2e6da4", "#337ab7", "#286090", "#5bc0de", "#3c763d", "#5cb85c", "#8a6d3b", "#f0ad4e"];
 		function getAnswer() {
 			let answer = getMyAnswer();
