@@ -19,7 +19,7 @@
 ```shell script
 # vim /etc/timezone
 ```
-改为你需要的时区  
+改为你需要的时区,(需要重启java应用)  
 另一种方法就是：java启动项中增加 -Duser.timezone=Asia/Shanghai  
 
 2.如果要在后台生成打印相关的资源，注意字体文件，复制到$JAVA_HOME/jre/lib/fonts/  
