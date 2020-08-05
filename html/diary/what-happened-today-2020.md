@@ -1,5 +1,30 @@
 
 # 2020
+##### 0805
+扎心图片，仿佛看到了我们的影子。。  
+![microservice](/img/diary/2020080501.png)
+
+
+![microservice](/img/diary/2020080502.png?width=500px)
+
+##### 0803
+部署内网测试环境：  
+1.时区问题
+网上搜到的都是
+```shell script
+# cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+```
+这种用date命令查看时间是正常的，但是在java项目中，取到的时区，时间还是原来的，如果要使java程序取到正确的时区，还需要配置
+```shell script
+# vim /etc/timezone
+```
+改为你需要的时区  
+另一种方法就是：java启动项中增加 -Duser.timezone=Asia/Shanghai  
+
+2.如果要在后台生成打印相关的资源，注意字体文件，复制到$JAVA_HOME/jre/lib/fonts/  
+3.https问题：免费的证书有些系统不认。。尴尬；nginx 与 tomcat之间不要图省事走http，最好也走https，否则有些代码getSchema之类的取到的还是http  
+4.运维我们需要"专业团队"
+
 ##### 0723
 Apache Curator idea开发测试，将断点放在了获取锁（InterProcessSemaphoreMutex）后下面的代码的位置，在另一台机器上尝试获取锁，竟然成功了，
 通过zkCli发现打断点的机器创建的临时节点，几秒种后莫名消失了，说明客户端连接断了。  
