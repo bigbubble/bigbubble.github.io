@@ -1,5 +1,9 @@
 
 # 2020
+
+##### 0821
+chrome80后默认禁用第三方cookie，本地无法跨域调试，chrome://flags/， 搜索cookie，禁用SameSite by default cookies 和 Cookies without SameSite must be secure
+
 ##### 0819
 MapStruct (Bean属性拷贝工具，在编译时生成bean映射，性能不赖)
 [microservice](https://github.com/mapstruct/mapstruct)
