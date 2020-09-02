@@ -10,7 +10,12 @@ tomcat部署项目的四种方式
 
 3.在$TOMCAT_HOME/conf/Catalina/localhost下添加新的配置文件，文件名就是paht路径, 文件内只有个Context标签内容就可以  
 
-4.Idea或Eclipse等开发工具的方式，只使用$TOMCAT_HOME/bin下的启动文件catalina.sh，运行自己的配置文件（非$TOMCAT_HOEM/conf），在自定义的配置文件夹内指定应用位置，
+4.Idea或Eclipse等开发工具的方式  
+明白两个变量的含义：  
+catalina.home(安装目录)：指向公用信息的位置，就是bin和lib的父目录  
+catalina.base(工作目录)：指向每个Tomcat目录私有信息的位置，就是conf、logs、temp、webapps和work的父目录  
+
+使用$catalina.home的bin和lib，通过配置$catalina.base变量，运行自己的配置文件（非$TOMCAT_HOEM/conf），在自定义的配置文件夹内指定应用位置，
 与原$TOMCAT_HOME的里conf完全隔离。idea在mac环境下的配置位置为
 ```shell script
 /Users/pengbo/Library/Caches/JetBrains/IntelliJIdea2020.1/tomcat
