@@ -18,6 +18,7 @@ tomcat部署项目的四种方式
 ```shell script
 /Users/pengbo/Library/Caches/JetBrains/IntelliJIdea2020.1/tomcat/Unnamed_MemoryLeak_2/conf/Catalina/localhost/ROOT.xml
 ```
+ROOT.xml内容为：
 ```xml script
 <Context path="" docBase="/Users/pengbo/projects/demo/target/MemoryLeak.war" />
 ```
