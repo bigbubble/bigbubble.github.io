@@ -2,7 +2,8 @@
 # 2020
 
 ##### 0902
-tomcat部署项目的四种方式
+tomcat部署项目的四种方式  
+
 1.直接丢在$TOMCAT_HOME/webapps/  
 
 2.在$TOMCAT_HOME/conf/server.xml 中修改Context标签 docBase和Path, 指定到自定义位置  
