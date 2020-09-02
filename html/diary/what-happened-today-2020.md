@@ -3,9 +3,12 @@
 
 ##### 0902
 tomcat部署项目的四种方式
-1.直接丢在$TOMCAT_HOME/webapps/
-2.在$TOMCAT_HOME/conf/server.xml 中修改Context标签 docBase和Path, 指定到自定义位置
-3.在$TOMCAT_HOME/conf/Catalina/localhost下添加新的配置文件，文件名就是paht路径, 文件内只有个Context标签内容就可以
+1.直接丢在$TOMCAT_HOME/webapps/  
+
+2.在$TOMCAT_HOME/conf/server.xml 中修改Context标签 docBase和Path, 指定到自定义位置  
+
+3.在$TOMCAT_HOME/conf/Catalina/localhost下添加新的配置文件，文件名就是paht路径, 文件内只有个Context标签内容就可以  
+
 4.Idea或Eclipse等开发工具的方式，只使用$TOMCAT_HOME/bin下的启动文件catalina.sh，运行自己的配置文件（非$TOMCAT_HOEM/conf），在自定义的配置文件夹内指定应用位置，
 与原$TOMCAT_HOME的里conf完全隔离。idea在mac环境下的配置位置为
 ```shell script
