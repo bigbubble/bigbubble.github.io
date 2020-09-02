@@ -1,6 +1,24 @@
 
 # 2020
 
+##### 0902
+tomcat部署项目的四种方式
+1.直接丢在$TOMCAT_HOME/webapps/
+2.在$TOMCAT_HOME/conf/server.xml 中修改Context标签 docBase和Path, 指定到自定义位置
+3.在$TOMCAT_HOME/conf/Catalina/localhost下添加新的配置文件，文件名就是paht路径, 文件内只有个Context标签内容就可以
+4.Idea或Eclipse等开发工具的方式，只使用$TOMCAT_HOME/bin下的启动文件catalina.sh，运行自己的配置文件（非$TOMCAT_HOEM/conf），在自定义的配置文件夹内指定应用位置，
+与原$TOMCAT_HOME的里conf完全隔离。idea在mac环境下的配置位置为
+```shell script
+/Users/pengbo/Library/Caches/JetBrains/IntelliJIdea2020.1/tomcat
+```
+会有Unnamed_开头的项目文件夹（Unnamed_MemoryLeak_2），通过第三种方式部署应用运行.
+```shell script
+/Users/pengbo/Library/Caches/JetBrains/IntelliJIdea2020.1/tomcat/Unnamed_MemoryLeak_2/conf/Catalina/localhost/ROOT.xml
+```
+```xml script
+<Context path="" docBase="/Users/pengbo/projects/demo/target/MemoryLeak.war" />
+```
+
 ##### 0821
 chrome80后默认禁用第三方cookie，本地无法跨域调试，chrome://flags/， 搜索cookie，禁用SameSite by default cookies 和 Cookies without SameSite must be secure
 
@@ -37,7 +55,7 @@ MapStruct (Bean属性拷贝工具，在编译时生成bean映射，性能不赖)
 ##### 0723
 Apache Curator idea开发测试，将断点放在了获取锁（InterProcessSemaphoreMutex）后下面的代码的位置，在另一台机器上尝试获取锁，竟然成功了，
 通过zkCli发现打断点的机器创建的临时节点，几秒种后莫名消失了，说明客户端连接断了。  
-应该是ide在断点时，也阻塞了客户端和Zookeeper服务器的心跳，导致服务端任务客户端断了。
+应该是ide在断点时，也阻塞了客户端和Zookeeper服务器的心跳，导致服务端认为客户端断了。
 
 ##### 0721
 口无遮拦的一天
