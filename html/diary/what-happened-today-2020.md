@@ -1,5 +1,8 @@
 
 # 2020
+##### 0907
+当一个 form 元素中只有一个输入框时，在该输入框中按下回车会提交该表单。
+Vue:如果希望阻止这一默认行为，可以在form元素标签上添加 @submit.native.prevent。
 
 ##### 0902
 tomcat部署项目的四种方式  
@@ -8,7 +11,7 @@ tomcat部署项目的四种方式
 
 2.在$TOMCAT_HOME/conf/server.xml 中修改Context标签 docBase和Path, 指定到自定义位置  
 
-3.在$TOMCAT_HOME/conf/Catalina/localhost下添加新的配置文件，文件名就是paht路径, 文件内只有个Context标签内容就可以  
+3.在$TOMCAT_HOME/conf/Catalina/localhost下添加新的配置文件，文件名就是path路径, 文件内只有个Context标签内容就可以  
 
 4.Idea或Eclipse等开发工具的方式  
 明白两个变量的含义：  
