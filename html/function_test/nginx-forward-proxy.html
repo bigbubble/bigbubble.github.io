@@ -285,7 +285,7 @@ nginx: [alert] failed to load the 'resty.core' module (https://github.com/openre
                         <pre>
                             <code class="shell">
 # http
-curl -i -u pengbo:123456 --proxy localhost:88 http://www.yinwang.org/
+[root@hecs]# curl -i -u pengbo:123456 --proxy localhost:88 http://www.yinwang.org/
 HTTP/1.1 200 OK
 Server: openresty/1.17.8.2
 Date: Wed, 16 Sep 2020 09:41:36 GMT
@@ -308,8 +308,10 @@ X-Cache-Hits: 1
 X-Timer: S1600249296.150627,VS0,VE1
 Vary: Accept-Encoding
 X-Fastly-Request-ID: 7066e4c780a7c6bbd2fd17e8917f701c7e933eda
+
+
 # https
-curl -i --proxy-user pengbo:123456 --proxy localhost:89 https://github.com
+[root@hecs]# curl -i --proxy-user pengbo:123456 --proxy localhost:89 https://github.com
 HTTP/1.1 200 Connection Established
 Proxy-agent: nginx
 
