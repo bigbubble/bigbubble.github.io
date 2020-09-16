@@ -1,5 +1,7 @@
 
 # 2020
+##### 0916
+[给nginx配个正向代理](/html/function_test/nginx-forward-proxy.html)
 ##### 0907
 当一个 form 元素中只有一个输入框时，在该输入框中按下回车会提交该表单。  
 
