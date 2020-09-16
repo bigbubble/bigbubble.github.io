@@ -161,7 +161,7 @@ WWW-Authenticate: Basic realm="pengbo.me"
                         </pre>
                     </section>
 
-                    8.https 的basic auth, https如http段的配置，测试发现一值401无法认证通过，在<a target="_blank" href="https://github.com/chobits/ngx_http_proxy_connect_module/issues/42">authorization for https connections?</a>
+                    8.https 的basic auth, https如http段的配置，测试发现401无法认证通过，在<a target="_blank" href="https://github.com/chobits/ngx_http_proxy_connect_module/issues/42">authorization for https connections?</a>
                     上，提供了解决方案。需要再server端增加lua脚本,重写请求头
                     <section>
                         <pre>
@@ -245,7 +245,7 @@ server {
                             </code>
                         </pre>
                     </section>
-                    8.5 重启nginx, 然后发现。。。。。 直接建议我去下载openresty.....
+                    8.5 nginx -t 成功没问题。去重启nginx, 然后发现。。。。。 直接建议我去下载openresty.....
                     <section>
                         <pre>
                             <code class="shell">
@@ -266,7 +266,9 @@ nginx: [alert] failed to load the 'resty.core' module (https://github.com/openre
                         </pre>
                     </section>
 
-                    9.下载最新 openresty-1.17.8.2,先卸载原来的luajit， macke uninstall（保险点），删掉环境变量，ldconf, 解压，配置
+                    9.滚去下载最新 openresty-1.17.8.2,先卸载原来的luajit， macke uninstal，删掉环境变量，ldconf, 解压，配置 （保险点，也可能不需要卸载原来的）
+                    <br/>这里走了弯路，按原来的configure参数尝试了好几遍，报过ngx_http_connect变量不存在，还有重复变量定义（multiple definition of XXX），最后删掉了ngx_devel_kit和lua-nginx-module就好了
+                    <br/>必须先configure,再执行patch, build/nginx-1.17.8/ 目录在configure之后才会出现
                     <section>
                         <pre>
                             <code class="shell">
