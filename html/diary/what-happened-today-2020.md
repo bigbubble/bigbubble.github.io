@@ -1,5 +1,17 @@
 
 # 2020
+##### 0922
+java 下载图片， 如果先写响应头，后写流数据，正常下载；如果先写流数据，后写响应头，图片会渲染在页面上  
+HttpServletResponse获取输出流，是否需要close()? 不需要，Servlet容器会关闭，如果你调用了close()也没啥大影响，可能会影响一些filter。  
+还有另一个副作用，无法通过response.setStatus设置状态码
+[should-one-call-close-on-httpservletresponse-getoutputstream-getwriter](https://stackoverflow.com/questions/1159168/should-one-call-close-on-httpservletresponse-getoutputstream-getwriter)
+```java
+String svgContent = "xxxxxx"
+String filename = "1.png";
+response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(filename, "UTF-8"));
+response.setContentType("application/octet-stream; charset=UTF-8");
+SvgConvertUtils.convertImageToOutputStream(svgContent, response.getOutputStream(), type);
+```
 ##### 0917
 "现在，很多网站使用大数据算法，很精确地知道用户的喜好和立场，总是推荐感兴趣的新闻给你看，或者说只给你看想看的东西，比如今日头条和Facebook。  
 
