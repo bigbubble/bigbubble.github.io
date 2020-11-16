@@ -1,5 +1,29 @@
 
 # 2020
+##### 1106
+批量删除redis集群上的前缀key 
+```shell script
+./delete-redis-key.sh prefix-*
+```
+```shell script
+#!/bin/sh
+redis_common=/home/pengbo/redis-dir/src
+
+redis_server_1=10.110.119.120
+redis_server_2=10.110.119.121
+redis_server_3=10.110.119.122
+
+cluster_port_1=6379
+cluster_port_2=6380
+cluster_port_3=6381
+
+cd $redis_common
+ 
+./redis-cli -c -h $redis_server_1 -p $cluster_port_1 keys $1 | xargs -i ./redis-cli -h $redis_server_1 -p $cluster_port_1 del {}
+./redis-cli -c -h $redis_server_2 -p $cluster_port_2 keys $1 | xargs -i ./redis-cli -h $redis_server_2 -p $cluster_port_2 del {}
+./redis-cli -c -h $redis_server_3 -p $cluster_port_3 keys $1 | xargs -i ./redis-cli -h $redis_server_3 -p $cluster_port_3 del {}
+```
+
 ##### 1013
 git 分支名和tag名称不能起一样的，否则会导致提交不了
 ##### 1002
