@@ -9,7 +9,11 @@
 [《程序员的心理疾病》](http://www.yinwang.org/blog-cn/2014/02/09/programmer-mental) 
 ##### 1106
 批量删除redis集群上的前缀key 
+需要首先确认集群的主节点，然后将脚本中的对应ip端口修改成主节点的ip端口
 ```shell script
+#连接redis服务器 查看节点信息
+./redis-cli -h 10.110.119.120 -p 6379 -c cluster nodes
+#修改脚本，执行
 ./delete-redis-key.sh prefix-*
 ```
 ```shell script
