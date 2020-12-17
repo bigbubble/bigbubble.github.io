@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <base href="../../">
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+    <link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <title>服务器CPU100%问题</title>
+    <style>
+        .red {
+            color: red;
+        }
+        img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+<!-- navitor -->
+<div class="">
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+        </div>
+    </nav>
+</div>
+<div class="container-fluid">
+    <div id="catalog" class="col-lg-2"></div>
+    <div class="col-lg-8">
+        <div class="container-fluid">
+            <ol class="breadcrumb">
+                <li><a href="mainpage.html">Home</a></li>
+                <li><a href="#">JAVA</a></li>
+                <li class="active"></li>
+            </ol>
+        </div>
+        <div class="container">
+            <div class="page-header">
+                <h3>服务器CPU100%问题</h3>
+                <small>2020-12-16</small>
+            </div>
+            <div class="bg-gray">
+                <p><em>
+                    人在马桶坐，服务down下来
+                </em></p>
+            </div>
+            <div class="content">
+                <p>
+                    &lt;同事视角&gt;一大早还在上班的路上，看到群里反馈系统有异常，表现为用户登录进去后在业务页面操作，有时候正常，有时候转圈半天没反应。根据以往经验，应该又是用户中心服务出异常了。到单位后感觉看了一眼服务器，果然，2台用户中心服务器，其中有一台的一个核CPU一直处于100%的状态。
+                    我们的用户中心是通过dubbo对其他系统提供服务的，首先先通过dubbo admin管理控制台将服务停用，所有请求都由另一台服务器提供，保留问题现场。观察了一下，另一台都正常服务，没什么问题，不影响用户正常使用。然后抓紧时间，专心查查问题原因。
+                </p>
+                <p class="red">
+                    &lt;我的视角&gt;一大早在马桶上耍手机，看到群里反馈系统有异常，表现为用户登录进去后在业务页面操作，有时候正常，有时候转圈半天没反应。根据以往经验，应该又是用户中心服务出异常了。到单位后感觉看了一眼服务器，果然，日志频繁报用户中心的一个IP dubbo请求频繁超时。查看这台机器，一个核CPU一直处于100%的状态。
+                    赶紧联系用户中心的同事，首先先通过dubbo admin管理控制台将服务停用，所有请求都由另一台服务器提供，保留问题现场。观察了一下，另一台都正常服务，没什么问题，不影响用户正常使用。然后抓紧时间，专心查查问题原因。
+                </p>
+                <h3>1.查看监控</h3>
+                <p>首先上阿里云控制台看了一下这台服务的监控数据。可以明显的看出，在一个月时间范围内。CPU使用率有明显的陡峭上升和降低。CPU上升时，内存没有明显变化。CPU回落时，内存陡然回落。问了一下其他同事，明确这个问题其实已经存在，之前出现问题的时候解决方法就是重启应用，重启之后就正常了。所以，CPU和内存回落的时候就是重启的时候。</p>
+                <p>通过这个曲线还是有2个问题点：</p>
+                <p>1) cpu的突然上升问题。</p>
+                <p>2) 内存的缓慢增长问题。</p>
+                <p class="red">内存缓慢增长的问题最容易猜测，估计可能存在内存泄露。</p>
+                <p><img src="img/application_server_cpu100_problem/aliyun_monitor_cpu.png" /></p>
+                <p><img src="img/application_server_cpu100_problem/aliyun_monitor_memory.png" /></p>
+
+                <h3>问题定位</h3>
+                <p>从服务器资源消耗上分析，CPU突然上涨之后，服务的提供就不稳定或者已经不提供服务响应了。</p>
+                <p>1、找到 cpu 占有率最高的 java 进程号</p>
+                <p>使用命令：<code>top -c</code>显示运行中的进程列表信息， <code>shift + p</code> 使列表按 cpu 使用率排序显示。发现进程12189的cpu占用率100%</p>
+
+                <p><img src="img/application_server_cpu100_problem/top_cpu_c.png"/></p>
+                <p><code>PID = 12189</code> 的进程，cpu 使用率最高。这个进程也正是用户服务的java进程。<span class="red"> 除了CPU高之外，内存使用也很大，基本判断已经消耗完了jvm进程的最大内存。</span></p>
+                <p>2、根据进程号找到 cpu 占有率最高的线程号</p>
+                <p>使用命令： <code>top -Hp {pid}</code> ，同样 shift + p 可按 cpu 使用率对线程列表进行排序,<code>PID = 12196 和 12195</code> 的线程消耗 cpu 最高，通过<code>printf "%x\n" 12196</code>十进制的 <code>12196</code>  转成十六进制 <code>2fa4</code> </p>
+
+                <p>3.利用 jstack 生成虚拟机中线程12196(2fa4)的快照</p>
+                <p><code>jstack -l 12196 > 12196.log</code></p>
+                <p>12196.log 下载到本地进行分析，也可直接在 Linux 上分析在 Linux 上分析，命令： cat 12196.log |grep '2fa4' -C 5 　</p>
+                <p><img src="img/application_server_cpu100_problem/jstack_12196.png" /> </p>
+                <p>图中可以看到频繁的GC线程</p>
+                <p>4.利用<code>jstat -gcuitl 12189 1000</code>观察一下gc情况，发现存在频繁的full gc操作，差不多一秒就发生一次</p>
+                <p>由此基本确定，由于程序的异常操作导致内存泄露，内存不够用而触发了gc操作。但gc操作后依然无法释放内存，导致频繁gc,cpu开始飙升。</p>
+
+                <h3>内存泄露分析</h3>
+                <p>1、利用 <code>jmap</code>生成堆转储快照</p>
+                <p>命令： <code>jmap -dump:format=b,file={path} {pid}</code></p>
+                <p><img src="img/application_server_cpu100_problem/jmap.png"/></p>
+                <p>
+                    dump 文件路径：<code>12189.hprof</code> 。dump需要一些时间，完成后一看有4.9G大小。我们需要拿下来用MAT工具进行分析。使用<code>tar -czf 12189.hprof.tar.gz 12189.hprof</code>打包压缩。压缩后1.1G大小。
+                </p>
+                <p>2、利用<code>MAT</code>分析 dump 文件 </p>
+                <p>MAT：<code>Memory Analyzer Tool</code>，是针对 java 的内存分析工具；下载地址：</p>
+                <p><img src="img/application_server_cpu100_problem/mat.png"/></p>
+                <p>选择对应的版本，下载后直接解压；默认情况下，mat 默认内存是<code>1024m</code> ，而我们的 dump 文件往往大于 <code>1024m</code>，所以我们需要调整，在 mat 的 home 目录下找到 MemoryAnalyzer.ini ，将 <code>-Xmx1024m</code> 修改成大于 dump 大小的空间， 我把它改成了 <code>-Xmx6g</code>  接着我们就可以将 dump 文件导入 mat 中，开始 dump 文件的解析</p>
+                <p><img src="img/application_server_cpu100_problem/mat_1.png" /></p>
+                <p>解析是个比较漫长的过程，我们需要耐心等待，解析完成后，我们可以看到如下概况界面</p>
+                <p><img src="img/application_server_cpu100_problem/mat_2.png"/> </p>
+
+                <p>各个窗口的各个细节就不做详细介绍了，有兴趣的可自行去查阅资料；我们来看看几个图：饼状图、直方图、支配树、可疑的内存泄露报告</p>
+
+                <h4>饼状图</h4>
+                <p><img src="img/application_server_cpu100_problem/pie_chart.png" /></p>
+                <p>可以看出，com.myzh.lcache.impl.LRUCacheImpl 对象持有 3.5G 内存，肯定有问题</p>
+                <h4>直方图</h4>
+                <p><img src="img/application_server_cpu100_problem/histogram.png" /></p>
+
+                <p>通过直方图发现，上面的这些类都是业务代码中的类。根据类名查找工程代码，很奇怪的是，在用户中心服务中有没有直接使用这些代码。这些代码是另外一个服务中存在的代码。</p>
+                <p><img src="img/application_server_cpu100_problem/instance_gc_root.png" /></p>
+
+                <p>可疑的内存泄露报告</p>
+                <p><img src="img/application_server_cpu100_problem/memory_leak_report.png"></p>
+                <p>通过这些数据，大概明白问题所在。根据MAT分析报告数据可知。<code>com.myzh.lcache.impl.LRUCacheImpl</code>的一个实例，被webappClassLoader加载，占用了98,62%的内存空间。而<code>LRULinkedHashMap</code>一直被累计加载内存。</p>
+
+                <p>查看分析<code>LRUCacheImpl</code>代码，看看哪里使用了它</p>
+                <p><img src="img/application_server_cpu100_problem/source_code_LRUCacheImpl.png"></p>
+
+                <p class="red">
+                    我的mac电脑，给mat分了8g才让他跑完了文件分析，但只显示左边的概要信息，饼图、直方图都没有出来，UI一直在报错<br/>
+                    换成jdk自带的jvisualvm, 内存不用关心，一直没超过500M, 但是要看实例信息，貌似又要扫一遍整个文件
+                </p>
+
+                <h3>原因分析</h3>
+                <p>通过代码分析，最终总算定位到问题原因，整个出问题的过程和逻辑如下：</p>
+                <p>1、出问题的服务是一个用户中心服务，负责用户登录及SSO中心认证</p>。
+                <p>2、用户登录成功后，会有一个token,每次在请求业务系统时，业务系统的sso客户端会拦截，并请求用户中心服务验证token。</p>
+                <p>3、用户中心服务接收到验证请求时，从redis获取对应的session数据。为了降低redis压力和提高性能，使用了一个本地缓存，也就是LRUCacheImpl。</p>
+                <p>4、根据用户token首先在本地<code>LRUCacheImpl</code>中查找，如果没有找到，则从redis查询。取回结果后缓存到<code>LRUCacheImpl</code>中</p>
+
+                <p><img src="img/application_server_cpu100_problem/source_code_getsession.png"/> </p>
+                <p>5、<code>LRUCacheImpl</code>的是基于<code>LRULinkedHashMap</code>实现的最近最少使用算法缓存。简单的增加了过期时间的实现。</p>
+                <p>5.1) <code>LRULinkedHashMap</code>重写了f<code>removeEldestEntry</code>方法，在put时会根据元素数是否超过<code>maxSize</code>清除最近最少使用的元素。</p>
+                <p><img src="img/application_server_cpu100_problem/lru.png" /></p>
+                <p>5.2) <code>LRUCacheImpl</code>在从<code>LRULinkedHashMap</code>中get元素时，会根据过期时间进行过期元素的清除。</p>
+                <p><img src="img/application_server_cpu100_problem/lru_cache_get.png" /></p>
+                <p>6、问题也就出在这个不太完善的本地缓存中。由前面的第4步知道，根据用户token从redis获取用户session信息，如果本地缓存没有，则从redis获取，以token为key,放入本地缓存。下次再读取时。用token作为key从本地缓存读取，读取到如果已过期，则删除，重新从redis获取再放入。</p>
+                <p>7、如果用户发生了重新登录，会生成新的token，再来到用户服务中心验证时，是用新token作为key在本地缓存和redis查找，并put进本地缓存。这就导致，旧token为key缓存在本地的session数据，如果元素一直没有达到最大元素数量，则不会被清除。因为旧token为key的数据不会再被get，而put操作只根据是否达到最大元素数量才清除元素</p>
+
+                <p>8、再往回看，看看本地缓存的最大元素数量是多少？在创建本地缓存的地方看到，最大元素数量是10w个。</p>
+                <p><img src="img/application_server_cpu100_problem/cache_count.png"></p>
+                <p>9、到这里问题已经很明确了。因为本地缓存元素数量为10w个，所以会存在大量旧token为key的session数据。而每个用户登录后，会在业务系统中往session中存放用户资源信息，也就是UserResource等这些类，这也是为什么用户中心根本没有设置<code>UserResource</code>的代码，但session却有数据的原因。这些数据随着用户每天的登录操作在本地缓存中越累积越多，因为并没有达到10w个最大元素上限，一直无法被清除回收，占用了大量内存，导致jvm频繁full GC。而full GC也无法回收这些还有引用过期数据，导致CPU飙升，最终出现了无法服务的现象。</p>
+                <p><img src="img/application_server_cpu100_problem/instance_gc_root.png"> </p>
+                <p>通过mat的分析可以看到，<code>UserResource</code>有200w的实例，占据了很大的内存。</p>
+                <p><img src="img/application_server_cpu100_problem/instance_total.png"></p>
+
+
+                <h3>解决方案</h3>
+                <p>找到根本原因，解决方案就好办多了，有多个解决方案。</p>
+                <h4>1）禁用本地缓存</h4>
+                <p>
+                    本地缓存的实现逻辑并不完整导致了本次的问题，那么最简单的解决方案就是禁用本地缓存。这样用户中心直接访问redis读取数据，而redis自身有过期机制能够保证清除掉过期数据，不会撑爆redis服务器。这样可能会对redis造成访问压力，根据我们的业务访问量和redis集群资源，可以轻松应对。
+                </p>
+
+                <h4>2）替换本地缓存实现</h4>
+                <p>改写代码，用功能更完善的本地缓存<code>Caffeine</code>来替换自己实现的LRU本地缓存。<code>Caffeine</code>支持基于过期时间、基于大小、基于引用的多种回收方式，也是spring官方推荐和使用的本地缓存库。</p>
+
+                <h4>3）减少本地缓存大小</h4>
+                <p>默认最大元素个数是10w，而程序中使用了3.4w个，还没有到10w就因为存在太大应该清除的元素占用内存而崩溃。如果减小最大元素个数，比如设置为1000，也可以将内存占用数量控制在一定范围，也可以解决问题。不过并没有根本解决问题。</p>
+
+                <h4>4）完善本地缓存回收机制</h4>
+                <p>增加基于过期时间的回收机制，清除掉本该清除的数据，释放空间，可以根治这个问题。但技术难度比较大。实现这样的机制需要很清楚缓存回收场景的各种情况，需要开发、测试、验证，需要的时间代价比较大。</p>
+
+                <h3>总结</h3>
+                <p>
+                    通过这次对线上服务异常的分析，最终确定了代码问题，整个过程最重要是的还是分析问题、定位问题的思路。只有根据零散的一些线索信息，对jvm内存分配使用的理解，对jvm工具的合理使用，才能找到问题。
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="footer text-center">
+        <hr style="height:1px;border:none;border-top:1px solid #555555;" />
+        <em>The world is so interesting</em>
+    </div>
+</div>
+<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="js/highlight-10.3.2/styles/solarized-dark.css">
+<script src="js/highlight-10.3.2/highlight.pack.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
