@@ -77,7 +77,7 @@
 
                 <p>3.利用 jstack 生成虚拟机中线程12196(2fa4)的快照</p>
                 <p><code>jstack -l 12196 > 12196.log</code></p>
-                <p>12196.log 下载到本地进行分析，也可直接在 Linux 上分析在 Linux 上分析，命令： cat 12196.log |grep '2fa4' -C 5 　</p>
+                <p>12196.log 下载到本地进行分析，也可直接在 Linux 上分析在 Linux 上分析，命令： <code>cat 12196.log |grep '2fa4' -C 5</code> 　</p>
                 <p><img src="img/application_server_cpu100_problem/jstack_12196.png" /> </p>
                 <p>图中可以看到频繁的GC线程</p>
                 <p>4.利用<code>jstat -gcuitl 12189 1000</code>观察一下gc情况，发现存在频繁的full gc操作，差不多一秒就发生一次</p>
