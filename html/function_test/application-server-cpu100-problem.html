@@ -75,9 +75,9 @@
                 <p>2、根据进程号找到 cpu 占有率最高的线程号</p>
                 <p>使用命令： <code>top -Hp {pid}</code> ，同样 shift + p 可按 cpu 使用率对线程列表进行排序,<code>PID = 12196 和 12195</code> 的线程消耗 cpu 最高，通过<code>printf "%x\n" 12196</code>十进制的 <code>12196</code>  转成十六进制 <code>2fa4</code> </p>
 
-                <p>3.利用 jstack 生成虚拟机中线程12196(2fa4)的快照</p>
-                <p><code>jstack -l 12196 > 12196.log</code></p>
-                <p>12196.log 下载到本地进行分析，也可直接在 Linux 上分析在 Linux 上分析，命令： <code>cat 12196.log |grep '2fa4' -C 5</code> 　</p>
+                <p>3.利用 jstack 生成虚拟机中线程12189的快照</p>
+                <p><code>jstack -l 12189 > 12189.log</code></p>
+                <p>12196.log 下载到本地进行分析，也可直接在 Linux 上分析在 Linux 上分析，命令： <code>cat 12189.log |grep '2fa4' -C 5</code> 　</p>
                 <p><img src="img/application_server_cpu100_problem/jstack_12196.png" /> </p>
                 <p>图中可以看到频繁的GC线程</p>
                 <p>4.利用<code>jstat -gcuitl 12189 1000</code>观察一下gc情况，发现存在频繁的full gc操作，差不多一秒就发生一次</p>
