@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<base href="../../">
+	<meta charset="utf8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<link rel="shortcut icon" href="img/pb16x16.ico" title="B_Pt">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="js/bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="js/highlight-10.3.2/styles/monokai-sublime.css">
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<title>如何加快maven构建速度</title>
+	<style>
+		.lien {
+			font-style: italic;
+		}
+		.licn {
+			color: #985F0D;
+			font-size: 16px;
+		}
+		.en{
+			margin: 10px;
+			font-style: italic;
+		}
+		.cn {
+			margin: 10px;
+			color: #985F0D;
+			font-size: 16px;
+		}
+		hr {
+			height:1px;
+			border:none;
+			border-top:1px solid #555555
+		}
+		h4{
+			font-weight: bolder;
+		}
+		.indent {
+			padding-left: 20px;
+			padding-bottom: 20px;
+		}
+	</style>
+</head>
+<body>
+	<!-- navitor -->
+	<div class="">
+		<nav class="navbar navbar-default navbar-static-top">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-default navbar-btn navbar-right">Home</button>
+			</div>
+		</nav>
+	</div>
+	<div class="container-fluid">
+		<div id="catalog" class="col-lg-2"></div>
+		<div class="col-lg-8">
+			<div class="container-fluid">
+				<ol class="breadcrumb">
+					<li><a href="mainpage.html">Home</a></li>
+					<li><a href="#">Read</a></li>
+					<li class="active">Article</li>
+				</ol>
+			</div>
+			<div class="container">
+				<div class="page-header">
+					<h3>如何加快maven构建速度</h3>
+					<small>2020-12-19</small>
+				</div>
+				<p>原文地址:<a href="https://www.jrebel.com/blog/how-to-speed-up-your-maven-build" target="_blank">How to Speed up Your Maven Build(August 11, 2015)</a></p>
+				<div class="bg-gray">
+					<em>
+
+					</em>
+				</div>
+				<div class="content">
+					<div class="en">
+						In this article, we look at the popular Java build tool, Apache Maven, and give five tips on how to speed up Maven for Java developers. But first, let's get some background on MVN.
+					</div>
+					<div class="cn">
+						本文中，我们介绍流行的Java构建工具<code>Apache Maven</code>,并为Java开发者给出5个加速Maven构建的建议，首先我们来看一下有关MVN的北京知识。
+					</div>
+
+					<div class="bg-gray">
+						<div class="en">
+							Maven, or Apache Maven, is an automation tool used for building and managing Java, and to a lesser extent, C#, Ruby and Scala projects.
+						</div>
+						<div class="cn">
+							Maven, 或者说是Apache Maven,是一个构建和管理java的一种自动化工具，并且也能小部分的管理C#,Ruby和Scala项目。
+						</div>
+					</div>
+
+					<div class="en">
+						It boasts features that range from easy project and module creation to a large repository of libraries and metadata for out-of-the-box usability. The objectives of the tool (<a href="https://maven.apache.org/">as listed on their website</a> ) include;
+					</div>
+					<div class="cn">
+						他有各种功能，从简单的项目和模块创建到开箱即用的大型库和元数据，该工具的目标（<a href="https://maven.apache.org/">在其网站上列出</a>）包括：
+					</div>
+					<div>
+						<ul>
+							<li class="lien">1.Making the build process easy</li>
+							<li class="licn">1.简化构建过程</li>
+							<li class="lien">2.Providing a uniform build system</li>
+							<li class="licn">2.提供统一的构建系统</li>
+							<li class="lien">3.Providing quality project information</li>
+							<li class="licn">3.提供优质的项目信息想你</li>
+							<li class="lien">4.Providing guidelines for best practices development</li>
+							<li class="licn">4.提供最佳的开发实践指南</li>
+							<li class="lien">5.Allowing transparent migration to new features</li>
+							<li class="licn">5.允许非常容易的增加新功能</li>
+						</ul>
+					</div>
+
+					<div class="en">
+						Common issues with Maven can include dependency conflict, cache resolution, and, as I'll talk about below, slow build times.
+					</div>
+					<div class="cn">
+						Maven的常见问题可能包括依赖性冲突，缓存解析，以及我在下文将要描述的，构建速度慢
+					</div>
+
+					<h4 class="en">
+						5 Tips for Troubleshooting Slow Maven Builds
+					</h4>
+					<h4 class="cn">
+						5个解决构建速度慢的方法
+					</h4>
+
+
+					<div class="en">
+						We often dream that things will run faster (perhaps you’re serving a jail sentence), or happen sooner than they do so they’re not as annoying.
+						It’s particularly painful, when you have little or no control over the thing you’re waiting for. Time seems to stop and every second feels like an eternity.
+						Multiply that by 10 add 5, divide by 2 and square it. You now have a measure of how annoying this can feel.
+						An example of such an annoyance might be the build time of your project.
+						Perhaps you use Maven as your a build tool of choice?
+					</div>
+					<div class="cn">
+						我们经常梦想着事情会运行得更快（也许您正在服刑），或者比他们做得更快，使它们并不那么令人讨厌。
+						当您无法控制您正在等待的事物时，这特别痛苦。时间似乎停了下来，每一秒钟都像永恒。
+						将其乘以10加5，然后除以2并平方。您现在可以衡量这种感觉如何令人讨厌。这种烦恼的一个例子可能是项目的构建时间。也许您选择Maven用作构建工具？
+					</div>
+
+					<div class="en">
+						In the next five sections, I try to explain some of the most common reasons as to why Maven build is taking longer than it should and figure out how it can be improved.
+						So, if you’re one of those people who counts the seconds in a slow Maven build, keep reading, this should help you.
+						Or at least will it will line up your thoughts to help figure out how to improve it. Here are five tips for troubleshooting slow Maven builds.
+					</div>
+					<div class="cn">
+						在接下来的五个部分中，我将尝试解释一些最常见的原因，以解释为什么Maven构建花费的时间比应花费的时间更长，并弄清楚如何对其进行改进。
+						因此，如果您是那些在缓慢的Maven构建中计算秒数的人之一，请继续阅读，这应该会对您有所帮助。至少它会整理您的想法，以帮助您找出如何改进它。这里有五个技巧来解决缓慢的Maven构建问题
+					</div>
+
+					<h4 class="en">1. Parallel Builds in Maven</h4>
+					<h4 class="cn">1. Maven中的并行构建</h4>
+
+					<div class="en">
+						By default, Maven does not utilize the full power of your hardware. It builds all modules sequentially rather than in parallel.
+						However, often your project setup does not require it to be sequential. Often you can command Maven to analyze your project including the dependency graph and build the project in parallel where possible.
+						You can either specify the exact number of threads to use for building your project or use a portable version of the parameter and specify the number of thread in terms of CPUs available on the machine.
+					</div>
+					<div class="cn">
+						默认情况下，Maven不使用硬件的全部功能。它顺序地而不是并行地构建所有模块。但是，您的项目设置通常不需要顺序执行。您可以让Maven分析您的项目（包括依赖关系图），并在可能的情况下并行构建项目。
+						您可以指定用于构建项目的确切线程数，也可以使用参数的可移植版本，并根据计算机上可用的CPU来指定线程数。
+					</div>
+
+
+					<div class="en">
+						<code>mvn -T 4 install -- will use 4 threads </code> <br/>
+						<code>mvn -T 1C install -- will use 1 thread per available CPU core</code>
+					</div>
+					<div class="cn">
+						<code>mvn -T 4 install -- 使用4个线程 </code> <br/>
+						<code>mvn -T 1C install -- 每个可用CPU核将使用1个线程</code>
+					</div>
+
+					<div class="en">
+						While it might happen that your project is not easy to build in parallel it’s worth trying, the speedup can be substantial. Using one thread per CPU core is a good default.
+						Your development machine probably has spare computing power and speeding up the build is always useful.
+					</div>
+					<div class="cn">
+						虽然您的项目可能不容易并行构建，但值得尝试，但提速可能会很大。每个CPU内核使用一个线程是一个很好的默认设置。您的开发机器可能具有额外的计算能力，加快构建过程会很有用。
+					</div>
+
+					<h3 class="en">2. Running Maven Tests in Parallel</h3>
+					<h3 class="cn">2.并行运行Maven测试</h3>
+					<div class="en">
+						An aspect of build which probably has the biggest impact on your build speed are the tests.
+						The most common practice is to disable the tests when you’re just interested in building your artifacts, but we cannot recommend such a non-conventional engineering practice.
+						If you really do intend to skip your test goals (Are you sure? Are you sure you’re sure?) during your Maven build,
+						then the most common property that the majority plugins respect is: <code>-DskipTests=true</code> However, you can achieve faster build times without damaging your feedback loop that much.
+					</div>
+					<div class="cn">
+						测试可能是对构建速度影响最大的方面。最常见的做法是在只对构建感兴趣时禁用测试，但是我们不建议您使用这种非常规的工程实践。如果您确实打算在Maven构建过程中跳过测试目标（确定吗？确定确定吗？），
+						那么多数插件最常见属性是：<code>-DskipTests = true</code>但是，您可以实现更快的构建时间，而又不会对反馈回路造成太大的破坏。
+					</div>
+
+					<div class="en">
+						The answer is running tests in parallel. The parallelization technique that we just discussed works on the module level.
+						If you’re using an established plugin for running tests, let’s say, Surefire, you can also configure it for parallel execution within the module.
+						Running tests in parallel might lead to unwanted side-effects, especially if they are tangled together and expect to be executed in a certain order.
+						However, that’s another story altogether and you should totally try it to see if it works for you and by how much it speeds up your build. You can always figure out the failures later.
+					</div>
+					<div class="cn">
+						答案是并行运行测试。我们刚刚讨论的并行化技术在模块级别上起作用。如果您使用常用的插件来运行测试（例如Surefire），则还可以将其配置为在模块内并行执行。
+						并行运行测试可能会导致不良的副作用，尤其是如果将它们纠缠在一起并期望以一定的顺序执行时，尤其如此。但是，这完全是另一回事了，您应该尽可能尝试一下它，看看它是否对您有用，以及它在多大程度上加快了构建速度。您以后可以找出问题在哪儿。
+					</div>
+
+					<h3 class="en">3. Build Necessary Modules Only</h3>
+					<h3 class="cn">3.仅构建必要的模块</h3>
+
+
+					<div class="en">
+						Let’s have a bet. I bet fifty RebelLabs dollars that when you build your project, the chances are you’re using the default command: <br/>
+					</div>
+					<div class="cn">
+						打个赌吧。我赌五十RebelLabs美元，即在您构建项目时，您可能会使用默认命令：<br>
+					</div>
+
+					<div><code>mvn clean install</code></div>
+
+
+					<div class="en">
+						Did I win? Thought so! While cleaning Maven is removing all the generated artifacts, all temporary files, except hopefully the configuration and the files checked in into the version control.
+						It then generates fresh copies of those files again. It’s great for when you hit a weird caching issue or some obscure bug that you have but nobody else is able to reproduce.
+					</div>
+					<div class="cn">
+						我赢了吗,觉得是！在清理Maven时，将除去所有生成的成果，所有临时文件，但希望将配置和已经提交到版本控制中的文件除外。然后，它再次生成这些文件的新副本。当您遇到奇怪的缓存问题或您有一些晦涩的错误，但其他人无法复制时，这非常有用。
+					</div>
+
+					<div class="en">
+						However, it will take extra precious seconds and CPU cycles to do what is essentially a needless job of recreating already existing files.
+						Instead what you most typically want to do is to build your project incrementally.
+						Say you have a multi-module project with common core modules that rarely change and a web-interface that you’re currently working on.
+						After changing the web-interface module try running a command like the following:
+					</div>
+					<div class="cn">
+						但是，这将花费额外的宝贵时间和CPU周期来完成重新创建已存在文件，这些本质上不必要的工作。相反，您通常最想做的是增量构建项目。假设您有一个多模块项目，该项目具有很少更改的通用核心模块 和 当前正在修改的Web接口。更改Web接口模块后，请尝试运行如下命令：
+					</div>
+
+					<div><code>mvn install -pl $moduleName -am</code></div>
+
+
+					<div class="en">
+						First of all, we removed the implicit call to the <code>clean</code> phase. The project rarely requires cleaning,
+						so we won’t want to do it all the time. Let’s take a look at the descriptions of the other options in the Maven command we just used:
+					</div>
+					<div class="cn">
+						首先，我们删除了对<code>clean</code>阶段的隐式调用。该项目很少需要 <code>clean</code>，因此我们不想一直这样做。让我们看一下刚才使用的Maven命令中其他选项的描述：
+					</div>
+
+					<div class="en">
+						<code>-pl </code> - makes Maven build only specified modules and not the whole project.
+
+					</div>
+					<div class="cn">
+						<code>-pl </code> -使Maven仅构建指定的模块，而不构建整个项目。
+					</div>
+
+
+					<div class="en">
+						<code>-am</code> - makes Maven figure out what modules out target depends on and build them too.
+					</div>
+					<div class="cn">
+						<code>-am</code> - 使Maven可以确定目标所依赖的模块并进行构建。
+					</div>
+
+					<div class="en">
+						The result of using these options together is the perfect combination of the flexibility and speed. We know what module we’re usually working on and if we have changed any dependencies, they will be renewed as well.
+						At the same time a large chunk of your project build will be skipped either because it’s still fresh and doesn’t require rebuilding or because it’s not a part of the target module and won’t play a role.
+					</div>
+					<div class="cn">
+						一起使用这些选项的结果是灵活性和速度的完美结合。我们知道我们通常在使用哪个模块，并且如果我们更改了任何依赖关系，它们也会被更新。同时，您的项目构建中的很大一部分将被跳过，因为它仍然是最新的并且不需要重建，或者因为它不是目标模块的一部分并且不会起作用。
+					</div>
+
+
+					<h4 class="en">4. Limit Internet Access</h4>
+					<h4 class="cn">4.限制网络访问</h4>
+					<div class="en">
+						You’ll like this one. If you sometimes feel like Maven is downloading the internet, know that you’re not alone! This is one of the most common complaints of any build system, npm, gradle, sbt. You name it,
+						you’ll be surprised at how many libraries and transitive dependencies known to humanity will need to be downloaded at an arbitrary, and usually most inopportune time.
+						However, there’s a simple option you can enable that will make Maven work offline. You’ve probably guessed correctly, it’s the infamous <code>offline</code> key.
+					</div>
+					<div class="cn">
+						您会喜欢的。如果您有时觉得Maven正在联网，要知道您并不孤单！这是所有构建系统（npm，gradle和sbt）中最常见的投诉问题之一。您会很惊讶，maven通常会在最不适当的时间需要下载多少人类已知的库和可传递依赖项。但是，您可以启用一个简单的选项，使Maven脱机工作。
+						您可能已经猜对了，这是臭名昭著的<code>offline</code>关键字。
+					</div>
+
+					<div class="en">
+						When the offline mode is enabled, Maven won't connect to any remote repositories when resolving dependencies. All the jar files in the local repository will still be available, so it won't break your usual workflow.
+						So just append your mvn command with --offline and Maven won’t be tempted to check for a new snapshot of your favorite dependency and won't make you wait for the network to respond.
+						If you don’t want to take it offline, but have a shady network connection, you can try setting: <code>-DdependencyLocationsEnabled=false</code> to your MAVEN_OPTS variables.
+						This addition will mean Maven will retain fewer outgoing connections throughout the build and maybe shave a few seconds off your build as well.
+					</div>
+					<div class="cn">
+						启用脱机模式后，Maven在解决依赖关系时将不会连接到任何远程存储库。本地存储库中的所有jar文件仍将可用，因此不会破坏您通常的工作流程。因此，只需在您的mvn命令后加上--offline，Maven就不会尝试检查您的依赖项的新快照，也不会让您等待网络响应。
+						如果您不想使它脱机，但拥有不可靠的网络连接，则可以尝试设置MAVEN_OPTS：<code>-DdependencyLocationsEnabled = false</code>,这意味着Maven将在整个构建过程中保留较少的传出连接，可能会缩短构建过程的几秒钟。
+					</div>
+
+					<h3 class="en">5. Speeding-up Java Startup</h3>
+					<h3 class="cn">5.加速Java启动</h3>
+
+					<div class="en">
+						The last bit that I want to share with you today doesn’t come from my experience, but some research. Maven is a Java program, so it will of course run on the JVM.
+						This in turn can be tuned for a much faster startup. To make the JVM start a bit faster (safe in the knowledge we’re not dealing with a long-running application server process that has to be optimized for a faster execution later on), we can recommend the following two options for your Maven process:
+					</div>
+					<div class="cn">
+						我今天想与大家分享的最后一点不是来自我的经验，而是一些研究。Maven是一个Java程序，因此它当然可以在JVM上运行。反过来，可以调整它以加快启动速度。为了使JVM的启动速度更快（考虑到我们不会处理长时间运行的应用程序服务器进程，
+						为了确保以后的更快执行速度，这是安全的，我们可以为您推荐以下两个选项） ：
+					</div>
+
+					<div><code>-XX:+TieredCompilation -XX:TieredStopAtLevel=1</code></div>
+
+					<div class="en">
+						We just made your JVM perform the basic just-in-time compilation of the code only. It won’t try to gather a more precise profile and better optimize the execution of the code. The benefit of that is that the JIT doesn’t need that much information and the optimized code actually has a chance to kick in during a since build. Note, that this advice is purely theoretical, I’d be happy if you could try it and mention whether your project build benefits from it.
+					</div>
+					<div class="cn">
+						我们只是让您的JVM仅执行代码的基本即时编译。它不会尝试收集更精确的配置文件并更好地优化代码的执行。这样做的好处是JIT不需要那么多信息，并且经过优化的代码实际上有机会在构建之后就开始使用。请注意，该建议纯粹是理论上的建议，如果您可以尝试并提出您的项目构建是否从中受益，我将非常高兴。
+					</div>
+
+					<h2 class="en">Final Thoughts</h2>
+					<h2 class="cn">最后的想法</h2>
+
+
+					<div class="en">
+						In this post we’ve looked at several common reasons why a Maven build might be slow and could be annoying you each and every time it’s run. In a nutshell, I think the default command for your build should be something along the lines of the following snippet:
+					</div>
+					<div class="cn">
+						在这篇文章中，我们研究了Maven构建可能很慢并且每次运行都会使您烦恼的几个常见原因。简而言之，我认为构建的默认命令应该类似于以下代码片段：
+					</div>
+
+					<div>
+						<code>MAVEN_OPTS= -XX:+TieredCompilation -XX:TieredStopAtLevel=1</code> <br/>
+						<code>mvn -T 1C install -pl $moduleName -am —offline</code>
+					</div>
+
+
+					<div class="en">
+						It will deny Maven its annoying right to download the internet, build only the necessary modules and their dependencies, while fine-tuning the JVM into faster shorter running programs, and won’t relentlessly clean the whole project again and again.
+						You’re welcome. I bet you’ve been waiting for me to say this next bit, so wait no longer! If you have an opportunity, consider trying out another build tool. For example Gradle is said to be more intelligent with greater “optimizations” as built-in defaults.
+						The Virtual JUG recently hosted a great session of Gradle with Andres Almiray where these points were discussed, check it out!
+					</div>
+					<div class="cn">
+						它将剥夺Maven烦人的联网的权利，仅构建必要的模块及其依赖项，同时将JVM调整为运行速度更快，运行时间更短的程序，并且不会无休止地清理整个项目。别客气。我敢打赌，您一直在等我再说一遍，所以别再等待！如果有机会，请考虑尝试其他构建工具。例如，据说Gradle作为内置默认值，具有更大的“优化”，
+						因此更加智能。虚拟JUG最近与Andres Almiray共同举办了一场很棒的Gradle会议，讨论了这些要点，请查看！
+					</div>
+
+					<h2 class="en">Additional Resources</h2>
+					<h2 class="cn">其他资源</h2>
+
+					<div class="en">
+						PS. There might be a way to skip the build phase of your Java project completely. Check out JRebel, a revolutionary tool which reloads your code changes instantly without building your project at all!. It will make your development cycle faster by skipping your build, redeploy and restart stages.
+						Your development experience will become more enjoyable and you will be a happier and more productive developer.
+					</div>
+					<div class="cn">
+						PS。可能有一种方法可以完全跳过Java项目的构建阶段。快来看看<a href="https://www.jrebel.com/products/jrebel" target="_blank">JRebel</a>，这是一种革命性的工具，可以立即重新加载代码更改，而无需构建您的项目！。通过跳过构建，重新部署和重新启动阶段，它将使您的开发周期更快。您的开发经验将变得更加愉快，并且您将成为一个更快乐，更有生产力的开发人员。
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="footer text-center">
+			<hr style="height:1px;border:none;border-top:1px solid #555555;" />
+			<em>The world is so interesting</em>
+		</div>
+	</div>
+	<div style="position: fixed;right: 20px;bottom: 100px">
+		<button type="primary" class="btn btn-success" onclick="toggleEn()">EN</button>
+	</div>
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/highlight-10.3.2/highlight-pack.js"></script>
+	<script>
+		function toggleEn() {
+			$(".en").toggle();
+			$(".lien").toggle();
+		}
+	</script>
+</body>
+</html>

@@ -1,5 +1,12 @@
 
 # 2020
+##### 1219
+```shell script
+MAVEN_OPTS= -XX:+TieredCompilation -XX:TieredStopAtLevel=1
+mvn -T 1C install -pl $moduleName -am —offline
+```
+[加速maven构建速度](/html/read/how-to-speed-up-your-maven-build.html)
+
 ##### 1216
 [线上应用cpu 100%](/html/function_test/application-server-cpu100-problem.html)
 

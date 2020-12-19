@@ -52,6 +52,10 @@ var allLinks = [
     "href": "html/read/startup-You-have-no-idea-how-much-that-costs.html"
   },
   {
+    "title": "如何加快maven构建速度",
+    "href": "html/read/how-to-speed-up-your-maven-build.html"
+  },
+  {
     "title": "双锁检测",
     "href": "html/read/double-checked-locking.html"
   },
