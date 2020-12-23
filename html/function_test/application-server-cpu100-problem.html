@@ -165,6 +165,11 @@
                 <p>
                     通过这次对线上服务异常的分析，最终确定了代码问题，整个过程最重要是的还是分析问题、定位问题的思路。只有根据零散的一些线索信息，对jvm内存分配使用的理解，对jvm工具的合理使用，才能找到问题。
                 </p>
+                <p class="red">
+                  注意问题：如果生产机器还有其他的应用，不要使用<code>jmap</code>命令，一般生产机器的JVM配置堆内存都很高，否则可能使你的机器好几个小时不能用，最好在JVM启动参数配好OOM时输出dump文件, 同时记录GC日志，但是要注意不要让GC日志无限增长，滚动记录<br/>
+                  <code>-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/home/pengbo/xx-server/gc.hprof -XX:+PrintGCDateStamps -XX:+PrintGCDetails -Xloggc:/home/pengbo/xx-server/logs/gc/gc.log -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=1M</code><br/>
+                  生成的.hprof文件多数情况下和你的<code>-Xmx</code>配置差不多, 很大，最好找台大内存的机器分析，工具jhat(占用内存过大)，jvisualvm（内存够用，功能不满足，分析一项要重新分析一次这个大文件）不要想了，最好使用MAT, 需要大于.hprof文件大小的内存启动。
+                </p>
             </div>
         </div>
     </div>
