@@ -1,5 +1,61 @@
 
 # 2020
+
+##### 1225
+character_set_connection 设置成utf8mb4  
+批量insert数据，使用replace(uuid(), '-', '')生成主键时，得到的主键值都是一样的 
+换成uuid() 得到的是不同的值。
+
+以下为引用文章
+[mysql批量插入时，uuid产生的主键是同一个值](https://blog.csdn.net/h221000435/article/details/95202440)
+
+>**起因：**
+ 遇到一个定时器产生的数据记录与理论值存在差异，将sql拷贝到Navicat客户端执行后，发现不止数据值存在偏差，插入的数据量只有一条。
+ sql如下：
+>```shell script
+>insert into table_a(id,col1,col2,col3) select replace(uuid(),'-','') id,p.col1 ,p.col2,p.col3
+>from (select q.col1,q.col2,q.col3 from pl_info q ) p on duplicate key update col3 = p.col3
+>```
+>用于将查询到的结果集插入到表中，如果唯一索引（col1,col2）冲突则不插入而修改字段值。  
+>**分析:**  
+>截取查询部分进行执行，执行结果有145条数据，全部执行结果只参数一条新数据。  
+>开始以为是on duplicate key update受到如mysql版本或者什么影响导致，于是百度，无果！对sql进一步拆分分析后，在不使用on duplicate key update时，会导致主键冲突，查看查询sql结果集，replace(uuid(),'-','')产生的uuid都是一样的。  
+>**问题原因：**  
+>sql语句里的replace(uuid(),'-','')产生的uuid是一样的。  
+>**查找为什么：**  
+>网上了解到通过Navicat客户端执行sql语句会存在这个问题。  
+>进一步对比发现，调用测试环境接口执行的该sql语句，同样会存在该问题。  
+>所以应该是受到某个具体的因素影响导致，继续查询资料，得到造成该问题的是数据库字符集utf8mb4的原因。  
+>**对比：**  
+>1，对比测试环境，正式环境的数据库字符集：show VARIABLES like '%char%'  
+>
+>|Variable_name|Value|
+>|:-|:-|
+>|character_set_client|utf8mb4|
+>|character_set_connection|utf8mb4|
+>|character_set_database|utf8|
+>|character_set_filesystem|binary|
+>|character_set_results|utf8mb4|   
+>|character_set_server|latin1|
+>|character_set_system|utf8|
+>|character_sets_dir|X|
+>
+>
+>区别在于测试环境的character_set_server的字符集为utf8mb4。  
+>将本地数据库的character_set_server改成utf8mb4后重启mysql服务，调用本地服务接口执行sql语句，得到与测试环境相同的问题。  
+>2，因为使用Navicat查询，不管正式还是测试环境，都会存在该问题；  
+>单独修改Navicat的character_set_client的值为utf8，再次执行sql，发现问题仍然存在；  
+>单独修改Navicat的character_set_connection的值为utf8，再次执行sql，发现不存在该问题。  
+>**结论：**  
+>批量产生无-的uuid方法replace(uuid(),'-','')，受到character_set_server和character_set_connection两个字符集参数的影响，当字符集为utf8mb4时，产生的uuid会相同，导致插入时主键冲突。  
+>uuid()则不受影响。  
+>**后续：**  
+>问：如何通过修改sql语句避免该问题？方案：  
+>1、先使用uuid()函数产生id，外层再包裹一层查询，使用replace(id,'-','')进行去-操作；（没有效果，产生的id仍然相同）  
+>2、使用保证唯一的有规律字符串替换uuid，如上sql可以将stc_id,in_account_date组装成特定序列，作为ID；  
+>3、使用md5()对产生的uuid()做进一步转换，即md5(uuid())；（有效，产生的id不会相同）  
+>
+
 ##### 1219
 ```shell script
 MAVEN_OPTS= -XX:+TieredCompilation -XX:TieredStopAtLevel=1
